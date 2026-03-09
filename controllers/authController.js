@@ -18,13 +18,18 @@ function safeUser(userRow) {
 
 exports.register = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   const { nom, prenom, email, telephone, adresse, date_naissance, password } = req.body;
 
   try {
-    // Email unique
-    const [existing] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
+    const [existing] = await db.query(
+      "SELECT id FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
+
     if (existing.length > 0) {
       return res.status(409).json({ error: "Email déjà utilisé" });
     }
@@ -37,13 +42,25 @@ exports.register = async (req, res) => {
       [nom, prenom, email, telephone, adresse, date_naissance, password_hash]
     );
 
-    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [result.insertId]);
+    const [rows] = await db.query(
+      "SELECT * FROM users WHERE id = ? LIMIT 1",
+      [result.insertId]
+    );
+
     const user = rows[0];
 
-    // Auto-login (session)
-    req.session.user = { id: user.id, role: user.role };
+    req.session.regenerate((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Erreur session" });
+      }
 
-    return res.status(201).json({ message: "Inscription OK", user: safeUser(user) });
+      req.session.user = { id: user.id, role: user.role };
+
+      return res.status(201).json({
+        message: "Inscription OK",
+        user: safeUser(user)
+      });
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -51,21 +68,41 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
   const { email, password } = req.body;
 
   try {
-    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-    if (rows.length === 0) return res.status(401).json({ error: "Identifiants invalides" });
+    const [rows] = await db.query(
+      "SELECT * FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Identifiants invalides" });
+    }
 
     const user = rows[0];
     const ok = await bcrypt.compare(password, user.password_hash);
-    if (!ok) return res.status(401).json({ error: "Identifiants invalides" });
 
-    req.session.user = { id: user.id, role: user.role };
+    if (!ok) {
+      return res.status(401).json({ error: "Identifiants invalides" });
+    }
 
-    return res.json({ message: "Connexion OK", user: safeUser(user) });
+    req.session.regenerate((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Erreur session" });
+      }
+
+      req.session.user = { id: user.id, role: user.role };
+
+      return res.json({
+        message: "Connexion OK",
+        user: safeUser(user)
+      });
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -73,10 +110,18 @@ exports.login = async (req, res) => {
 
 exports.me = async (req, res) => {
   try {
-    if (!req.session.user) return res.status(401).json({ error: "Non connecté" });
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Non connecté" });
+    }
 
-    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [req.session.user.id]);
-    if (rows.length === 0) return res.status(401).json({ error: "Session invalide" });
+    const [rows] = await db.query(
+      "SELECT * FROM users WHERE id = ? LIMIT 1",
+      [req.session.user.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Session invalide" });
+    }
 
     return res.json({ user: safeUser(rows[0]) });
   } catch (err) {
@@ -85,7 +130,15 @@ exports.me = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  req.session.destroy(() => {
+  if (!req.session) {
+    return res.json({ message: "Déconnecté" });
+  }
+
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Erreur lors de la déconnexion" });
+    }
+
     res.clearCookie("connect.sid");
     return res.json({ message: "Déconnecté" });
   });

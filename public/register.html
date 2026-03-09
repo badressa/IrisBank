@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>IRISBANK - Inscription</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="nav">
+<div class="brand">
+<div class="logo">IB</div>
+<div>
+<div>IRISBANK</div>
+<div class="small">Créer un compte</div>
+</div>
+</div>
+</div>
+
+<div class="grid" style="margin-top:22px">
+
+<div class="card">
+
+<div class="hd">
+<h2>Inscription</h2>
+<p>Créer un compte client</p>
+</div>
+
+<div class="bd">
+
+<form id="registerForm" class="row">
+
+<div>
+<label>Nom</label>
+<input class="input" id="nom" required>
+</div>
+
+<div>
+<label>Prénom</label>
+<input class="input" id="prenom" required>
+</div>
+
+<div>
+<label>Email</label>
+<input class="input" type="email" id="email" required>
+</div>
+
+<div>
+<label>Téléphone</label>
+<input class="input" id="telephone" placeholder="0612345678" required>
+</div>
+
+<div>
+<label>Adresse</label>
+<input class="input" id="adresse" required>
+</div>
+
+<div>
+<label>Date de naissance</label>
+<input class="input" type="date" id="date_naissance" required>
+</div>
+
+<div>
+<label>Mot de passe</label>
+<input class="input" type="password" id="password" required>
+</div>
+
+<button class="btn btn-green" type="submit">Créer le compte</button>
+
+</form>
+
+<div id="msg" class="msg"></div>
+
+<div class="small" style="margin-top:15px">
+Déjà un compte ?
+<a href="/login.html">Se connecter</a>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+
+let csrfToken = ""
+
+async function loadCSRF(){
+
+const res = await fetch("/api/csrf-token",{
+credentials:"include"
+})
+
+const data = await res.json()
+
+csrfToken = data.csrfToken
+
+}
+
+document.getElementById("registerForm").addEventListener("submit", async (e)=>{
+
+e.preventDefault()
+
+const msg = document.getElementById("msg")
+
+msg.className="msg"
+msg.innerText="Création du compte..."
+
+await loadCSRF()
+
+const data = {
+nom:document.getElementById("nom").value,
+prenom:document.getElementById("prenom").value,
+email:document.getElementById("email").value,
+telephone:document.getElementById("telephone").value,
+adresse:document.getElementById("adresse").value,
+date_naissance:document.getElementById("date_naissance").value,
+password:document.getElementById("password").value
+}
+
+const res = await fetch("/api/auth/register",{
+method:"POST",
+credentials:"include",
+headers:{
+"Content-Type":"application/json",
+"CSRF-Token":csrfToken
+},
+body:JSON.stringify(data)
+})
+
+const json = await res.json()
+
+if(res.ok){
+
+msg.className="msg ok"
+msg.innerText="Compte créé ✔"
+
+setTimeout(()=>{
+window.location.href="/dashboard.html"
+},1000)
+
+}else{
+
+msg.className="msg err"
+msg.innerText=json.error || "Erreur inscription"
+
+}
+
+})
+
+loadCSRF()
+
+</script>
+
+</body>
+</html>

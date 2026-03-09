@@ -12,7 +12,11 @@ router.get("/", requireAuth, accountController.listMine);
 router.get(
   "/:id",
   requireAuth,
-  [param("id").isInt().withMessage("id invalide")],
+  [
+    param("id")
+      .isInt({ min: 1 })
+      .withMessage("id invalide")
+  ],
   accountController.getOneMine
 );
 
@@ -22,6 +26,7 @@ router.post(
   requireAuth,
   [
     body("type")
+      .trim()
       .isIn(["COURANT", "LIVRET_A", "PEL"])
       .withMessage("type doit être COURANT, LIVRET_A ou PEL"),
   ],
@@ -32,7 +37,11 @@ router.post(
 router.delete(
   "/:id",
   requireAuth,
-  [param("id").isInt().withMessage("id invalide")],
+  [
+    param("id")
+      .isInt({ min: 1 })
+      .withMessage("id invalide")
+  ],
   accountController.remove
 );
 

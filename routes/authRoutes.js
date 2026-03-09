@@ -8,19 +8,50 @@ const router = express.Router();
 router.post(
   "/register",
   [
-    body("nom").trim().notEmpty().withMessage("Nom requis"),
-    body("prenom").trim().notEmpty().withMessage("Prénom requis"),
-    body("email").isEmail().withMessage("Email invalide").normalizeEmail(),
-    body("telephone").trim().isLength({ min: 10, max: 20 }).withMessage("Téléphone invalide"),
-    body("adresse").trim().notEmpty().withMessage("Adresse requise"),
-    body("date_naissance").isISO8601().withMessage("Date de naissance invalide (YYYY-MM-DD)"),
+    body("nom")
+      .trim()
+      .notEmpty()
+      .withMessage("Nom requis")
+      .isLength({ max: 100 })
+      .withMessage("Nom trop long"),
+
+    body("prenom")
+      .trim()
+      .notEmpty()
+      .withMessage("Prénom requis")
+      .isLength({ max: 100 })
+      .withMessage("Prénom trop long"),
+
+    body("email")
+      .isEmail()
+      .withMessage("Email invalide")
+      .normalizeEmail()
+      .isLength({ max: 150 })
+      .withMessage("Email trop long"),
+
+    body("telephone")
+      .trim()
+      .isLength({ min: 10, max: 20 })
+      .withMessage("Téléphone invalide"),
+
+    body("adresse")
+      .trim()
+      .notEmpty()
+      .withMessage("Adresse requise")
+      .isLength({ max: 255 })
+      .withMessage("Adresse trop longue"),
+
+    body("date_naissance")
+      .isISO8601()
+      .withMessage("Date de naissance invalide (YYYY-MM-DD)"),
+
     body("password")
-      .isLength({ min: 8 })
-      .withMessage("Mot de passe min 8 caractères")
+      .isLength({ min: 8, max: 100 })
+      .withMessage("Mot de passe entre 8 et 100 caractères")
       .matches(/[A-Z]/)
-      .withMessage("Mot de passe: 1 majuscule requise")
+      .withMessage("Mot de passe : 1 majuscule requise")
       .matches(/[0-9]/)
-      .withMessage("Mot de passe: 1 chiffre requis"),
+      .withMessage("Mot de passe : 1 chiffre requis"),
   ],
   authController.register
 );
@@ -29,8 +60,16 @@ router.post(
 router.post(
   "/login",
   [
-    body("email").isEmail().withMessage("Email invalide").normalizeEmail(),
-    body("password").notEmpty().withMessage("Mot de passe requis"),
+    body("email")
+      .isEmail()
+      .withMessage("Email invalide")
+      .normalizeEmail(),
+
+    body("password")
+      .notEmpty()
+      .withMessage("Mot de passe requis")
+      .isLength({ min: 1, max: 100 })
+      .withMessage("Mot de passe invalide"),
   ],
   authController.login
 );

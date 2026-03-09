@@ -3,52 +3,452 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>IRISBANK  Connexion</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <title>IRISBANK | Connexion</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius:20px;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(22,163,74,0.10), transparent 25%),
+        var(--bg);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .page{
+      width:100%;
+      max-width:1150px;
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      background:var(--panel);
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      min-height:680px;
+    }
+
+    .left{
+      background:linear-gradient(160deg, #1e293b 0%, #334155 55%, #2563eb 100%);
+      color:white;
+      padding:42px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      position:relative;
+    }
+
+    .left::after{
+      content:"";
+      position:absolute;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      bottom:-60px;
+      right:-60px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .logo{
+      width:56px;
+      height:56px;
+      border-radius:16px;
+      background:rgba(255,255,255,0.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:20px;
+      backdrop-filter:blur(4px);
+    }
+
+    .brand-title{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:0.3px;
+    }
+
+    .brand-sub{
+      font-size:14px;
+      color:#cbd5e1;
+      margin-top:4px;
+    }
+
+    .hero{
+      margin-top:40px;
+    }
+
+    .hero h1{
+      font-size:42px;
+      line-height:1.1;
+      margin-bottom:16px;
+    }
+
+    .hero p{
+      color:#dbeafe;
+      font-size:16px;
+      line-height:1.6;
+      max-width:480px;
+    }
+
+    .features{
+      display:grid;
+      gap:14px;
+      margin-top:34px;
+    }
+
+    .feature{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:16px 18px;
+      backdrop-filter:blur(4px);
+    }
+
+    .feature-title{
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .feature-text{
+      font-size:14px;
+      color:#dbeafe;
+      line-height:1.5;
+    }
+
+    .secure-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.10);
+      font-size:13px;
+      color:#e2e8f0;
+      width:max-content;
+    }
+
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#22c55e;
+    }
+
+    .right{
+      padding:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+    }
+
+    .login-card{
+      width:100%;
+      max-width:420px;
+    }
+
+    .topline{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:26px;
+    }
+
+    .mini-badge{
+      background:#eff6ff;
+      color:#1d4ed8;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .login-card h2{
+      font-size:32px;
+      margin-bottom:10px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      line-height:1.5;
+      margin-bottom:28px;
+    }
+
+    .form{
+      display:grid;
+      gap:16px;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:600;
+      color:#374151;
+    }
+
+    .input{
+      width:100%;
+      border:1px solid #d1d5db;
+      border-radius:14px;
+      padding:14px 15px;
+      font-size:15px;
+      outline:none;
+      transition:0.2s ease;
+      background:#fff;
+    }
+
+    .input:focus{
+      border-color:#60a5fa;
+      box-shadow:0 0 0 4px rgba(96,165,250,0.15);
+    }
+
+    .actions{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:4px;
+      margin-bottom:2px;
+    }
+
+    .remember{
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .forgot{
+      font-size:14px;
+      color:var(--primary);
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    .forgot:hover{
+      text-decoration:underline;
+    }
+
+    .btn{
+      width:100%;
+      border:none;
+      border-radius:14px;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      background:var(--primary);
+      color:white;
+      transition:0.2s ease;
+      margin-top:4px;
+    }
+
+    .btn:hover{
+      background:var(--primary-dark);
+      transform:translateY(-1px);
+    }
+
+    .msg{
+      margin-top:16px;
+      padding:12px 14px;
+      border-radius:14px;
+      font-size:14px;
+      display:none;
+    }
+
+    .msg.show{
+      display:block;
+    }
+
+    .msg.ok{
+      background:#dcfce7;
+      color:#166534;
+    }
+
+    .msg.err{
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    .msg.info{
+      background:#dbeafe;
+      color:#1d4ed8;
+    }
+
+    .footer-note{
+      margin-top:18px;
+      font-size:13px;
+      color:var(--muted);
+      text-align:center;
+      line-height:1.5;
+    }
+
+    @media (max-width: 950px){
+      .page{
+        grid-template-columns:1fr;
+      }
+
+      .left{
+        min-height:320px;
+      }
+
+      .hero h1{
+        font-size:34px;
+      }
+    }
+
+    @media (max-width: 520px){
+      body{
+        padding:12px;
+      }
+
+      .left,
+      .right{
+        padding:24px;
+      }
+
+      .login-card h2{
+        font-size:28px;
+      }
+
+      .topline{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+      }
+
+      .actions{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="nav">
-      <div class="brand">
-        <div class="logo">IB</div>
-        <div>
-          <div>IRISBANK</div>
-          <div class="small">Espace client</div>
+  <div class="page">
+    <section class="left">
+      <div>
+        <div class="brand">
+          <div class="logo">IB</div>
+          <div>
+            <div class="brand-title">IRISBANK</div>
+            <div class="brand-sub">Espace client sécurisé</div>
+          </div>
         </div>
-      </div>
-      <div class="badge">Secure  Session</div>
-    </div>
 
-    <div class="grid" style="margin-top:22px">
-      <div class="card">
-        <div class="hd">
-          <h2>Connexion</h2>
-          <p>Connecte-toi pour accéder à ton dashboard bancaire.</p>
-        </div>
-        <div class="bd">
-          <form id="loginForm" class="row">
-            <div>
-              <label for="email">Email</label>
-              <input class="input" type="email" id="email" placeholder="ex: rajo@gmail.com" required />
+        <div class="hero">
+          <h1>Bienvenue sur votre espace bancaire</h1>
+          <p>
+            Consultez vos comptes, effectuez vos opérations et gérez vos virements
+            depuis une interface moderne, claire et sécurisée.
+          </p>
+
+          <div class="features">
+            <div class="feature">
+              <div class="feature-title">Gestion rapide des comptes</div>
+              <div class="feature-text">Visualisez vos soldes, créez de nouveaux comptes et suivez vos opérations en temps réel.</div>
             </div>
-            <div>
-              <label for="password">Mot de passe</label>
-              <input class="input" type="password" id="password" placeholder="" required />
+
+            <div class="feature">
+              <div class="feature-title">Virements simplifiés</div>
+              <div class="feature-text">Envoyez de l’argent rapidement avec un suivi clair de l’historique de vos transactions.</div>
             </div>
-            <button class="btn" type="submit">Se connecter</button>
-          </form>
 
-          <div id="message" class="msg"></div>
-
-          <div class="small" style="margin-top:14px">
-            Astuce : si tu es bloqué, reset dev possible (à retirer pour le rendu).
+            <div class="feature">
+              <div class="feature-title">Accès sécurisé</div>
+              <div class="feature-text">Connexion protégée par session utilisateur pour garder vos données bancaires privées.</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <div class="secure-badge">
+        <span class="dot"></span>
+        <span>Session sécurisée</span>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="login-card">
+        <div class="topline">
+          <div>
+            <h2>Connexion</h2>
+            <p class="subtitle">Connecte-toi pour accéder à ton dashboard bancaire.</p>
+          </div>
+          <div class="mini-badge">Client</div>
+        </div>
+
+        <form id="loginForm" class="form">
+          <div class="field">
+            <label for="email">Email</label>
+            <input class="input" type="email" id="email" placeholder="ex: rajo@gmail.com" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Mot de passe</label>
+            <input class="input" type="password" id="password" placeholder="Entre ton mot de passe" required />
+          </div>
+
+          <div class="actions">
+            <div class="remember">Accès réservé aux utilisateurs enregistrés</div>
+          </div>
+
+          <button class="btn" type="submit">Se connecter</button>
+        </form>
+
+        <div id="message" class="msg"></div>
+        
+<div class="small" style="margin-top:15px">
+Pas encore de compte ?
+<a href="/register.html">Créer un compte</a>
+</div>
+        <div class="footer-note">
+          Astuce : si tu es bloqué pendant les tests, pense à retirer les outils de dev avant le rendu final.
+        </div>
+      </div>
+    </section>
   </div>
 
 <script>
+let csrfToken = "";
+
+async function loadCsrfToken() {
+  const res = await fetch("/api/csrf-token");
+  const data = await res.json();
+  csrfToken = data.csrfToken;
+}
+
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -56,26 +456,31 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   const msg = document.getElementById("message");
-  msg.className = "msg";
+  msg.className = "msg show info";
   msg.textContent = "Connexion...";
 
   const response = await fetch("/api/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "CSRF-Token": csrfToken
+    },
     body: JSON.stringify({ email, password })
   });
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (response.ok && data.message) {
-    msg.className = "msg ok";
-    msg.textContent = "Connexion OK ";
+    msg.className = "msg show ok";
+    msg.textContent = "Connexion OK";
     window.location.href = "/dashboard.html";
   } else {
-    msg.className = "msg err";
+    msg.className = "msg show err";
     msg.textContent = data.error || "Erreur";
   }
 });
+
+loadCsrfToken();
 </script>
 </body>
 </html>

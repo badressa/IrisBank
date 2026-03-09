@@ -3,141 +3,623 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>IRISBANK Dashboard</title>
+<title>IRISBANK Dashboard Client</title>
 <link rel="stylesheet" href="/styles.css"/>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --panel:#ffffff;
+  --panel-soft:#eef2f7;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --success:#16a34a;
+  --success-dark:#15803d;
+  --danger:#dc2626;
+  --danger-dark:#b91c1c;
+  --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
+  --radius:18px;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:250px;
+  background:linear-gradient(180deg, #1e293b 0%, #334155 100%);
+  color:#fff;
+  padding:24px 18px;
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  box-shadow:var(--shadow);
+  z-index:10;
+}
+
+.brand-block{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:30px;
+}
+
+.logo-big{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:linear-gradient(135deg, #60a5fa, #2563eb);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:18px;
+}
+
+.brand-title{
+  font-size:18px;
+  font-weight:700;
+}
+
+.brand-sub{
+  font-size:13px;
+  color:#cbd5e1;
+  margin-top:2px;
+}
+
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.menu button{
+  border:none;
+  background:transparent;
+  color:#fff;
+  text-align:left;
+  padding:12px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:14px;
+  transition:0.2s ease;
+}
+
+.menu button:hover,
+.menu button.active{
+  background:rgba(255,255,255,0.12);
+}
+
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+  padding:28px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.topbar-left h1{
+  margin:0;
+  font-size:28px;
+}
+
+.topbar-left p{
+  margin:6px 0 0;
+  color:var(--muted);
+}
+
+.topbar-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.user-pill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:var(--panel);
+  padding:10px 14px;
+  border-radius:999px;
+  box-shadow:var(--shadow);
+  font-size:14px;
+}
+
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#22c55e;
+}
+
+.btnx{
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.2s ease;
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:#fff;
+}
+
+.btn-primary:hover{
+  background:var(--primary-dark);
+}
+
+.btn-success{
+  background:var(--success);
+  color:#fff;
+}
+
+.btn-success:hover{
+  background:var(--success-dark);
+}
+
+.btn-danger2{
+  background:var(--danger);
+  color:#fff;
+}
+
+.btn-danger2:hover{
+  background:var(--danger-dark);
+}
+
+.btn-ghost2{
+  background:var(--panel);
+  color:var(--text);
+  box-shadow:var(--shadow);
+}
+
+.btn-ghost2:hover{
+  background:#e5e7eb;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:18px;
+  margin-bottom:24px;
+}
+
+.stat-card{
+  background:var(--panel);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.stat-value{
+  font-size:30px;
+  font-weight:700;
+  margin-top:8px;
+}
+
+.content-grid{
+  display:grid;
+  grid-template-columns:1.35fr 1fr;
+  gap:22px;
+  margin-bottom:24px;
+}
+
+.panel{
+  background:var(--panel);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panel-head{
+  padding:20px 22px 10px;
+}
+
+.panel-head h2{
+  margin:0;
+  font-size:20px;
+}
+
+.panel-head p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.panel-body{
+  padding:18px 22px 22px;
+}
+
+.table-wrap{
+  overflow:auto;
+}
+
+.client-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.client-table th,
+.client-table td{
+  text-align:left;
+  padding:14px 12px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px;
+}
+
+.client-table th{
+  color:var(--muted);
+  font-weight:600;
+  font-size:13px;
+}
+
+.client-table tbody tr{
+  cursor:pointer;
+  transition:0.15s ease;
+}
+
+.client-table tbody tr:hover{
+  background:#f8fafc;
+}
+
+.stack{
+  display:grid;
+  gap:18px;
+}
+
+.form-grid{
+  display:grid;
+  gap:12px;
+}
+
+.inputx,
+.selectx{
+  width:100%;
+  border:1px solid #d1d5db;
+  background:#fff;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:14px;
+  outline:none;
+}
+
+.inputx:focus,
+.selectx:focus{
+  border-color:#60a5fa;
+  box-shadow:0 0 0 4px rgba(96,165,250,0.15);
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.msg{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:14px;
+  display:none;
+}
+
+.msg.show{
+  display:block;
+}
+
+.msg.ok{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.msg.err{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.msg.info{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.history-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:12px;
+}
+
+.history-item{
+  background:var(--panel-soft);
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.history-main{
+  font-size:14px;
+  font-weight:600;
+}
+
+.history-sub{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px;
+}
+
+.amount-badge{
+  white-space:nowrap;
+  background:#e0f2fe;
+  color:#075985;
+  padding:8px 10px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:13px;
+}
+
+.small-muted{
+  color:var(--muted);
+  font-size:13px;
+}
+
+@media (max-width: 1100px){
+  .content-grid{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 820px){
+  .sidebar{
+    position:static;
+    width:100%;
+    height:auto;
+    border-radius:0 0 20px 20px;
+  }
+
+  .main{
+    margin-left:0;
+    width:100%;
+  }
+
+  .app{
+    display:block;
+  }
+
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .topbar-right{
+    width:100%;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
 
-<div class="nav">
-  <div class="brand">
-    <div class="logo">IB</div>
-    <div>
-      <div>IRISBANK</div>
-      <div class="small">Dashboard client</div>
+  <aside class="sidebar">
+    <div class="brand-block">
+      <div class="logo-big">IB</div>
+      <div>
+        <div class="brand-title">IRISBANK</div>
+        <div class="brand-sub">Dashboard client</div>
+      </div>
     </div>
-  </div>
 
-  <div style="display:flex;gap:10px;align-items:center">
-    <span id="who" class="pill"><span class="dot"></span><span>Connecté</span></span>
-    <button id="logoutBtn" class="btn btn-ghost">Logout</button>
-  </div>
+    <div class="menu">
+      <button class="active" type="button">🏠 Vue d’ensemble</button>
+      <button type="button" onclick="document.getElementById('createSection').scrollIntoView({behavior:'smooth'})">➕ Créer un compte</button>
+      <button type="button" onclick="document.getElementById('operationsSection').scrollIntoView({behavior:'smooth'})">💸 Opérations</button>
+      <button type="button" onclick="document.getElementById('transferSection').scrollIntoView({behavior:'smooth'})">🔁 Virement</button>
+      <button type="button" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">🧾 Historique</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Mon espace bancaire</h1>
+        <p>Gère tes comptes, opérations et virements depuis une seule interface.</p>
+      </div>
+
+      <div class="topbar-right">
+        <div id="who" class="user-pill">
+          <span class="status-dot"></span>
+          <span>Connecté</span>
+        </div>
+        <button id="logoutBtn" class="btnx btn-ghost2" type="button">Logout</button>
+      </div>
+    </div>
+
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Nombre de comptes</div>
+        <div class="stat-value" id="statsAccounts">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Solde total</div>
+        <div class="stat-value" id="statsBalance">0.00€</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Compte sélectionné</div>
+        <div class="stat-value" id="selectedAccountLabel">Aucun</div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Mes comptes</h2>
+          <p>Clique sur une ligne pour sélectionner un compte et afficher son historique.</p>
+        </div>
+
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table class="client-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>IBAN</th>
+                  <th>Type</th>
+                  <th>Solde</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="accountsTbody"></tbody>
+            </table>
+          </div>
+
+          <div id="msgAccounts" class="msg"></div>
+        </div>
+      </div>
+
+      <div class="stack">
+
+        <div class="panel" id="createSection">
+          <div class="panel-head">
+            <h2>Créer un compte</h2>
+            <p>Ajoute un nouveau compte bancaire en un clic.</p>
+          </div>
+
+          <div class="panel-body">
+            <div class="form-grid">
+              <select id="newType" class="selectx">
+                <option value="COURANT">COURANT</option>
+                <option value="LIVRET_A">LIVRET_A</option>
+                <option value="PEL">PEL</option>
+              </select>
+
+              <button id="createBtn" class="btnx btn-success" type="button">Créer le compte</button>
+            </div>
+
+            <div id="msgCreate" class="msg"></div>
+          </div>
+        </div>
+
+        <div class="panel" id="operationsSection">
+          <div class="panel-head">
+            <h2>Opérations</h2>
+            <p>Effectue un dépôt ou un retrait sur le compte sélectionné.</p>
+          </div>
+
+          <div class="panel-body">
+            <div class="form-grid">
+              <input class="inputx" id="opAccountId" placeholder="Compte ID"/>
+              <input class="inputx" id="opAmount" placeholder="Montant"/>
+
+              <div class="actions">
+                <button id="depositBtn" class="btnx btn-primary" type="button">Dépôt</button>
+                <button id="withdrawBtn" class="btnx btn-danger2" type="button">Retrait</button>
+              </div>
+            </div>
+
+            <div id="msgOp" class="msg"></div>
+          </div>
+        </div>
+
+        <div class="panel" id="transferSection">
+          <div class="panel-head">
+            <h2>Virement</h2>
+            <p>Envoie de l’argent depuis un compte vers un autre IBAN.</p>
+          </div>
+
+          <div class="panel-body">
+            <div class="form-grid">
+              <input class="inputx" id="transferFrom" placeholder="Compte source ID"/>
+              <input class="inputx" id="transferIban" placeholder="IBAN destination"/>
+              <input class="inputx" id="transferAmount" placeholder="Montant"/>
+
+              <button id="transferBtn" class="btnx btn-success" type="button">Faire le virement</button>
+            </div>
+
+            <div id="msgTransfer" class="msg"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="panel" id="historySection">
+      <div class="panel-head">
+        <h2>Historique des transactions</h2>
+        <p>Affichage dynamique de l’activité du compte sélectionné.</p>
+      </div>
+
+      <div class="panel-body">
+        <ul id="transactions" class="history-list">
+          <li class="small-muted">Aucun compte sélectionné.</li>
+        </ul>
+        <div id="msgHistory" class="msg"></div>
+      </div>
+    </section>
+
+  </main>
 </div>
-
-
-<div class="grid grid-2">
-
-  <!-- comptes -->
-  <div class="card">
-    <div class="hd">
-      <h2>Mes comptes</h2>
-      <p>Vue rapide de tes comptes bancaires</p>
-    </div>
-
-    <div class="bd">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>IBAN</th>
-            <th>Type</th>
-            <th>Solde</th>
-            <th>Statut</th>
-          </tr>
-        </thead>
-        <tbody id="accountsTbody"></tbody>
-      </table>
-
-      <div id="msgAccounts" class="msg"></div>
-    </div>
-  </div>
-
-
-  <!-- opérations -->
-  <div class="grid">
-
-    <div class="card">
-      <div class="hd">
-        <h2>Créer un compte</h2>
-      </div>
-
-      <div class="bd">
-        <select id="newType">
-          <option value="COURANT">COURANT</option>
-          <option value="LIVRET_A">LIVRET_A</option>
-          <option value="PEL">PEL</option>
-        </select>
-
-        <button id="createBtn" class="btn btn-green">Créer</button>
-
-        <div id="msgCreate" class="msg"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="hd">
-        <h2>Opérations</h2>
-      </div>
-
-      <div class="bd">
-        <input class="input" id="opAccountId" placeholder="Compte ID"/>
-        <input class="input" id="opAmount" placeholder="Montant"/>
-
-        <button id="depositBtn" class="btn">Dépôt</button>
-        <button id="withdrawBtn" class="btn btn-danger">Retrait</button>
-
-        <div id="msgOp" class="msg"></div>
-      </div>
-    </div>
-
-    <!-- VIREMENT -->
-    <div class="card">
-      <div class="hd">
-        <h2>Virement</h2>
-        <p class="small">Depuis un compte vers un IBAN</p>
-      </div>
-
-      <div class="bd">
-        <input class="input" id="transferFrom" placeholder="Compte source ID"/>
-        <input class="input" id="transferIban" placeholder="IBAN destination"/>
-        <input class="input" id="transferAmount" placeholder="Montant"/>
-
-        <button id="transferBtn" class="btn btn-green">Faire le virement</button>
-
-        <div id="msgTransfer" class="msg"></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- historique -->
-<div class="card">
-  <div class="hd">
-    <h2>Historique des transactions</h2>
-    <p class="small">Clique sur un compte pour afficher l’historique</p>
-  </div>
-
-  <div class="bd">
-    <ul id="transactions">
-      <li class="small">Aucun compte sélectionné.</li>
-    </ul>
-    <div id="msgHistory" class="msg"></div>
-  </div>
-</div>
-
-</div>
-
-
 
 <script>
+let selectedAccountId = null;
+let csrfToken = "";
+
+async function loadCsrfToken() {
+  const res = await fetch("/api/csrf-token");
+  const data = await res.json();
+  csrfToken = data.csrfToken;
+}
+
 async function api(url, method, body) {
+  const headers = { "Content-Type": "application/json" };
+
+  if (method !== "GET") {
+    headers["CSRF-Token"] = csrfToken;
+  }
+
   const res = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: body ? JSON.stringify(body) : undefined
   });
 
@@ -145,9 +627,18 @@ async function api(url, method, body) {
   return { res, data };
 }
 
-function setMsg(el, ok, text) {
-  el.className = "msg " + (ok ? "ok" : "err");
+function setMsg(el, ok, text, mode = null) {
+  el.className = "msg show " + (mode ? mode : (ok ? "ok" : "err"));
   el.textContent = text;
+}
+
+function clearMsg(el) {
+  el.className = "msg";
+  el.textContent = "";
+}
+
+function updateSelectedAccountLabel(value) {
+  document.getElementById("selectedAccountLabel").textContent = value ? "#" + value : "Aucun";
 }
 
 async function loadMe() {
@@ -155,7 +646,7 @@ async function loadMe() {
   const who = document.getElementById("who");
 
   if (res.ok && data.user) {
-    who.innerHTML = '<span class="dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
+    who.innerHTML = '<span class="status-dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
   } else {
     window.location.href = "/login.html";
   }
@@ -165,19 +656,22 @@ async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
   const msg = document.getElementById("msgAccounts");
   tbody.innerHTML = "";
-  msg.textContent = "";
+  clearMsg(msg);
 
   const { res, data } = await api("/api/accounts", "GET");
   if (!res.ok) {
-    msg.className = "msg err";
-    msg.textContent = data.error || "Erreur";
+    setMsg(msg, false, data.error || "Erreur");
     return;
   }
 
   const comptes = data.comptes || [];
+  document.getElementById("statsAccounts").textContent = comptes.length;
+
+  const totalBalance = comptes.reduce((sum, c) => sum + Number(c.solde || 0), 0);
+  document.getElementById("statsBalance").textContent = totalBalance.toFixed(2) + "€";
+
   if (comptes.length === 0) {
-    msg.className = "msg";
-    msg.textContent = "Aucun compte. Crée-en un à droite.";
+    setMsg(msg, true, "Aucun compte. Crée-en un à droite.", "info");
     return;
   }
 
@@ -191,11 +685,17 @@ async function loadAccounts() {
       <td>${c.statut}</td>
     `;
 
-    tr.style.cursor = "pointer";
     tr.addEventListener("click", () => {
+      selectedAccountId = c.id;
       document.getElementById("opAccountId").value = c.id;
-      document.getElementById("transferFrom").value = c.id; // UX: set source
+      document.getElementById("transferFrom").value = c.id;
+      updateSelectedAccountLabel(c.id);
       loadTransactions(c.id);
+
+      document.querySelectorAll("#accountsTbody tr").forEach(row => {
+        row.style.background = "";
+      });
+      tr.style.background = "#eff6ff";
     });
 
     tbody.appendChild(tr);
@@ -206,8 +706,8 @@ async function loadTransactions(accountId) {
   const list = document.getElementById("transactions");
   const msg = document.getElementById("msgHistory");
 
-  msg.textContent = "";
-  list.innerHTML = "<li class='small'>Chargement...</li>";
+  clearMsg(msg);
+  list.innerHTML = "<li class='small-muted'>Chargement...</li>";
 
   const { res, data } = await api("/api/transactions/history/" + accountId, "GET");
 
@@ -220,14 +720,21 @@ async function loadTransactions(accountId) {
   const txs = data.transactions || [];
 
   if (txs.length === 0) {
-    list.innerHTML = "<li class='small'>Aucune transaction pour ce compte.</li>";
+    list.innerHTML = "<li class='small-muted'>Aucune transaction pour ce compte.</li>";
     return;
   }
 
   list.innerHTML = "";
   txs.forEach(t => {
     const li = document.createElement("li");
-    li.textContent = t.type + " | " + t.montant + "€ | " + new Date(t.created_at).toLocaleString();
+    li.className = "history-item";
+    li.innerHTML = `
+      <div>
+        <div class="history-main">${t.type}</div>
+        <div class="history-sub">${new Date(t.created_at).toLocaleString()}</div>
+      </div>
+      <div class="amount-badge">${Number(t.montant).toFixed(2)}€</div>
+    `;
     list.appendChild(li);
   });
 }
@@ -275,7 +782,6 @@ document.getElementById("withdrawBtn").addEventListener("click", async () => {
   }
 });
 
-/* VIREMENT */
 document.getElementById("transferBtn").addEventListener("click", async () => {
   const fromAccountId = Number(document.getElementById("transferFrom").value);
   const toIban = document.getElementById("transferIban").value.trim();
@@ -287,8 +793,7 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
     return;
   }
 
-  msg.className = "msg";
-  msg.textContent = "Traitement...";
+  setMsg(msg, true, "Traitement...", "info");
 
   const { res, data } = await api("/api/transactions/transfer", "POST", {
     fromAccountId,
@@ -310,8 +815,12 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   window.location.href = "/login.html";
 });
 
-loadMe();
-loadAccounts();
+(async () => {
+  await loadCsrfToken();
+  await loadMe();
+  await loadAccounts();
+  updateSelectedAccountLabel(null);
+})();
 </script>
 
 </body>
