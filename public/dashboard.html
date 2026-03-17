@@ -462,38 +462,15 @@ body{
         <h1>Mon espace bancaire</h1>
         <p>Gère tes comptes, opérations et virements depuis une seule interface.</p>
       </div>
-<div class="topbar-right">
 
-  <div id="who" class="user-pill">
-    <span class="status-dot"></span>
-    <span>Connecté</span>
-  </div>
-
-  <!-- 🔔 NOTIFICATIONS -->
-  <div class="notif-wrapper">
-
-    <button id="notifBtn" class="notif-btn" type="button">
-      🔔
-      <span id="notifCount">0</span>
-    </button>
-
-    <div id="notifDropdown">
-      <div id="notifList"></div>
+      <div class="topbar-right">
+        <div id="who" class="user-pill">
+          <span class="status-dot"></span>
+          <span>Connecté</span>
+        </div>
+        <button id="logoutBtn" class="btnx btn-ghost2" type="button">Logout</button>
+      </div>
     </div>
-
-  </div>
-
-  <button id="logoutBtn" class="btnx btn-ghost2" type="button">
-    Logout
-  </button>
-
-</div>
-
-    <div id="notifList"></div>
-  </div>
-
- 
-
 
     <section class="stats">
       <div class="stat-card">
@@ -624,134 +601,90 @@ body{
 </div>
 
 <script>
-
 let selectedAccountId = null;
 let csrfToken = "";
 
-
-/* ===============================
-   CSRF
-================================ */
-
-async function loadCsrfToken(){
-
-  const res = await fetch("/api/csrf-token",{
-    credentials:"include"
+async function loadCsrfToken() {
+  const res = await fetch("/api/csrf-token", {
+    credentials: "include"
   });
-
   const data = await res.json();
-
   csrfToken = data.csrfToken;
-
 }
-
-
-/* ===============================
-   API HELPER
-================================ */
 
 async function api(url, method="GET", body=null){
 
-  const headers = {};
+const headers = {};
 
-  if(method !== "GET"){
-    headers["Content-Type"] = "application/json";
-    headers["CSRF-Token"] = csrfToken;
-  }
-
-  const res = await fetch(url,{
-    method,
-    headers,
-    credentials:"include",
-    body: body ? JSON.stringify(body) : undefined
-  });
-
-  const data = await res.json().catch(()=>({}));
-
-  return {res,data};
-
+if(method !== "GET"){
+headers["Content-Type"]="application/json";
+headers["CSRF-Token"]=csrfToken;
 }
 
+const res = await fetch(url,{
+method,
+headers,
+credentials:"include",
+body: body ? JSON.stringify(body) : undefined
+});
 
-/* ===============================
-   MESSAGE UI
-================================ */
+const data = await res.json().catch(()=>({}));
 
-function setMsg(el, ok, text, mode=null){
-  el.className = "msg show " + (mode ? mode : (ok ? "ok":"err"));
+return {res,data};
+
+}
+ 
+
+function setMsg(el, ok, text, mode = null) {
+  el.className = "msg show " + (mode ? mode : (ok ? "ok" : "err"));
   el.textContent = text;
 }
 
-function clearMsg(el){
+function clearMsg(el) {
   el.className = "msg";
   el.textContent = "";
 }
 
-
-/* ===============================
-   SESSION CHECK
-================================ */
-
-async function loadMe(){
-
-  const who = document.getElementById("who");
-
-  try{
-
-    const res = await fetch("/api/auth/me",{
-      credentials:"include"
-    });
-
-    const data = await res.json();
-
-    if(res.ok && data.user){
-
-      who.innerHTML =
-      '<span class="status-dot"></span><span>' +
-      data.user.prenom + " " + data.user.nom +
-      '</span>';
-
-      return true;
-
-    }
-
-  }catch(e){
-    console.error(e);
-  }
-
-  return false;
-
+function updateSelectedAccountLabel(value) {
+  document.getElementById("selectedAccountLabel").textContent = value ? "#" + value : "Aucun";
 }
 
+async function loadMe() {
+  const { res, data } = await api("/api/auth/me", "GET");
+  const who = document.getElementById("who");
 
-/* ===============================
-   ACCOUNTS
-================================ */
+  if (res.ok && data.user) {
+    who.innerHTML = '<span class="status-dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
+  } else {
+    window.location.href = "/login.html";
+  }
+}
 
-async function loadAccounts(){
-
+async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
+  const msg = document.getElementById("msgAccounts");
+  tbody.innerHTML = "";
+  clearMsg(msg);
 
-  const {res,data} = await api("/api/accounts");
-
-  if(!res.ok) return;
+  const { res, data } = await api("/api/accounts", "GET");
+  if (!res.ok) {
+    setMsg(msg, false, data.error || "Erreur");
+    return;
+  }
 
   const comptes = data.comptes || [];
-
   document.getElementById("statsAccounts").textContent = comptes.length;
 
-  const totalBalance =
-    comptes.reduce((sum,c)=>sum + Number(c.solde || 0),0);
+  const totalBalance = comptes.reduce((sum, c) => sum + Number(c.solde || 0), 0);
+  document.getElementById("statsBalance").textContent = totalBalance.toFixed(2) + "€";
 
-  document.getElementById("statsBalance").textContent =
-    totalBalance.toFixed(2) + "€";
+  if (comptes.length === 0) {
+    setMsg(msg, true, "Aucun compte. Crée-en un à droite.", "info");
+    return;
+  }
 
-  tbody.innerHTML = "";
-
-  comptes.forEach(c=>{
-
+  comptes.forEach(c => {
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${c.id}</td>
       <td>${c.iban}</td>
@@ -760,259 +693,146 @@ async function loadAccounts(){
       <td>${c.statut}</td>
     `;
 
-    tr.addEventListener("click",()=>{
-
+    tr.addEventListener("click", () => {
       selectedAccountId = c.id;
-
       document.getElementById("opAccountId").value = c.id;
       document.getElementById("transferFrom").value = c.id;
-
       updateSelectedAccountLabel(c.id);
-
       loadTransactions(c.id);
 
+      document.querySelectorAll("#accountsTbody tr").forEach(row => {
+        row.style.background = "";
+      });
+      tr.style.background = "#eff6ff";
     });
 
     tbody.appendChild(tr);
-
   });
-
 }
 
-
-/* ===============================
-   TRANSACTIONS
-================================ */
-
-async function loadTransactions(accountId){
-
+async function loadTransactions(accountId) {
   const list = document.getElementById("transactions");
+  const msg = document.getElementById("msgHistory");
 
-  const {res,data} =
-    await api("/api/transactions/history/" + accountId);
+  clearMsg(msg);
+  list.innerHTML = "<li class='small-muted'>Chargement...</li>";
 
-  if(!res.ok) return;
+  const { res, data } = await api("/api/transactions/history/" + accountId, "GET");
+
+  if (!res.ok) {
+    list.innerHTML = "";
+    setMsg(msg, false, data.error || "Erreur lors du chargement de l'historique");
+    return;
+  }
 
   const txs = data.transactions || [];
 
-  list.innerHTML = "";
-
-  if(txs.length === 0){
-    list.innerHTML =
-      "<li class='small-muted'>Aucune transaction</li>";
+  if (txs.length === 0) {
+    list.innerHTML = "<li class='small-muted'>Aucune transaction pour ce compte.</li>";
     return;
   }
 
-  txs.forEach(t=>{
-
+  list.innerHTML = "";
+  txs.forEach(t => {
     const li = document.createElement("li");
-
     li.className = "history-item";
-
     li.innerHTML = `
       <div>
         <div class="history-main">${t.type}</div>
-        <div class="history-sub">
-          ${new Date(t.created_at).toLocaleString()}
-        </div>
+        <div class="history-sub">${new Date(t.created_at).toLocaleString()}</div>
       </div>
-      <div class="amount-badge">
-        ${Number(t.montant).toFixed(2)}€
-      </div>
+      <div class="amount-badge">${Number(t.montant).toFixed(2)}€</div>
     `;
-
     list.appendChild(li);
-
   });
-
 }
 
+document.getElementById("createBtn").addEventListener("click", async () => {
+  const type = document.getElementById("newType").value;
+  const msg = document.getElementById("msgCreate");
 
-/* ===============================
-   OPERATIONS
-================================ */
-
-document.getElementById("depositBtn")
-.addEventListener("click", async ()=>{
-
-  const accountId =
-    Number(document.getElementById("opAccountId").value);
-
-  const amount =
-    Number(document.getElementById("opAmount").value);
-
-  const {res,data} =
-    await api("/api/transactions/deposit","POST",
-      {accountId,amount});
-
-  if(res.ok){
+  const { res, data } = await api("/api/accounts", "POST", { type });
+  if (res.ok) {
+    setMsg(msg, true, "Compte créé");
     loadAccounts();
-    loadTransactions(accountId);
-  }else{
-    alert(data.error || "Erreur");
+  } else {
+    setMsg(msg, false, data.error || "Erreur");
   }
-
 });
 
+document.getElementById("depositBtn").addEventListener("click", async () => {
+  const accountId = Number(document.getElementById("opAccountId").value);
+  const amount = Number(document.getElementById("opAmount").value);
+  const msg = document.getElementById("msgOp");
 
-document.getElementById("withdrawBtn")
-.addEventListener("click", async ()=>{
-
-  const accountId =
-    Number(document.getElementById("opAccountId").value);
-
-  const amount =
-    Number(document.getElementById("opAmount").value);
-
-  const {res,data} =
-    await api("/api/transactions/withdraw","POST",
-      {accountId,amount});
-
-  if(res.ok){
+  const { res, data } = await api("/api/transactions/deposit", "POST", { accountId, amount });
+  if (res.ok) {
+    setMsg(msg, true, "Dépôt OK");
     loadAccounts();
     loadTransactions(accountId);
-  }else{
-    alert(data.error || "Erreur");
+  } else {
+    setMsg(msg, false, data.error || "Erreur");
   }
-
 });
 
+document.getElementById("withdrawBtn").addEventListener("click", async () => {
+  const accountId = Number(document.getElementById("opAccountId").value);
+  const amount = Number(document.getElementById("opAmount").value);
+  const msg = document.getElementById("msgOp");
 
-document.getElementById("transferBtn")
-.addEventListener("click", async ()=>{
+  const { res, data } = await api("/api/transactions/withdraw", "POST", { accountId, amount });
+  if (res.ok) {
+    setMsg(msg, true, "Retrait OK");
+    loadAccounts();
+    loadTransactions(accountId);
+  } else {
+    setMsg(msg, false, data.error || "Erreur");
+  }
+});
 
-  const fromAccountId =
-    Number(document.getElementById("transferFrom").value);
+document.getElementById("transferBtn").addEventListener("click", async () => {
+  const fromAccountId = Number(document.getElementById("transferFrom").value);
+  const toIban = document.getElementById("transferIban").value.trim();
+  const amount = Number(document.getElementById("transferAmount").value);
+  const msg = document.getElementById("msgTransfer");
 
-  const toIban =
-    document.getElementById("transferIban").value.trim();
+  if (!fromAccountId || !toIban || !amount) {
+    setMsg(msg, false, "Remplis tous les champs du virement");
+    return;
+  }
 
-  const amount =
-    Number(document.getElementById("transferAmount").value);
+  setMsg(msg, true, "Traitement...", "info");
 
-  const {res,data} =
-    await api("/api/transactions/transfer","POST",
-      {fromAccountId,toIban,amount});
+  const { res, data } = await api("/api/transactions/transfer", "POST", {
+    fromAccountId,
+    toIban,
+    amount
+  });
 
-  if(res.ok){
+  if (res.ok) {
+    setMsg(msg, true, "Virement effectué");
     loadAccounts();
     loadTransactions(fromAccountId);
-  }else{
-    alert(data.error || "Erreur");
+  } else {
+    setMsg(msg, false, data.error || "Erreur");
   }
-
 });
 
-
-/* ===============================
-   LOGOUT
-================================ */
-
-document.getElementById("logoutBtn")
-.addEventListener("click", async ()=>{
-
-  await api("/api/auth/logout","POST",{});
-
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await api("/api/auth/logout", "POST", {});
+  } catch (e) {
+    console.error("Logout error:", e);
+  }
   window.location.href = "/login.html";
-
 });
 
-
-/* ===============================
-   INIT
-================================ */
-
-(async()=>{
-
+(async () => {
   await loadCsrfToken();
-
-  const ok = await loadMe();
-const me = await fetch("/api/auth/me",{
-  credentials:"include"
-});
-
-const data = await me.json();
-
-console.log("USER CONNECTÉ 👉", data);
-  if(!ok){
-    window.location.href="/login.html";
-    return;
-  }
-
-await loadAccounts();
-await loadNotifications();
-
-setInterval(loadNotifications, 5000);
+  await loadMe();
+  await loadAccounts();
+  updateSelectedAccountLabel(null);
 })();
-
-
-/* ===============================
-   NOTIFICATIONS
-================================ */
-
-async function loadNotifications(){
-
-  const res = await fetch("/api/notifications",{
-    credentials:"include"
-  });
-
-  const data = await res.json();
-
-  const list = document.getElementById("notifList");
-  const count = document.getElementById("notifCount");
-
-  if(!list) return;
-
-  list.innerHTML = "";
-
-  if(!data.notifications || data.notifications.length === 0){
-    list.innerHTML = "<div class='small-muted'>Aucune notification</div>";
-    count.style.display = "none";
-    return;
-  }
-
-  count.style.display = "block";
-  count.textContent = data.notifications.length;
-
-  data.notifications.forEach(n=>{
-
-    const div = document.createElement("div");
-
-    div.style.padding = "10px";
-    div.style.borderBottom = "1px solid #eee";
-
-    div.innerHTML = `
-      <div>${n.message}</div>
-      <small style="color:#6b7280;">
-        ${new Date(n.created_at).toLocaleString()}
-      </small>
-    `;
-
-    list.appendChild(div);
-
-  });
-
-}
-
-
-/* toggle notif */
-window.addEventListener("DOMContentLoaded", ()=>{
-
-  const btn = document.getElementById("notifBtn");
-
-  if(btn){
-    btn.addEventListener("click", ()=>{
-
-      const box = document.getElementById("notifDropdown");
-
-      box.style.display =
-        box.style.display === "none" ? "block" : "none";
-
-    });
-  }
-
-});
-
 </script>
 
 </body>
