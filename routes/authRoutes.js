@@ -4,14 +4,12 @@ const authController = require("../controllers/authController");
 
 const router = express.Router();
 
-
 // ========================================
 // REGISTER
 // ========================================
 router.post(
   "/register",
   [
-
     body("nom")
       .trim()
       .notEmpty()
@@ -27,6 +25,9 @@ router.post(
       .withMessage("Prénom trop long"),
 
     body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email requis")
       .isEmail()
       .withMessage("Email invalide")
       .normalizeEmail()
@@ -35,8 +36,10 @@ router.post(
 
     body("telephone")
       .trim()
-      .isLength({ min: 10, max: 20 })
-      .withMessage("Téléphone invalide"),
+      .notEmpty()
+      .withMessage("Téléphone requis")
+      .matches(/^[0-9]{10}$/)
+      .withMessage("Le téléphone doit contenir exactement 10 chiffres"),
 
     body("adresse")
       .trim()
@@ -46,21 +49,23 @@ router.post(
       .withMessage("Adresse trop longue"),
 
     body("date_naissance")
+      .notEmpty()
+      .withMessage("Date de naissance requise")
       .isISO8601()
-      .withMessage("Date de naissance invalide (YYYY-MM-DD)"),
+      .withMessage("Date de naissance invalide (format YYYY-MM-DD)"),
 
     body("password")
+      .notEmpty()
+      .withMessage("Mot de passe requis")
       .isLength({ min: 8, max: 100 })
-      .withMessage("Mot de passe entre 8 et 100 caractères")
+      .withMessage("Le mot de passe doit contenir entre 8 et 100 caractères")
       .matches(/[A-Z]/)
-      .withMessage("Mot de passe : 1 majuscule requise")
+      .withMessage("Le mot de passe doit contenir au moins une majuscule")
       .matches(/[0-9]/)
-      .withMessage("Mot de passe : 1 chiffre requis")
-
+      .withMessage("Le mot de passe doit contenir au moins un chiffre"),
   ],
   authController.register
 );
-
 
 // ========================================
 // LOGIN
@@ -68,8 +73,10 @@ router.post(
 router.post(
   "/login",
   [
-
     body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email requis")
       .isEmail()
       .withMessage("Email invalide")
       .normalizeEmail(),
@@ -78,23 +85,19 @@ router.post(
       .notEmpty()
       .withMessage("Mot de passe requis")
       .isLength({ min: 1, max: 100 })
-      .withMessage("Mot de passe invalide")
-
+      .withMessage("Mot de passe invalide"),
   ],
   authController.login
 );
-
 
 // ========================================
 // USER SESSION
 // ========================================
 router.get("/me", authController.me);
 
-
 // ========================================
 // LOGOUT
 // ========================================
 router.post("/logout", authController.logout);
-
 
 module.exports = router;

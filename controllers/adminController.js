@@ -1,7 +1,8 @@
 const db = require("../config/db");
 
+// ==============================
 // CLIENTS
-
+// ==============================
 exports.getAllClients = async (req, res) => {
   try {
     const [clients] = await db.query(
@@ -14,8 +15,9 @@ exports.getAllClients = async (req, res) => {
   }
 };
 
+// ==============================
 // CLIENT DETAIL
-
+// ==============================
 exports.getClient = async (req, res) => {
   try {
     const [client] = await db.query(
@@ -33,8 +35,9 @@ exports.getClient = async (req, res) => {
   }
 };
 
+// ==============================
 // UPDATE CLIENT
-
+// ==============================
 exports.updateClient = async (req, res) => {
   try {
     const { nom, prenom, email } = req.body;
@@ -50,8 +53,9 @@ exports.updateClient = async (req, res) => {
   }
 };
 
+// ==============================
 // DELETE CLIENT
-
+// ==============================
 exports.deleteClient = async (req, res) => {
   try {
     await db.query(
@@ -65,8 +69,9 @@ exports.deleteClient = async (req, res) => {
   }
 };
 
+// ==============================
 // ACCOUNTS
-
+// ==============================
 exports.getAllAccounts = async (req, res) => {
   try {
     const [accounts] = await db.query(`
@@ -85,8 +90,9 @@ exports.getAllAccounts = async (req, res) => {
   }
 };
 
+// ==============================
 // BLOCK / UNBLOCK ACCOUNT
-
+// ==============================
 exports.toggleAccountStatus = async (req, res) => {
   try {
     const [account] = await db.query(
@@ -106,7 +112,6 @@ exports.toggleAccountStatus = async (req, res) => {
       [newStatus, req.params.id]
     );
 
-    // notification admin
     await db.query(
       "INSERT INTO notifications (message, type) VALUES (?, ?)",
       [`Compte #${req.params.id} passé en statut ${newStatus}`, "ACCOUNT_STATUS"]
@@ -118,8 +123,52 @@ exports.toggleAccountStatus = async (req, res) => {
   }
 };
 
-// STATS
+// ==============================
+// 🔎 RECHERCHE ADMIN
+// ==============================
+exports.search = async (req, res) => {
+  try {
+    const q = req.query.q ? req.query.q.trim() : "";
 
+    if (!q) {
+      return res.json({ results: [] });
+    }
+
+    const like = `%${q}%`;
+
+    const [results] = await db.query(`
+      SELECT 
+        u.id AS user_id,
+        u.nom,
+        u.prenom,
+        u.email,
+        c.id AS account_id,
+        c.iban,
+        c.type,
+        c.solde,
+        c.statut
+      FROM users u
+      LEFT JOIN comptes_bancaires c 
+        ON c.user_id = u.id
+      WHERE 
+        u.nom LIKE ?
+        OR u.prenom LIKE ?
+        OR u.email LIKE ?
+        OR c.iban LIKE ?
+      ORDER BY u.id DESC
+    `, [like, like, like, like]);
+
+    res.json({ results });
+
+  } catch (error) {
+    console.error("SEARCH ERROR :", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// ==============================
+// 📊 STATS
+// ==============================
 exports.getStats = async (req, res) => {
   try {
     const [[clients]] = await db.query(
@@ -131,21 +180,23 @@ exports.getStats = async (req, res) => {
     );
 
     const [[deposits]] = await db.query(
-      "SELECT SUM(montant) AS totalDeposits FROM transactions WHERE UPPER(type) = 'DEPOT'"
+      "SELECT COALESCE(SUM(montant), 0) AS totalDeposits FROM transactions WHERE UPPER(type) = 'DEPOT'"
     );
 
     res.json({
-      clients: clients.totalClients || 0,
-      accounts: accounts.totalAccounts || 0,
-      deposits: deposits.totalDeposits || 0
+      clients: clients.totalClients,
+      accounts: accounts.totalAccounts,
+      deposits: deposits.totalDeposits
     });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// ==============================
 // ALL TRANSACTIONS
-
+// ==============================
 exports.getAllTransactions = async (req, res) => {
   try {
     const [transactions] = await db.query(`
@@ -170,8 +221,9 @@ exports.getAllTransactions = async (req, res) => {
   }
 };
 
+// ==============================
 // NOTIFICATIONS
-
+// ==============================
 exports.getNotifications = async (req, res) => {
   try {
     const [rows] = await db.query(

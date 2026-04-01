@@ -4,33 +4,59 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>IRISBANK Dashboard Client</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css"/>
 <style>
 :root{
-  --bg:#f4f7fb;
-  --panel:#ffffff;
-  --panel-soft:#eef2f7;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --primary:#2563eb;
-  --primary-dark:#1d4ed8;
-  --success:#16a34a;
-  --success-dark:#15803d;
-  --danger:#dc2626;
-  --danger-dark:#b91c1c;
-  --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
-  --radius:18px;
+  --bg:#07111f;
+  --bg-soft:#0b1729;
+  --sidebar:#08111d;
+  --panel:#0f1b2d;
+  --panel-2:#13233a;
+  --panel-3:#0b1627;
+  --panel-soft:#17263d;
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.12);
+  --text:#eef4ff;
+  --muted:#9db0cc;
+  --primary:#4f7cff;
+  --primary-dark:#3f68e8;
+  --primary-soft:rgba(79,124,255,0.18);
+  --success:#18c37e;
+  --success-dark:#11a76b;
+  --danger:#ef5b5b;
+  --danger-dark:#d94747;
+  --warning:#f5b942;
+  --shadow:0 24px 60px rgba(0,0,0,0.32);
+  --shadow-soft:0 12px 30px rgba(0,0,0,0.18);
+  --radius:22px;
+  --radius-sm:16px;
 }
 
 *{
   box-sizing:border-box;
 }
 
+html{
+  scroll-behavior:smooth;
+}
+
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:var(--bg);
+  font-family:"Inter",sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(79,124,255,0.20), transparent 22%),
+    radial-gradient(circle at top right, rgba(24,195,126,0.10), transparent 18%),
+    linear-gradient(180deg, #07111f 0%, #0b1729 100%);
   color:var(--text);
+}
+
+button,
+input,
+select{
+  font-family:"Inter",sans-serif;
 }
 
 .app{
@@ -38,47 +64,81 @@ body{
   min-height:100vh;
 }
 
+/* SIDEBAR */
+
 .sidebar{
-  width:250px;
-  background:linear-gradient(180deg, #1e293b 0%, #334155 100%);
+  width:280px;
+  background:linear-gradient(180deg, rgba(8,17,29,0.98) 0%, rgba(6,13,24,0.98) 100%);
+  border-right:1px solid var(--line);
   color:#fff;
   padding:24px 18px;
   position:fixed;
   top:0;
   left:0;
   bottom:0;
-  box-shadow:var(--shadow);
-  z-index:10;
+  z-index:20;
+  backdrop-filter:blur(14px);
 }
 
 .brand-block{
   display:flex;
   align-items:center;
   gap:14px;
-  margin-bottom:30px;
+  margin-bottom:28px;
+  padding:8px 6px;
 }
 
 .logo-big{
-  width:48px;
-  height:48px;
-  border-radius:14px;
-  background:linear-gradient(135deg, #60a5fa, #2563eb);
+  width:54px;
+  height:54px;
+  border-radius:18px;
+  background:linear-gradient(135deg, #4f7cff 0%, #6aa6ff 100%);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:700;
+  box-shadow:0 12px 30px rgba(79,124,255,0.35);
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.logo-big::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.22), transparent 55%);
+}
+
+.logo-mark{
+  position:relative;
+  font-weight:800;
   font-size:18px;
+  letter-spacing:0.06em;
+  color:#fff;
 }
 
 .brand-title{
-  font-size:18px;
-  font-weight:700;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:0.02em;
+}
+
+.brand-title span{
+  color:#7eb4ff;
 }
 
 .brand-sub{
   font-size:13px;
-  color:#cbd5e1;
-  margin-top:2px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.sidebar-section-label{
+  color:#7f94b2;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  margin:18px 10px 10px;
 }
 
 .menu{
@@ -90,59 +150,102 @@ body{
 .menu button{
   border:none;
   background:transparent;
-  color:#fff;
+  color:#dbe7ff;
   text-align:left;
-  padding:12px 14px;
-  border-radius:12px;
+  padding:13px 14px;
+  border-radius:16px;
   cursor:pointer;
   font-size:14px;
+  font-weight:600;
   transition:0.2s ease;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-.menu button:hover,
-.menu button.active{
-  background:rgba(255,255,255,0.12);
+.menu button:hover{
+  background:rgba(255,255,255,0.06);
+  transform:translateX(2px);
 }
+
+.menu button.active{
+  background:linear-gradient(135deg, rgba(79,124,255,0.22), rgba(79,124,255,0.08));
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(126,180,255,0.18);
+}
+
+.sidebar-bottom{
+  margin-top:auto;
+  padding:16px 12px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+  border:1px solid var(--line);
+}
+
+.sidebar-bottom-title{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.sidebar-bottom-text{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+/* MAIN */
 
 .main{
-  margin-left:250px;
-  width:calc(100% - 250px);
-  padding:28px;
+  margin-left:280px;
+  width:calc(100% - 280px);
+  padding:30px;
 }
 
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  margin-bottom:24px;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:26px;
 }
 
 .topbar-left h1{
   margin:0;
-  font-size:28px;
+  font-size:34px;
+  line-height:1.1;
+  font-weight:800;
+  letter-spacing:-0.03em;
 }
 
 .topbar-left p{
-  margin:6px 0 0;
+  margin:10px 0 0;
   color:var(--muted);
+  font-size:15px;
+  line-height:1.6;
+  max-width:700px;
 }
 
 .topbar-right{
   display:flex;
   gap:10px;
   align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
 }
 
 .user-pill{
   display:flex;
   align-items:center;
   gap:10px;
-  background:var(--panel);
-  padding:10px 14px;
+  background:rgba(15,27,45,0.88);
+  color:#fff;
+  padding:12px 16px;
   border-radius:999px;
-  box-shadow:var(--shadow);
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--line);
   font-size:14px;
+  backdrop-filter:blur(12px);
 }
 
 .status-dot{
@@ -150,53 +253,147 @@ body{
   height:10px;
   border-radius:50%;
   background:#22c55e;
+  box-shadow:0 0 0 6px rgba(34,197,94,0.12);
 }
 
 .btnx{
   border:none;
-  border-radius:12px;
-  padding:10px 14px;
+  border-radius:14px;
+  padding:11px 16px;
   cursor:pointer;
-  font-weight:600;
+  font-weight:700;
+  font-size:14px;
   transition:0.2s ease;
 }
 
+.btnx:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
 .btn-primary{
-  background:var(--primary);
+  background:linear-gradient(135deg, var(--primary), #6aa6ff);
   color:#fff;
+  box-shadow:0 12px 24px rgba(79,124,255,0.24);
 }
 
 .btn-primary:hover{
-  background:var(--primary-dark);
+  background:linear-gradient(135deg, var(--primary-dark), #5a96f8);
+  transform:translateY(-1px);
 }
 
 .btn-success{
-  background:var(--success);
+  background:linear-gradient(135deg, var(--success), #3cd398);
   color:#fff;
+  box-shadow:0 12px 24px rgba(24,195,126,0.20);
 }
 
 .btn-success:hover{
-  background:var(--success-dark);
+  background:linear-gradient(135deg, var(--success-dark), #24c585);
+  transform:translateY(-1px);
 }
 
 .btn-danger2{
-  background:var(--danger);
+  background:linear-gradient(135deg, var(--danger), #ff7a7a);
   color:#fff;
+  box-shadow:0 12px 24px rgba(239,91,91,0.20);
 }
 
 .btn-danger2:hover{
-  background:var(--danger-dark);
+  background:linear-gradient(135deg, var(--danger-dark), #f26868);
+  transform:translateY(-1px);
 }
 
 .btn-ghost2{
-  background:var(--panel);
-  color:var(--text);
-  box-shadow:var(--shadow);
+  background:rgba(15,27,45,0.88);
+  color:#fff;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow-soft);
 }
 
 .btn-ghost2:hover{
-  background:#e5e7eb;
+  background:rgba(23,38,61,0.95);
+  transform:translateY(-1px);
 }
+
+/* HERO STRIP */
+
+.hero-strip{
+  display:grid;
+  grid-template-columns:1.4fr 0.8fr;
+  gap:18px;
+  margin-bottom:24px;
+}
+
+.hero-card,
+.hero-mini{
+  background:linear-gradient(180deg, rgba(15,27,45,0.96), rgba(11,22,39,0.96));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:24px;
+  overflow:hidden;
+  position:relative;
+}
+
+.hero-card::before,
+.hero-mini::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.05), transparent 42%);
+  pointer-events:none;
+}
+
+.hero-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(79,124,255,0.14);
+  color:#b8d2ff;
+  border:1px solid rgba(126,180,255,0.12);
+  border-radius:999px;
+  padding:7px 12px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+
+.hero-card h2,
+.hero-mini h2{
+  margin:16px 0 8px;
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+
+.hero-card p,
+.hero-mini p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:14px;
+}
+
+.hero-meta{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.hero-chip{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--line);
+  padding:10px 12px;
+  border-radius:14px;
+  color:#dbe7ff;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* STATS */
 
 .stats{
   display:grid;
@@ -206,22 +403,44 @@ body{
 }
 
 .stat-card{
-  background:var(--panel);
+  background:linear-gradient(180deg, rgba(15,27,45,0.96), rgba(11,22,39,0.96));
+  border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:20px;
+  padding:22px;
   box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+.stat-card::before{
+  content:"";
+  position:absolute;
+  inset:auto -30px -30px auto;
+  width:110px;
+  height:110px;
+  background:radial-gradient(circle, rgba(79,124,255,0.18), transparent 70%);
 }
 
 .stat-label{
   color:var(--muted);
   font-size:14px;
+  font-weight:600;
 }
 
 .stat-value{
-  font-size:30px;
-  font-weight:700;
-  margin-top:8px;
+  font-size:32px;
+  font-weight:800;
+  margin-top:10px;
+  letter-spacing:-0.04em;
 }
+
+.stat-sub{
+  margin-top:12px;
+  font-size:13px;
+  color:#b6c7e3;
+}
+
+/* PANELS */
 
 .content-grid{
   display:grid;
@@ -231,33 +450,58 @@ body{
 }
 
 .panel{
-  background:var(--panel);
+  background:linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
+  border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   overflow:hidden;
 }
 
 .panel-head{
-  padding:20px 22px 10px;
+  padding:22px 24px 8px;
 }
 
 .panel-head h2{
   margin:0;
-  font-size:20px;
+  font-size:21px;
+  font-weight:800;
+  letter-spacing:-0.02em;
 }
 
 .panel-head p{
-  margin:6px 0 0;
+  margin:8px 0 0;
   color:var(--muted);
   font-size:14px;
+  line-height:1.6;
 }
 
 .panel-body{
-  padding:18px 22px 22px;
+  padding:18px 24px 24px;
 }
+
+.section-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--line);
+  color:#dce8ff;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  padding:7px 12px;
+  border-radius:999px;
+  margin-bottom:12px;
+}
+
+/* TABLE */
 
 .table-wrap{
   overflow:auto;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(255,255,255,0.02);
 }
 
 .client-table{
@@ -268,25 +512,75 @@ body{
 .client-table th,
 .client-table td{
   text-align:left;
-  padding:14px 12px;
-  border-bottom:1px solid #e5e7eb;
+  padding:16px 14px;
+  border-bottom:1px solid var(--line);
   font-size:14px;
+}
+
+.client-table td{
+  color:#ecf3ff;
 }
 
 .client-table th{
   color:var(--muted);
-  font-weight:600;
-  font-size:13px;
+  font-weight:700;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  background:rgba(255,255,255,0.02);
 }
 
 .client-table tbody tr{
   cursor:pointer;
-  transition:0.15s ease;
+  transition:0.16s ease;
 }
 
 .client-table tbody tr:hover{
-  background:#f8fafc;
+  background:rgba(255,255,255,0.035);
 }
+
+.client-table tbody tr:last-child td{
+  border-bottom:none;
+}
+
+.account-type-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  background:rgba(79,124,255,0.12);
+  color:#bfd6ff;
+}
+
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.status-pill.active{
+  background:rgba(24,195,126,0.12);
+  color:#99efca;
+}
+
+.status-pill.blocked{
+  background:rgba(239,91,91,0.12);
+  color:#ffb3b3;
+}
+
+.mono{
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:12px;
+}
+
+/* FORMS */
 
 .stack{
   display:grid;
@@ -298,21 +592,40 @@ body{
   gap:12px;
 }
 
+.field-label{
+  color:#dce8ff;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+
 .inputx,
 .selectx{
   width:100%;
-  border:1px solid #d1d5db;
-  background:#fff;
-  border-radius:12px;
-  padding:12px 14px;
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,0.04);
+  color:#fff;
+  border-radius:16px;
+  padding:13px 14px;
   font-size:14px;
   outline:none;
+  transition:0.18s ease;
+}
+
+.inputx::placeholder{
+  color:#87a0c4;
 }
 
 .inputx:focus,
 .selectx:focus{
-  border-color:#60a5fa;
-  box-shadow:0 0 0 4px rgba(96,165,250,0.15);
+  border-color:rgba(126,180,255,0.38);
+  box-shadow:0 0 0 4px rgba(79,124,255,0.16);
+  background:rgba(255,255,255,0.06);
+}
+
+.selectx option{
+  background:#0f1b2d;
+  color:#fff;
 }
 
 .actions{
@@ -321,12 +634,22 @@ body{
   flex-wrap:wrap;
 }
 
+.form-note{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+  margin-top:2px;
+}
+
+/* MESSAGES */
+
 .msg{
   margin-top:12px;
-  padding:10px 12px;
-  border-radius:12px;
+  padding:12px 14px;
+  border-radius:14px;
   font-size:14px;
   display:none;
+  border:1px solid transparent;
 }
 
 .msg.show{
@@ -334,19 +657,24 @@ body{
 }
 
 .msg.ok{
-  background:#dcfce7;
-  color:#166534;
+  background:rgba(24,195,126,0.12);
+  color:#9ff0cd;
+  border-color:rgba(24,195,126,0.18);
 }
 
 .msg.err{
-  background:#fee2e2;
-  color:#991b1b;
+  background:rgba(239,91,91,0.12);
+  color:#ffbcbc;
+  border-color:rgba(239,91,91,0.18);
 }
 
 .msg.info{
-  background:#dbeafe;
-  color:#1d4ed8;
+  background:rgba(79,124,255,0.14);
+  color:#c8dcff;
+  border-color:rgba(79,124,255,0.18);
 }
+
+/* HISTORY */
 
 .history-list{
   list-style:none;
@@ -357,9 +685,10 @@ body{
 }
 
 .history-item{
-  background:var(--panel-soft);
-  border-radius:14px;
-  padding:14px 16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px 18px;
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
@@ -368,28 +697,139 @@ body{
 
 .history-main{
   font-size:14px;
-  font-weight:600;
+  font-weight:800;
 }
 
 .history-sub{
   color:var(--muted);
   font-size:13px;
-  margin-top:4px;
+  margin-top:5px;
+  line-height:1.5;
 }
 
 .amount-badge{
   white-space:nowrap;
-  background:#e0f2fe;
-  color:#075985;
-  padding:8px 10px;
+  background:rgba(79,124,255,0.13);
+  color:#cfe0ff;
+  padding:9px 12px;
   border-radius:999px;
-  font-weight:700;
+  font-weight:800;
   font-size:13px;
 }
 
 .small-muted{
   color:var(--muted);
   font-size:13px;
+  line-height:1.6;
+}
+
+/* IA CHAT */
+
+.ai-chat-box{
+  height:300px;
+  overflow-y:auto;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.ai-msg{
+  max-width:82%;
+  padding:13px 15px;
+  border-radius:18px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  word-break:break-word;
+  font-size:14px;
+  border:1px solid transparent;
+}
+
+.ai-msg.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg, var(--primary), #6aa6ff);
+  color:#fff;
+  border-bottom-right-radius:8px;
+  box-shadow:0 12px 24px rgba(79,124,255,0.20);
+}
+
+.ai-msg.assistant{
+  align-self:flex-start;
+  background:rgba(255,255,255,0.05);
+  color:#eef4ff;
+  border-color:var(--line);
+  border-bottom-left-radius:8px;
+}
+
+.ai-msg.system{
+  align-self:center;
+  background:rgba(79,124,255,0.12);
+  color:#dce7ff;
+  font-size:13px;
+  border-color:rgba(79,124,255,0.18);
+}
+
+.ai-actions{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+
+.ai-quick{
+  border:none;
+  background:rgba(79,124,255,0.12);
+  color:#cfe0ff;
+  padding:9px 13px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  transition:0.18s ease;
+}
+
+.ai-quick:hover{
+  background:rgba(79,124,255,0.22);
+  transform:translateY(-1px);
+}
+
+.ai-input-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:14px;
+}
+
+.ai-status{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:13px;
+  min-height:18px;
+}
+
+/* SCROLLBAR */
+
+.table-wrap::-webkit-scrollbar,
+.ai-chat-box::-webkit-scrollbar{
+  height:10px;
+  width:10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb,
+.ai-chat-box::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.12);
+  border-radius:999px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px){
+  .hero-strip{
+    grid-template-columns:1fr;
+  }
 }
 
 @media (max-width: 1100px){
@@ -402,17 +842,19 @@ body{
   }
 }
 
-@media (max-width: 820px){
+@media (max-width: 900px){
   .sidebar{
     position:static;
     width:100%;
     height:auto;
-    border-radius:0 0 20px 20px;
+    border-right:none;
+    border-bottom:1px solid var(--line);
   }
 
   .main{
     margin-left:0;
     width:100%;
+    padding:20px;
   }
 
   .app{
@@ -426,8 +868,35 @@ body{
 
   .topbar-right{
     width:100%;
-    justify-content:space-between;
-    flex-wrap:wrap;
+    justify-content:flex-start;
+  }
+}
+
+@media (max-width: 700px){
+  .main{
+    padding:16px;
+  }
+
+  .topbar-left h1{
+    font-size:28px;
+  }
+
+  .panel-head,
+  .panel-body,
+  .stat-card,
+  .hero-card,
+  .hero-mini{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .ai-input-row{
+    grid-template-columns:1fr;
+  }
+
+  .history-item{
+    flex-direction:column;
+    align-items:flex-start;
   }
 }
 </style>
@@ -439,19 +908,31 @@ body{
 
   <aside class="sidebar">
     <div class="brand-block">
-      <div class="logo-big">IB</div>
+      <div class="logo-big">
+        <div class="logo-mark">IR</div>
+      </div>
       <div>
-        <div class="brand-title">IRISBANK</div>
-        <div class="brand-sub">Dashboard client</div>
+        <div class="brand-title">IRIS<span>BANK</span></div>
+        <div class="brand-sub">Client space • fintech dashboard</div>
       </div>
     </div>
 
+    <div class="sidebar-section-label">Navigation</div>
     <div class="menu">
       <button class="active" type="button">🏠 Vue d’ensemble</button>
+      <button type="button" onclick="goProfile()">👤 Mon profil</button>
       <button type="button" onclick="document.getElementById('createSection').scrollIntoView({behavior:'smooth'})">➕ Créer un compte</button>
       <button type="button" onclick="document.getElementById('operationsSection').scrollIntoView({behavior:'smooth'})">💸 Opérations</button>
       <button type="button" onclick="document.getElementById('transferSection').scrollIntoView({behavior:'smooth'})">🔁 Virement</button>
       <button type="button" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">🧾 Historique</button>
+      <button type="button" onclick="document.getElementById('aiSection').scrollIntoView({behavior:'smooth'})">🤖 Assistant IA</button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-bottom-title">IRISBANK Assistant</div>
+      <div class="sidebar-bottom-text">
+        Analyse tes comptes, comprends tes transactions et interagis avec l’assistant intégré depuis ton espace bancaire.
+      </div>
     </div>
   </aside>
 
@@ -460,7 +941,7 @@ body{
     <div class="topbar">
       <div class="topbar-left">
         <h1>Mon espace bancaire</h1>
-        <p>Gère tes comptes, opérations et virements depuis une seule interface.</p>
+        <p>Consulte tes comptes, effectue tes opérations, suis ton activité et échange avec ton assistant bancaire intelligent depuis une interface moderne et unifiée.</p>
       </div>
 
       <div class="topbar-right">
@@ -468,24 +949,53 @@ body{
           <span class="status-dot"></span>
           <span>Connecté</span>
         </div>
-        <button id="logoutBtn" class="btnx btn-ghost2" type="button">Logout</button>
+
+        <button onclick="goProfile()" class="btnx btn-ghost2" type="button">
+          👤 Profil
+        </button>
+
+        <button id="logoutBtn" class="btnx btn-ghost2" type="button">
+          Logout
+        </button>
       </div>
     </div>
+
+    <section class="hero-strip">
+      <div class="hero-card">
+       
+        <h2>Gère tes finances avec une interface plus claire</h2>
+        <p>Sélectionne un compte, lance un dépôt, un retrait ou un virement, puis utilise l’assistant pour résumer tes dernières activités en quelques secondes.</p>
+        <div class="hero-meta">
+         
+          <div class="hero-chip">Historique en temps réel</div>
+          <div class="hero-chip">Assistant IA local</div>
+        </div>
+      </div>
+
+      <div class="hero-mini">
+        <div class="hero-eyebrow">● Statut</div>
+        <h2>Compte client actif</h2>
+        <p>Ton tableau de bord est connecté. Tu peux consulter tes comptes, faire des opérations et accéder à ton profil utilisateur.</p>
+      </div>
+    </section>
 
     <section class="stats">
       <div class="stat-card">
         <div class="stat-label">Nombre de comptes</div>
         <div class="stat-value" id="statsAccounts">0</div>
+        <div class="stat-sub">Tous tes comptes bancaires visibles ici</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-label">Solde total</div>
         <div class="stat-value" id="statsBalance">0.00€</div>
+        <div class="stat-sub">Somme globale de tes soldes disponibles</div>
       </div>
 
       <div class="stat-card">
         <div class="stat-label">Compte sélectionné</div>
         <div class="stat-value" id="selectedAccountLabel">Aucun</div>
+        <div class="stat-sub">Clique sur une ligne pour lier les actions</div>
       </div>
     </section>
 
@@ -493,8 +1003,9 @@ body{
 
       <div class="panel">
         <div class="panel-head">
+          <div class="section-badge">Comptes bancaires</div>
           <h2>Mes comptes</h2>
-          <p>Clique sur une ligne pour sélectionner un compte et afficher son historique.</p>
+          <p>Clique sur une ligne pour sélectionner un compte et afficher son historique ainsi que lier automatiquement les formulaires d’opérations.</p>
         </div>
 
         <div class="panel-body">
@@ -521,19 +1032,24 @@ body{
 
         <div class="panel" id="createSection">
           <div class="panel-head">
+            <div class="section-badge">Nouveau compte</div>
             <h2>Créer un compte</h2>
-            <p>Ajoute un nouveau compte bancaire en un clic.</p>
+            <p>Ajoute rapidement un compte bancaire avec un type défini par ton système.</p>
           </div>
 
           <div class="panel-body">
             <div class="form-grid">
-              <select id="newType" class="selectx">
-                <option value="COURANT">COURANT</option>
-                <option value="LIVRET_A">LIVRET_A</option>
-                <option value="PEL">PEL</option>
-              </select>
+              <div>
+                <div class="field-label">Type de compte</div>
+                <select id="newType" class="selectx">
+                  <option value="COURANT">COURANT</option>
+                  <option value="LIVRET_A">LIVRET_A</option>
+                  <option value="PEL">PEL</option>
+                </select>
+              </div>
 
               <button id="createBtn" class="btnx btn-success" type="button">Créer le compte</button>
+              <div class="form-note">Un IBAN fictif conforme au format du projet sera généré automatiquement.</div>
             </div>
 
             <div id="msgCreate" class="msg"></div>
@@ -542,19 +1058,29 @@ body{
 
         <div class="panel" id="operationsSection">
           <div class="panel-head">
+            <div class="section-badge">Dépôt & retrait</div>
             <h2>Opérations</h2>
-            <p>Effectue un dépôt ou un retrait sur le compte sélectionné.</p>
+            <p>Effectue un dépôt ou un retrait sur le compte sélectionné. Le retrait est limité selon les règles métier définies.</p>
           </div>
 
           <div class="panel-body">
             <div class="form-grid">
-              <input class="inputx" id="opAccountId" placeholder="Compte ID"/>
-              <input class="inputx" id="opAmount" placeholder="Montant"/>
+              <div>
+                <div class="field-label">Compte ID</div>
+                <input class="inputx" id="opAccountId" placeholder="Compte ID"/>
+              </div>
+
+              <div>
+                <div class="field-label">Montant</div>
+                <input class="inputx" id="opAmount" placeholder="Montant"/>
+              </div>
 
               <div class="actions">
                 <button id="depositBtn" class="btnx btn-primary" type="button">Dépôt</button>
                 <button id="withdrawBtn" class="btnx btn-danger2" type="button">Retrait</button>
               </div>
+
+              <div class="form-note">Dépôt minimum : 1€ • Retrait minimum : 1€ • Retrait maximum : 1000€</div>
             </div>
 
             <div id="msgOp" class="msg"></div>
@@ -563,17 +1089,30 @@ body{
 
         <div class="panel" id="transferSection">
           <div class="panel-head">
+            <div class="section-badge">Virement</div>
             <h2>Virement</h2>
-            <p>Envoie de l’argent depuis un compte vers un autre IBAN.</p>
+            <p>Envoie de l’argent depuis un compte vers un autre IBAN. Le compte source et le compte destination doivent être valides.</p>
           </div>
 
           <div class="panel-body">
             <div class="form-grid">
-              <input class="inputx" id="transferFrom" placeholder="Compte source ID"/>
-              <input class="inputx" id="transferIban" placeholder="IBAN destination"/>
-              <input class="inputx" id="transferAmount" placeholder="Montant"/>
+              <div>
+                <div class="field-label">Compte source ID</div>
+                <input class="inputx" id="transferFrom" placeholder="Compte source ID"/>
+              </div>
+
+              <div>
+                <div class="field-label">IBAN destination</div>
+                <input class="inputx mono" id="transferIban" placeholder="IBAN destination"/>
+              </div>
+
+              <div>
+                <div class="field-label">Montant</div>
+                <input class="inputx" id="transferAmount" placeholder="Montant"/>
+              </div>
 
               <button id="transferBtn" class="btnx btn-success" type="button">Faire le virement</button>
+              <div class="form-note">Le virement échoue si le solde est insuffisant, si l’IBAN n’existe pas ou si l’un des comptes est bloqué.</div>
             </div>
 
             <div id="msgTransfer" class="msg"></div>
@@ -585,8 +1124,9 @@ body{
 
     <section class="panel" id="historySection">
       <div class="panel-head">
+        <div class="section-badge">Suivi d’activité</div>
         <h2>Historique des transactions</h2>
-        <p>Affichage dynamique de l’activité du compte sélectionné.</p>
+        <p>Affichage dynamique des opérations du compte sélectionné, avec date et montant.</p>
       </div>
 
       <div class="panel-body">
@@ -597,12 +1137,44 @@ body{
       </div>
     </section>
 
+    <section class="panel" id="aiSection" style="margin-top:24px;">
+      <div class="panel-head">
+        <div class="section-badge">Assistant intelligent</div>
+        <h2>🤖 Assistant IA</h2>
+        <p>Pose une question sur tes comptes, transactions ou opérations bancaires. L’assistant utilise tes données réelles pour répondre directement dans le tableau de bord.</p>
+      </div>
+
+      <div class="panel-body">
+        <div id="chatBox" class="ai-chat-box">
+          <div class="ai-msg assistant">Bonjour 👋 Je peux t’aider à comprendre ton solde, tes dernières transactions ou les opérations bancaires disponibles.</div>
+        </div>
+
+        <div class="ai-actions">
+          <button class="ai-quick" type="button" onclick="askQuickAI('Quel est mon solde total ?')">Solde total</button>
+          <button class="ai-quick" type="button" onclick="askQuickAI('Résume mes dernières transactions')">Dernières transactions</button>
+          <button class="ai-quick" type="button" onclick="askQuickAI('Comment faire un virement ?')">Faire un virement</button>
+          <button class="ai-quick" type="button" onclick="askQuickAI('Pourquoi une opération peut échouer ?')">Pourquoi ça échoue ?</button>
+        </div>
+
+        <div class="ai-input-row">
+          <input class="inputx" id="aiInput" placeholder="Ex: Quel est mon solde total ou explique mes dernières transactions"/>
+          <button id="aiSendBtn" class="btnx btn-primary" type="button">Envoyer</button>
+        </div>
+
+        <div id="aiStatus" class="ai-status"></div>
+      </div>
+    </section>
+
   </main>
 </div>
 
 <script>
 let selectedAccountId = null;
 let csrfToken = "";
+
+function goProfile() {
+  window.location.href = "/profile.html";
+}
 
 async function loadCsrfToken() {
   const res = await fetch("/api/csrf-token", {
@@ -612,28 +1184,25 @@ async function loadCsrfToken() {
   csrfToken = data.csrfToken;
 }
 
-async function api(url, method="GET", body=null){
+async function api(url, method = "GET", body = null) {
+  const headers = {};
 
-const headers = {};
+  if (method !== "GET") {
+    headers["Content-Type"] = "application/json";
+    headers["CSRF-Token"] = csrfToken;
+  }
 
-if(method !== "GET"){
-headers["Content-Type"]="application/json";
-headers["CSRF-Token"]=csrfToken;
+  const res = await fetch(url, {
+    method,
+    headers,
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  return { res, data };
 }
-
-const res = await fetch(url,{
-method,
-headers,
-credentials:"include",
-body: body ? JSON.stringify(body) : undefined
-});
-
-const data = await res.json().catch(()=>({}));
-
-return {res,data};
-
-}
- 
 
 function setMsg(el, ok, text, mode = null) {
   el.className = "msg show " + (mode ? mode : (ok ? "ok" : "err"));
@@ -647,6 +1216,16 @@ function clearMsg(el) {
 
 function updateSelectedAccountLabel(value) {
   document.getElementById("selectedAccountLabel").textContent = value ? "#" + value : "Aucun";
+}
+
+function accountTypeTemplate(type) {
+  return `<span class="account-type-pill">${type}</span>`;
+}
+
+function accountStatusTemplate(status) {
+  const upper = String(status || "").toUpperCase();
+  const blocked = upper === "BLOQUE";
+  return `<span class="status-pill ${blocked ? "blocked" : "active"}">${blocked ? "● BLOQUÉ" : "● ACTIF"}</span>`;
 }
 
 async function loadMe() {
@@ -686,11 +1265,11 @@ async function loadAccounts() {
   comptes.forEach(c => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${c.id}</td>
-      <td>${c.iban}</td>
-      <td>${c.type}</td>
+      <td>#${c.id}</td>
+      <td class="mono">${c.iban}</td>
+      <td>${accountTypeTemplate(c.type)}</td>
       <td>${Number(c.solde).toFixed(2)}€</td>
-      <td>${c.statut}</td>
+      <td>${accountStatusTemplate(c.statut)}</td>
     `;
 
     tr.addEventListener("click", () => {
@@ -703,7 +1282,7 @@ async function loadAccounts() {
       document.querySelectorAll("#accountsTbody tr").forEach(row => {
         row.style.background = "";
       });
-      tr.style.background = "#eff6ff";
+      tr.style.background = "rgba(79,124,255,0.14)";
     });
 
     tbody.appendChild(tr);
@@ -815,6 +1394,65 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
     loadTransactions(fromAccountId);
   } else {
     setMsg(msg, false, data.error || "Erreur");
+  }
+});
+
+/* ==============================
+   IA HELPERS
+============================== */
+function addAIMessage(text, role = "assistant") {
+  const chatBox = document.getElementById("chatBox");
+  const msg = document.createElement("div");
+  msg.className = "ai-msg " + role;
+  msg.textContent = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function setAIStatus(text = "") {
+  document.getElementById("aiStatus").textContent = text;
+}
+
+async function sendAIMessage(message) {
+  const cleanMessage = String(message || "").trim();
+  if (!cleanMessage) return;
+
+  const sendBtn = document.getElementById("aiSendBtn");
+  const input = document.getElementById("aiInput");
+
+  addAIMessage(cleanMessage, "user");
+  input.value = "";
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Envoi...";
+  setAIStatus("L’assistant analyse tes données...");
+
+  const { res, data } = await api("/api/ai/chat", "POST", { message: cleanMessage });
+
+  if (res.ok) {
+    addAIMessage(data.reply || "Je n’ai pas pu répondre à cette question.", "assistant");
+    setAIStatus("Réponse générée.");
+  } else {
+    addAIMessage(data.error || "Erreur IA", "assistant");
+    setAIStatus("Une erreur est survenue.");
+  }
+
+  sendBtn.disabled = false;
+  sendBtn.textContent = "Envoyer";
+}
+
+async function askQuickAI(question) {
+  await sendAIMessage(question);
+}
+
+document.getElementById("aiSendBtn").addEventListener("click", async () => {
+  const input = document.getElementById("aiInput");
+  await sendAIMessage(input.value);
+});
+
+document.getElementById("aiInput").addEventListener("keydown", async (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    await sendAIMessage(e.target.value);
   }
 });
 

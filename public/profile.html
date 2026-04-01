@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRISBANK - Mon profil</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#07111f;
+  --panel:#0f1b2d;
+  --panel-soft:#13233a;
+  --text:#eef4ff;
+  --muted:#9db0cc;
+  --primary:#4f7cff;
+  --success:#18c37e;
+  --danger:#ef5b5b;
+  --radius:18px;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:"Inter",sans-serif;
+  background:linear-gradient(180deg,#07111f,#0b1729);
+  color:var(--text);
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:30px 20px;
+}
+
+/* NAV */
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#4f7cff,#6aa6ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+}
+
+.small{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.pill{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.05);
+  padding:10px 14px;
+  border-radius:999px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#22c55e;
+}
+
+/* BUTTON */
+
+.btn{
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-ghost{
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+}
+
+.btn-green{
+  background:var(--success);
+  color:#fff;
+}
+
+.btn-danger{
+  background:var(--danger);
+  color:#fff;
+}
+
+/* CARD */
+
+.card{
+  background:var(--panel);
+  border-radius:var(--radius);
+  padding:22px;
+}
+
+.hd h2{
+  margin:0;
+}
+
+.bd{
+  margin-top:16px;
+}
+
+/* INPUT */
+
+.input{
+  width:100%;
+  margin-bottom:12px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);
+  color:#fff;
+}
+
+.input:focus{
+  outline:none;
+  border-color:#4f7cff;
+}
+
+/* MESSAGE */
+
+.msg{
+  margin-top:15px;
+  padding:10px;
+  border-radius:10px;
+}
+
+.msg.ok{
+  background:rgba(24,195,126,0.15);
+}
+
+.msg.err{
+  background:rgba(239,91,91,0.15);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="brand">
+      <div class="logo">IR</div>
+      <div>
+        <strong>IRISBANK</strong><br/>
+        <span class="small">Mon profil</span>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <div id="who" class="pill">
+        <div class="dot"></div>
+        <span>Chargement...</span>
+      </div>
+
+      <button class="btn btn-ghost" onclick="goDashboard()">Dashboard</button>
+      <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- MESSAGE -->
+  <div id="msg" class="msg" style="display:none;"></div>
+
+  <!-- PROFILE CARD -->
+  <div class="card">
+    <div class="hd">
+      <h2>Informations personnelles</h2>
+      <div class="small">Modifie tes informations utilisateur</div>
+    </div>
+
+    <div class="bd">
+      <form id="profileForm">
+
+        <input class="input" id="nom" placeholder="Nom"/>
+        <input class="input" id="prenom" placeholder="Prénom"/>
+        <input class="input" id="email" placeholder="Email"/>
+        <input class="input" id="telephone" placeholder="Téléphone"/>
+        <input class="input" id="adresse" placeholder="Adresse"/>
+
+        <input class="input" id="date_naissance" readonly/>
+        <input class="input" id="role" readonly/>
+
+        <button class="btn btn-green" type="submit">
+          Enregistrer
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let csrfToken = "";
+
+// MSG
+function setMsg(text, ok=true){
+  const el = document.getElementById("msg");
+  el.style.display = "block";
+  el.className = "msg " + (ok ? "ok" : "err");
+  el.textContent = text;
+}
+
+// NAV
+function goDashboard(){
+  window.location.href = "/dashboard.html";
+}
+
+// CSRF
+async function loadCsrf(){
+  const res = await fetch("/api/csrf-token",{credentials:"include"});
+  const data = await res.json();
+  csrfToken = data.csrfToken;
+}
+
+// API
+async function api(url, method="GET", body=null){
+  const headers = {};
+
+  if(method !== "GET"){
+    headers["Content-Type"] = "application/json";
+    headers["CSRF-Token"] = csrfToken;
+  }
+
+  const res = await fetch(url,{
+    method,
+    headers,
+    credentials:"include",
+    body: body ? JSON.stringify(body) : undefined
+  });
+
+  const data = await res.json().catch(()=>({}));
+  return {res,data};
+}
+
+// USER
+async function loadUser(){
+  const {res,data} = await api("/api/auth/me");
+
+  if(!res.ok){
+    window.location.href = "/login.html";
+    return;
+  }
+
+  document.getElementById("who").innerHTML =
+    '<div class="dot"></div><span>' +
+    data.user.prenom + " " + data.user.nom +
+    '</span>';
+}
+
+// PROFILE
+async function loadProfile(){
+  const {res,data} = await api("/api/profile");
+
+  if(!res.ok){
+    setMsg(data.error || "Erreur", false);
+    return;
+  }
+
+  const u = data.user;
+
+  nom.value = u.nom || "";
+  prenom.value = u.prenom || "";
+  email.value = u.email || "";
+  telephone.value = u.telephone || "";
+  adresse.value = u.adresse || "";
+
+  date_naissance.value = u.date_naissance ? u.date_naissance.slice(0,10) : "";
+  role.value = u.role || "";
+}
+
+// UPDATE
+profileForm.addEventListener("submit", async(e)=>{
+  e.preventDefault();
+
+  const payload = {
+    nom: nom.value.trim(),
+    prenom: prenom.value.trim(),
+    email: email.value.trim(),
+    telephone: telephone.value.trim(),
+    adresse: adresse.value.trim()
+  };
+
+  const {res,data} = await api("/api/profile","PUT",payload);
+
+  if(res.ok){
+    setMsg("Profil mis à jour");
+  }else{
+    setMsg(data.error || "Erreur", false);
+  }
+});
+
+// LOGOUT
+async function logout(){
+  await api("/api/auth/logout","POST",{});
+  window.location.href = "/login.html";
+}
+
+// INIT
+(async()=>{
+  await loadCsrf();
+  await loadUser();
+  await loadProfile();
+})();
+</script>
+
+</body>
+</html>

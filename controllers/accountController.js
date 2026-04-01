@@ -1,17 +1,20 @@
 const { validationResult } = require("express-validator");
 const db = require("../config/db");
 
+// ==============================
+// GENERATE FAKE IBAN
+// Format attendu : FR76-YBNK-XXXX-XXXX-XXXX
+// ==============================
 function generateFakeIban() {
-  const country = "FR";
-  const check = String(Math.floor(Math.random() * 90) + 10);
-  const body = Array.from({ length: 23 }, () =>
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(
-      Math.floor(Math.random() * 36)
-    )
-  ).join("");
-  return `${country}${check}${body}`;
+  const randomBlock = () =>
+    String(Math.floor(Math.random() * 10000)).padStart(4, "0");
+
+  return `FR76-YBNK-${randomBlock()}-${randomBlock()}-${randomBlock()}`;
 }
 
+// ==============================
+// LIST MY ACCOUNTS
+// ==============================
 exports.listMine = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -24,23 +27,31 @@ exports.listMine = async (req, res) => {
       [userId]
     );
 
-    res.json({ comptes: rows });
+    return res.json({ comptes: rows });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("LIST ACCOUNTS ERROR :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
+// ==============================
+// GET ONE ACCOUNT
+// ==============================
 exports.getOneMine = async (req, res) => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({
+      error: errors.array()[0].msg,
+      errors: errors.array()
+    });
   }
 
   try {
     const userId = req.session.user.id;
     const accountId = Number(req.params.id);
 
-    if (!accountId || isNaN(accountId)) {
+    if (!accountId || Number.isNaN(accountId)) {
       return res.status(400).json({ error: "ID de compte invalide" });
     }
 
@@ -55,22 +66,31 @@ exports.getOneMine = async (req, res) => {
       return res.status(404).json({ error: "Compte introuvable" });
     }
 
-    res.json({ compte: rows[0] });
+    return res.json({ compte: rows[0] });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("GET ACCOUNT ERROR :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
+// ==============================
+// CREATE ACCOUNT
+// ==============================
 exports.create = async (req, res) => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({
+      error: errors.array()[0].msg,
+      errors: errors.array()
+    });
   }
 
   const userId = req.session.user.id;
   const { type } = req.body;
 
   const allowedTypes = ["COURANT", "LIVRET_A", "PEL"];
+
   if (!type || !allowedTypes.includes(type)) {
     return res.status(400).json({ error: "Type de compte invalide" });
   }
@@ -93,7 +113,9 @@ exports.create = async (req, res) => {
     );
 
     if (existingAccounts[0].total >= 10) {
-      return res.status(400).json({ error: "Nombre maximum de comptes atteint" });
+      return res.status(400).json({
+        error: "Nombre maximum de comptes atteint"
+      });
     }
 
     let iban = generateFakeIban();
@@ -114,7 +136,9 @@ exports.create = async (req, res) => {
     }
 
     if (!foundUnique) {
-      return res.status(500).json({ error: "Impossible de générer un IBAN unique" });
+      return res.status(500).json({
+        error: "Impossible de générer un IBAN unique"
+      });
     }
 
     const [result] = await db.query(
@@ -132,26 +156,40 @@ exports.create = async (req, res) => {
 
     await db.query(
       "INSERT INTO notifications (message, type) VALUES (?, ?)",
-      [`Nouveau compte ${type} créé pour ${user.prenom} ${user.nom} (${iban})`, "NEW_ACCOUNT"]
+      [
+        `Nouveau compte ${type} créé pour ${user.prenom} ${user.nom} (${iban})`,
+        "NEW_ACCOUNT"
+      ]
     );
 
-    res.status(201).json({ message: "Compte créé", compte: rows[0] });
+    return res.status(201).json({
+      message: "Compte créé",
+      compte: rows[0]
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("CREATE ACCOUNT ERROR :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
+// ==============================
+// DELETE ACCOUNT
+// ==============================
 exports.remove = async (req, res) => {
   const errors = validationResult(req);
+
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({
+      error: errors.array()[0].msg,
+      errors: errors.array()
+    });
   }
 
   try {
     const userId = req.session.user.id;
     const accountId = Number(req.params.id);
 
-    if (!accountId || isNaN(accountId)) {
+    if (!accountId || Number.isNaN(accountId)) {
       return res.status(400).json({ error: "ID de compte invalide" });
     }
 
@@ -178,11 +216,15 @@ exports.remove = async (req, res) => {
     }
 
     if (String(rows[0].statut).toUpperCase() === "BLOQUE") {
-      return res.status(400).json({ error: "Impossible de supprimer un compte bloqué" });
+      return res.status(400).json({
+        error: "Impossible de supprimer un compte bloqué"
+      });
     }
 
     if (Number(rows[0].solde) !== 0) {
-      return res.status(400).json({ error: "Impossible de supprimer : solde non nul" });
+      return res.status(400).json({
+        error: "Impossible de supprimer : solde non nul"
+      });
     }
 
     const iban = rows[0].iban;
@@ -194,11 +236,15 @@ exports.remove = async (req, res) => {
 
     await db.query(
       "INSERT INTO notifications (message, type) VALUES (?, ?)",
-      [`Compte supprimé par ${user.prenom} ${user.nom} (${iban})`, "DELETE_ACCOUNT"]
+      [
+        `Compte supprimé par ${user.prenom} ${user.nom} (${iban})`,
+        "DELETE_ACCOUNT"
+      ]
     );
 
-    res.json({ message: "Compte supprimé" });
+    return res.json({ message: "Compte supprimé" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("DELETE ACCOUNT ERROR :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };

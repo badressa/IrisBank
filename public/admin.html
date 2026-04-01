@@ -3,394 +3,448 @@
 <head>
 <meta charset="UTF-8">
 <title>IrisBank Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+:root{
+  --bg:#07111f;
+  --bg-soft:#0b1729;
+  --sidebar:#0b1524;
+  --sidebar-2:#101d31;
+  --panel:#0f1b2d;
+  --panel-2:#13233a;
+  --panel-3:#162841;
+  --text:#eef4ff;
+  --muted:#9db0cc;
+  --primary:#4f7cff;
+  --primary-dark:#3e6be8;
+  --primary-soft:rgba(79,124,255,0.15);
+  --success:#18c37e;
+  --success-soft:rgba(24,195,126,0.14);
+  --danger:#ef5b5b;
+  --danger-soft:rgba(239,91,91,0.14);
+  --warning:#f5b942;
+  --warning-soft:rgba(245,185,66,0.14);
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.14);
+  --shadow:0 24px 60px rgba(0,0,0,0.28);
+  --shadow-soft:0 12px 30px rgba(0,0,0,0.18);
+  --radius:20px;
+  --radius-sm:14px;
+}
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, Helvetica, sans-serif;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter",sans-serif;
 }
 
 body{
-background:#f4f7fb;
-color:#1f2937;
+  background:
+    radial-gradient(circle at top left, rgba(79,124,255,0.18), transparent 22%),
+    radial-gradient(circle at top right, rgba(24,195,126,0.08), transparent 18%),
+    linear-gradient(180deg,var(--bg),var(--bg-soft));
+  color:var(--text);
+  min-height:100vh;
 }
 
 .layout{
-display:flex;
-min-height:100vh;
+  display:flex;
+  min-height:100vh;
 }
 
+/* SIDEBAR */
+
 .sidebar{
-width:240px;
-background:linear-gradient(180deg,#243447 0%,#2c3e50 100%);
-color:white;
-padding:24px 18px;
-position:fixed;
-left:0;
-top:0;
-bottom:0;
-overflow:auto;
-box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  width:260px;
+  background:linear-gradient(180deg,var(--sidebar) 0%, var(--sidebar-2) 100%);
+  color:white;
+  padding:26px 18px;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  overflow:auto;
+  border-right:1px solid var(--line);
+  box-shadow:var(--shadow);
 }
 
 .sidebar h2{
-margin-bottom:28px;
-font-size:24px;
+  margin-bottom:28px;
+  font-size:24px;
+  font-weight:800;
+  letter-spacing:-0.03em;
 }
 
 .sidebar ul{
-list-style:none;
+  list-style:none;
 }
 
 .sidebar li{
-padding:12px 14px;
-border-radius:10px;
-margin-bottom:8px;
-cursor:pointer;
-transition:0.2s ease;
+  padding:13px 14px;
+  border-radius:14px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:0.2s ease;
+  color:#d7e5ff;
+  font-weight:600;
 }
 
 .sidebar li:hover,
 .sidebar li.active{
-background:rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.08);
+  transform:translateX(2px);
 }
 
 .content{
-margin-left:240px;
-padding:28px;
-width:100%;
+  margin-left:260px;
+  padding:30px;
+  width:100%;
 }
 
+/* TOPBAR */
+
 .topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:16px;
-margin-bottom:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:26px;
 }
 
 .topbar h1{
-font-size:30px;
-margin:0;
+  font-size:32px;
+  margin:0;
+  font-weight:800;
+  letter-spacing:-0.03em;
 }
 
 .topbar p{
-margin-top:6px;
-color:#6b7280;
+  margin-top:8px;
+  color:var(--muted);
+  line-height:1.6;
 }
 
 .top-actions{
-display:flex;
-align-items:center;
-gap:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .refresh-btn{
-background:#111827;
-color:white;
-border:none;
-padding:10px 14px;
-border-radius:10px;
-cursor:pointer;
-font-weight:600;
+  background:#18263c;
+  color:white;
+  border:none;
+  padding:11px 15px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:700;
+  box-shadow:var(--shadow-soft);
+  transition:0.2s ease;
 }
 
 .refresh-btn:hover{
-background:#374151;
+  background:#223450;
+  transform:translateY(-1px);
 }
 
 .notification-bell{
-position:relative;
-background:white;
-border:none;
-padding:12px 14px;
-border-radius:12px;
-cursor:pointer;
-box-shadow:0 4px 14px rgba(0,0,0,0.08);
-font-size:18px;
+  position:relative;
+  background:var(--panel);
+  border:1px solid var(--line);
+  color:white;
+  padding:12px 14px;
+  border-radius:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow-soft);
+  font-size:18px;
+  transition:0.2s ease;
+}
+
+.notification-bell:hover{
+  background:var(--panel-2);
 }
 
 .notification-count{
-position:absolute;
-top:-6px;
-right:-6px;
-background:#ef4444;
-color:white;
-font-size:11px;
-font-weight:bold;
-padding:4px 7px;
-border-radius:999px;
-min-width:22px;
-text-align:center;
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  background:var(--danger);
+  color:white;
+  font-size:11px;
+  font-weight:bold;
+  padding:4px 7px;
+  border-radius:999px;
+  min-width:22px;
+  text-align:center;
+  box-shadow:0 8px 18px rgba(239,91,91,0.25);
 }
 
 .notification-panel{
-position:absolute;
-top:58px;
-right:0;
-width:360px;
-max-height:420px;
-overflow:auto;
-background:white;
-border-radius:16px;
-box-shadow:0 12px 30px rgba(0,0,0,0.15);
-padding:14px;
-display:none;
-z-index:100;
+  position:absolute;
+  top:58px;
+  right:0;
+  width:360px;
+  max-height:420px;
+  overflow:auto;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:14px;
+  display:none;
+  z-index:100;
 }
 
 .notification-wrapper{
-position:relative;
+  position:relative;
 }
 
 .notification-panel.show{
-display:block;
+  display:block;
 }
 
 .notification-panel h3{
-margin-bottom:10px;
-font-size:18px;
+  margin-bottom:12px;
+  font-size:18px;
 }
 
 .notification-item{
-background:#f8fafc;
-border-left:4px solid #3b82f6;
-padding:12px;
-border-radius:12px;
-margin-bottom:10px;
+  background:var(--panel-2);
+  border-left:4px solid var(--primary);
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
 }
 
 .notification-item strong{
-display:block;
-margin-bottom:4px;
+  display:block;
+  margin-bottom:4px;
 }
 
 .notification-item small{
-color:#6b7280;
+  color:var(--muted);
 }
 
+/* STATS */
+
 .stats{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-margin-bottom:26px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-bottom:26px;
 }
 
 .stat-card{
-background:white;
-padding:22px;
-border-radius:16px;
-box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  padding:22px;
+  border-radius:18px;
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--line);
 }
 
 .stat-title{
-font-size:14px;
-color:#6b7280;
+  font-size:14px;
+  color:var(--muted);
+  font-weight:600;
 }
 
 .stat-value{
-font-size:30px;
-font-weight:700;
-margin-top:8px;
+  font-size:32px;
+  font-weight:800;
+  margin-top:10px;
+  letter-spacing:-0.03em;
 }
+
+/* CHART */
 
 .chart-container{
-background:white;
-padding:20px;
-border-radius:16px;
-margin-bottom:26px;
-box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  padding:22px;
+  border-radius:18px;
+  margin-bottom:26px;
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--line);
 }
 
+/* GRID */
+
 .grid-2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-margin-bottom:26px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  margin-bottom:26px;
 }
 
 .section-card{
-background:white;
-padding:20px;
-border-radius:16px;
-box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  padding:20px;
+  border-radius:18px;
+  box-shadow:var(--shadow-soft);
+  border:1px solid var(--line);
 }
 
 .section-card h2{
-margin-bottom:14px;
-font-size:20px;
+  margin-bottom:14px;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:-0.02em;
 }
 
+/* CARDS */
+
 .card{
-background:white;
-padding:16px;
-border-radius:14px;
-margin-bottom:12px;
-box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  background:rgba(255,255,255,0.03);
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:12px;
+  box-shadow:none;
+  border:1px solid var(--line);
 }
 
 .card strong{
-display:block;
+  display:block;
 }
 
 .card small{
-display:block;
-margin-top:4px;
-color:#6b7280;
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+  line-height:1.5;
 }
 
 .account{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
 }
 
 .account-left{
-max-width:70%;
+  max-width:70%;
 }
 
 .search{
-margin-bottom:14px;
+  margin-bottom:14px;
 }
 
 .search input{
-width:100%;
-padding:11px 12px;
-border-radius:10px;
-border:1px solid #d1d5db;
-outline:none;
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid var(--line-strong);
+  outline:none;
+  background:var(--panel);
+  color:white;
+}
+
+.search input::placeholder{
+  color:#87a0c4;
 }
 
 .search input:focus{
-border-color:#60a5fa;
-box-shadow:0 0 0 4px rgba(96,165,250,0.14);
+  border-color:#60a5fa;
+  box-shadow:0 0 0 4px rgba(96,165,250,0.14);
 }
 
+/* BUTTONS */
+
 button{
-background:#3498db;
-border:none;
-padding:8px 12px;
-color:white;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
+  background:linear-gradient(135deg,var(--primary),#6aa6ff);
+  border:none;
+  padding:9px 13px;
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  transition:0.18s ease;
 }
 
 button:hover{
-background:#2980b9;
+  background:linear-gradient(135deg,var(--primary-dark),#5d98ff);
+  transform:translateY(-1px);
 }
 
 .badge{
-display:inline-block;
-padding:5px 10px;
-border-radius:999px;
-font-size:12px;
-font-weight:700;
-margin-top:8px;
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  margin-top:8px;
 }
 
 .badge.actif{
-background:#dcfce7;
-color:#166534;
+  background:var(--success-soft);
+  color:#9ff0cd;
 }
 
 .badge.bloque{
-background:#fee2e2;
-color:#991b1b;
+  background:var(--danger-soft);
+  color:#ffbcbc;
 }
 
-.dark{
-background:#111827;
-color:white;
+
+
+/* SCROLLBAR */
+
+.sidebar::-webkit-scrollbar,
+.notification-panel::-webkit-scrollbar{
+  width:10px;
 }
 
-.dark .content{
-color:white;
+.sidebar::-webkit-scrollbar-thumb,
+.notification-panel::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.10);
+  border-radius:999px;
 }
 
-.dark .topbar p,
-.dark small,
-.dark .stat-title{
-color:#cbd5e1;
-}
-
-.dark .card,
-.dark .stat-card,
-.dark .chart-container,
-.dark .section-card,
-.dark .notification-panel,
-.dark .notification-bell{
-background:#1f2937;
-color:white;
-}
-
-.dark .notification-item{
-background:#111827;
-}
-
-.dark .search input{
-background:#111827;
-color:white;
-border:1px solid #374151;
-}
-
-.empty-state{
-padding:20px;
-text-align:center;
-color:#6b7280;
-background:white;
-border-radius:14px;
-box-shadow:0 4px 12px rgba(0,0,0,0.06);
-}
-
-.dark .empty-state{
-background:#1f2937;
-color:#cbd5e1;
-}
+/* RESPONSIVE */
 
 @media (max-width:1100px){
-.stats{
-grid-template-columns:1fr;
-}
+  .stats{
+    grid-template-columns:1fr;
+  }
 
-.grid-2{
-grid-template-columns:1fr;
-}
+  .grid-2{
+    grid-template-columns:1fr;
+  }
 }
 
 @media (max-width:900px){
-.sidebar{
-position:static;
-width:100%;
-height:auto;
-}
+  .sidebar{
+    position:static;
+    width:100%;
+    height:auto;
+  }
 
-.content{
-margin-left:0;
-}
+  .content{
+    margin-left:0;
+  }
 
-.layout{
-display:block;
-}
+  .layout{
+    display:block;
+  }
 
-.topbar{
-flex-direction:column;
-align-items:flex-start;
-}
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 
-.top-actions{
-width:100%;
-justify-content:space-between;
-}
+  .top-actions{
+    width:100%;
+    justify-content:space-between;
+  }
 
-.notification-panel{
-left:0;
-right:auto;
-width:min(92vw,360px);
-}
+  .notification-panel{
+    left:0;
+    right:auto;
+    width:min(92vw,360px);
+  }
 }
 </style>
 </head>
@@ -406,7 +460,7 @@ width:min(92vw,360px);
 <li data-section="clients" onclick="showSection('clients', this)">👤 Clients</li>
 <li data-section="accounts" onclick="showSection('accounts', this)">🏦 Comptes</li>
 <li data-section="transactions" onclick="showSection('transactions', this)">🧾 Transactions</li>
-<li onclick="toggleDarkMode()">🌙 Dark Mode</li>
+
 </ul>
 </div>
 
@@ -425,13 +479,23 @@ background:#dc2626;
 color:white;
 border:none;
 padding:10px 14px;
-border-radius:10px;
+border-radius:12px;
 cursor:pointer;
-font-weight:600;
+font-weight:700;
+box-shadow:0 12px 24px rgba(220,38,38,0.20);
 ">
 Reset Bank
 </button>
-<button onclick="logout()" style="background:#ef4444;border:none;padding:10px 14px;border-radius:10px;color:white;font-weight:600;cursor:pointer;">
+<button onclick="logout()" style="
+background:#ef4444;
+border:none;
+padding:10px 14px;
+border-radius:12px;
+color:white;
+font-weight:700;
+cursor:pointer;
+box-shadow:0 12px 24px rgba(239,68,68,0.20);
+">
 Logout
 </button>
 <div class="notification-wrapper">
@@ -484,12 +548,12 @@ Logout
 </div>
 
 <div id="notifications" class="section" style="display:none">
-<h1>Notifications</h1>
+<h1 style="margin-bottom:18px;">Notifications</h1>
 <div id="notificationsTable"></div>
 </div>
 
 <div id="clients" class="section" style="display:none">
-<h1>Clients</h1>
+<h1 style="margin-bottom:18px;">Clients</h1>
 
 <div class="search">
 <input type="text" id="searchClient" placeholder="Rechercher client...">
@@ -499,12 +563,12 @@ Logout
 </div>
 
 <div id="accounts" class="section" style="display:none">
-<h1>Comptes</h1>
+<h1 style="margin-bottom:18px;">Comptes</h1>
 <div id="accountsTable"></div>
 </div>
 
 <div id="transactions" class="section" style="display:none">
-<h1>Transactions</h1>
+<h1 style="margin-bottom:18px;">Transactions</h1>
 <div id="transactionsTable"></div>
 </div>
 
@@ -633,7 +697,8 @@ function createChart(data){
           Number(data.accounts || 0),
           Number(data.deposits || 0)
         ],
-        backgroundColor: ["#3498db", "#2ecc71", "#f39c12"]
+        backgroundColor: ["#4f7cff", "#18c37e", "#f5b942"],
+        borderRadius: 10
       }]
     },
     options: {
@@ -641,6 +706,24 @@ function createChart(data){
       plugins: {
         legend: {
           display: false
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#c8d8f5"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
+        },
+        y: {
+          ticks: {
+            color: "#c8d8f5"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
         }
       }
     }
@@ -854,7 +937,6 @@ async function resetBank(){
   const confirmReset = confirm("Supprimer toutes les données ?");
   if(!confirmReset) return;
 
-  // recharge le token CSRF
   await loadCsrfToken();
 
   const {res,data} = await api("/api/admin/reset","DELETE");
@@ -872,7 +954,6 @@ async function resetBank(){
 
 }
 
-
 async function refreshAll(){
   await loadCsrfToken();
   await loadStats();
@@ -888,12 +969,6 @@ async function refreshAll(){
 
   await refreshAll();
 })();
-
-
-
-
-
-
 </script>
 
 </body>

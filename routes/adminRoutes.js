@@ -56,3 +56,5 @@ router.delete("/reset", requireAuth, requireAdmin, async (req, res) => {
 });
 
 module.exports = router;
+
+router.get("/search", requireAdmin, adminController.search);

@@ -1,12 +1,41 @@
 const db = require("../config/db");
 
-// dépôt
+// ==============================
+// OUTILS VALIDATION
+// ==============================
+function isValidAmount(value) {
+  if (value === undefined || value === null || value === "") {
+    return false;
+  }
+
+  const amount = Number(value);
+
+  if (Number.isNaN(amount) || amount <= 0) {
+    return false;
+  }
+
+  return /^\d+(\.\d{1,2})?$/.test(String(value).trim());
+}
+
+// ==============================
+// DEPOT
+// ==============================
 exports.deposit = async (req, res) => {
   const { accountId, amount } = req.body;
   const userId = req.session.user.id;
 
-  if (!amount || isNaN(amount) || Number(amount) <= 0) {
-    return res.status(400).json({ error: "Montant invalide" });
+  if (!isValidAmount(amount)) {
+    return res.status(400).json({
+      error: "Le montant doit être positif avec 2 décimales maximum"
+    });
+  }
+
+  const amountNumber = Number(amount);
+
+  if (amountNumber < 1) {
+    return res.status(400).json({
+      error: "Le dépôt minimum est de 1€"
+    });
   }
 
   try {
@@ -16,48 +45,72 @@ exports.deposit = async (req, res) => {
     );
 
     if (account.length === 0) {
-      return res.status(403).json({ error: "Compte non autorisé" });
+      return res.status(403).json({
+        error: "Compte non autorisé"
+      });
     }
 
     if (account[0].statut === "BLOQUE") {
-      return res.status(400).json({ error: "Compte bloqué" });
+      return res.status(400).json({
+        error: "Compte bloqué"
+      });
     }
 
     await db.query(
       "UPDATE comptes_bancaires SET solde = solde + ? WHERE id = ?",
-      [amount, accountId]
+      [amountNumber, accountId]
     );
 
     await db.query(
       "INSERT INTO transactions (type, montant, compte_destination_id) VALUES ('DEPOT', ?, ?)",
-      [amount, accountId]
+      [amountNumber, accountId]
     );
 
     await db.query(
       "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
       [
-        `💰 Dépôt de ${Number(amount).toFixed(2)}€ sur votre compte ****${account[0].iban.slice(-4)}`,
+        `💰 Dépôt de ${amountNumber.toFixed(2)}€ sur votre compte ****${account[0].iban.slice(-4)}`,
         "DEPOSIT",
         userId
       ]
     );
 
-    res.json({ message: "Dépôt effectué" });
-
+    return res.json({
+      message: "Dépôt effectué"
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
   }
 };
 
-
-// retrait
+// ==============================
+// RETRAIT
+// ==============================
 exports.withdraw = async (req, res) => {
   const { accountId, amount } = req.body;
   const userId = req.session.user.id;
 
-  if (!amount || isNaN(amount) || Number(amount) <= 0) {
-    return res.status(400).json({ error: "Montant invalide" });
+  if (!isValidAmount(amount)) {
+    return res.status(400).json({
+      error: "Le montant doit être positif avec 2 décimales maximum"
+    });
+  }
+
+  const amountNumber = Number(amount);
+
+  if (amountNumber < 1) {
+    return res.status(400).json({
+      error: "Le retrait minimum est de 1€"
+    });
+  }
+
+  if (amountNumber > 1000) {
+    return res.status(400).json({
+      error: "Le retrait maximum autorisé est de 1000€"
+    });
   }
 
   try {
@@ -67,53 +120,81 @@ exports.withdraw = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(403).json({ error: "Compte non autorisé" });
+      return res.status(403).json({
+        error: "Compte non autorisé"
+      });
     }
 
     if (rows[0].statut === "BLOQUE") {
-      return res.status(400).json({ error: "Compte bloqué" });
+      return res.status(400).json({
+        error: "Compte bloqué"
+      });
     }
 
-    if (Number(rows[0].solde) < Number(amount)) {
-      return res.status(400).json({ error: "Solde insuffisant" });
+    if (Number(rows[0].solde) < amountNumber) {
+      return res.status(400).json({
+        error: "Solde insuffisant"
+      });
     }
 
     await db.query(
       "UPDATE comptes_bancaires SET solde = solde - ? WHERE id = ?",
-      [amount, accountId]
+      [amountNumber, accountId]
     );
 
     await db.query(
       "INSERT INTO transactions (type, montant, compte_source_id) VALUES ('RETRAIT', ?, ?)",
-      [amount, accountId]
+      [amountNumber, accountId]
     );
 
     await db.query(
       "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
       [
-        `💸 Retrait de ${Number(amount).toFixed(2)}€ depuis votre compte ****${rows[0].iban.slice(-4)}`,
+        `💸 Retrait de ${amountNumber.toFixed(2)}€ depuis votre compte ****${rows[0].iban.slice(-4)}`,
         "WITHDRAW",
         userId
       ]
     );
 
-    res.json({ message: "Retrait effectué" });
-
+    return res.json({
+      message: "Retrait effectué"
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
   }
 };
 
-
-// virement
+// ==============================
+// VIREMENT
+// ==============================
 exports.transfer = async (req, res) => {
   const { fromAccountId, toIban, amount } = req.body;
   const userId = req.session.user.id;
 
-  if (!amount || isNaN(amount) || Number(amount) <= 0) {
-    return res.status(400).json({ error: "Montant invalide" });
+  if (!isValidAmount(amount)) {
+    return res.status(400).json({
+      error: "Le montant doit être positif avec 2 décimales maximum"
+    });
   }
+
+  const amountNumber = Number(amount);
+
+  if (amountNumber < 1) {
+    return res.status(400).json({
+      error: "Le virement minimum est de 1€"
+    });
+  }
+
+  if (!toIban || typeof toIban !== "string") {
+    return res.status(400).json({
+      error: "IBAN destinataire invalide"
+    });
+  }
+
+  const toIbanClean = toIban.trim().toUpperCase();
 
   let connection;
 
@@ -135,27 +216,35 @@ exports.transfer = async (req, res) => {
 
     if (source.length === 0) {
       await connection.rollback();
-      return res.status(403).json({ error: "Compte source non autorisé" });
+      return res.status(403).json({
+        error: "Compte source non autorisé"
+      });
     }
 
     if (source[0].statut === "BLOQUE") {
       await connection.rollback();
-      return res.status(400).json({ error: "Compte bloqué" });
+      return res.status(400).json({
+        error: "Compte bloqué"
+      });
     }
 
-    if (Number(source[0].solde) < Number(amount)) {
+    if (Number(source[0].solde) < amountNumber) {
       await connection.rollback();
-      return res.status(400).json({ error: "Solde insuffisant" });
+      return res.status(400).json({
+        error: "Solde insuffisant"
+      });
     }
 
     const [dest] = await connection.query(
       "SELECT id, iban, statut, user_id FROM comptes_bancaires WHERE iban = ? FOR UPDATE",
-      [toIban]
+      [toIbanClean]
     );
 
     if (dest.length === 0) {
       await connection.rollback();
-      return res.status(404).json({ error: "Compte destination introuvable" });
+      return res.status(404).json({
+        error: "Compte destination introuvable"
+      });
     }
 
     const destId = dest[0].id;
@@ -167,46 +256,50 @@ exports.transfer = async (req, res) => {
 
     if (destId === Number(fromAccountId)) {
       await connection.rollback();
-      return res.status(400).json({ error: "Impossible de se virer à soi-même" });
+      return res.status(400).json({
+        error: "Impossible de se virer à soi-même"
+      });
     }
 
     if (dest[0].statut === "BLOQUE") {
       await connection.rollback();
-      return res.status(400).json({ error: "Compte destination bloqué" });
+      return res.status(400).json({
+        error: "Compte destination bloqué"
+      });
     }
 
     // transfert
     await connection.query(
       "UPDATE comptes_bancaires SET solde = solde - ? WHERE id = ?",
-      [amount, fromAccountId]
+      [amountNumber, fromAccountId]
     );
 
     await connection.query(
       "UPDATE comptes_bancaires SET solde = solde + ? WHERE id = ?",
-      [amount, destId]
+      [amountNumber, destId]
     );
 
     await connection.query(
       "INSERT INTO transactions (type, montant, compte_source_id, compte_destination_id) VALUES ('VIREMENT', ?, ?, ?)",
-      [amount, fromAccountId, destId]
+      [amountNumber, fromAccountId, destId]
     );
 
     // notif expéditeur
     await connection.query(
       "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
       [
-        `📤 Virement de ${Number(amount).toFixed(2)}€ envoyé`,
+        `📤 Virement de ${amountNumber.toFixed(2)}€ envoyé`,
         "TRANSFER",
         userId
       ]
     );
 
-    // notif destinataire 🔥
+    // notif destinataire
     if (destUserId) {
       await connection.query(
         "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
         [
-          `💰 Vous avez reçu ${Number(amount).toFixed(2)}€ de ${user.prenom} ${user.nom}`,
+          `💰 Vous avez reçu ${amountNumber.toFixed(2)}€ de ${user.prenom} ${user.nom}`,
           "TRANSFER_RECEIVED",
           destUserId
         ]
@@ -215,19 +308,28 @@ exports.transfer = async (req, res) => {
 
     await connection.commit();
 
-    res.json({ message: "Virement effectué" });
-
+    return res.json({
+      message: "Virement effectué"
+    });
   } catch (err) {
-    if (connection) await connection.rollback();
+    if (connection) {
+      await connection.rollback();
+    }
+
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
   } finally {
-    if (connection) connection.release();
+    if (connection) {
+      connection.release();
+    }
   }
 };
 
-
-// historique
+// ==============================
+// HISTORIQUE
+// ==============================
 exports.history = async (req, res) => {
   const accountId = Number(req.params.accountId);
   const userId = req.session.user.id;
@@ -239,7 +341,9 @@ exports.history = async (req, res) => {
     );
 
     if (account.length === 0) {
-      return res.status(403).json({ error: "Accès refusé" });
+      return res.status(403).json({
+        error: "Accès refusé"
+      });
     }
 
     const [rows] = await db.query(
@@ -249,10 +353,13 @@ exports.history = async (req, res) => {
       [accountId, accountId]
     );
 
-    res.json({ transactions: rows });
-
+    return res.json({
+      transactions: rows
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
   }
 };

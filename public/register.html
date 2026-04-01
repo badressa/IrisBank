@@ -5,77 +5,104 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IRISBANK | Inscription</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 
 :root{
---bg:#f4f7fb;
---panel:#ffffff;
---text:#1f2937;
---muted:#6b7280;
---primary:#2563eb;
---primary-dark:#1d4ed8;
---shadow:0 10px 30px rgba(15,23,42,0.08);
+--bg:#07111f;
+--bg-soft:#0b1729;
+--panel:#0f1b2d;
+--panel-2:#13233a;
+--text:#eef4ff;
+--muted:#9db0cc;
+--primary:#4f7cff;
+--primary-dark:#3e6be8;
+--success:#18c37e;
+--danger:#ef5b5b;
+--line:rgba(255,255,255,0.08);
+--shadow:0 24px 60px rgba(0,0,0,0.25);
+--radius:20px;
 }
 
 *{
 box-sizing:border-box;
 margin:0;
 padding:0;
-font-family:Arial, Helvetica, sans-serif;
+font-family:"Inter",sans-serif;
 }
 
 body{
 min-height:100vh;
-background:var(--bg);
+background:
+radial-gradient(circle at top left, rgba(79,124,255,0.18), transparent 25%),
+linear-gradient(180deg,var(--bg),var(--bg-soft));
 display:flex;
 align-items:center;
 justify-content:center;
 padding:24px;
+color:var(--text);
 }
+
+/* =========================
+   LAYOUT
+========================= */
 
 .page{
 width:100%;
 max-width:1150px;
 display:grid;
 grid-template-columns:1.1fr 0.9fr;
-background:white;
+background:var(--panel);
 border-radius:28px;
 overflow:hidden;
 box-shadow:var(--shadow);
 min-height:700px;
+border:1px solid var(--line);
 }
 
+/* =========================
+   LEFT PANEL
+========================= */
+
 .left{
-background:linear-gradient(160deg,#1e293b 0%,#334155 55%,#2563eb 100%);
+background:linear-gradient(160deg,#0b1524 0%, #101d31 50%, #1d3b80 100%);
 color:white;
-padding:42px;
+padding:48px;
 display:flex;
 flex-direction:column;
 justify-content:center;
 }
 
 .logo{
-font-size:22px;
-font-weight:bold;
-margin-bottom:20px;
+font-size:20px;
+font-weight:800;
+margin-bottom:24px;
+letter-spacing:1px;
 }
 
 .left h1{
-font-size:40px;
-margin-bottom:16px;
+font-size:42px;
+margin-bottom:18px;
+line-height:1.2;
 }
 
 .left p{
-color:#dbeafe;
-font-size:16px;
-line-height:1.6;
+color:#cfe0ff;
+font-size:15px;
+line-height:1.7;
 }
+
+/* =========================
+   RIGHT PANEL
+========================= */
 
 .right{
 padding:40px;
 display:flex;
 align-items:center;
 justify-content:center;
+background:linear-gradient(180deg,var(--panel),var(--panel-2));
 }
 
 .card{
@@ -86,12 +113,17 @@ max-width:420px;
 .card h2{
 font-size:30px;
 margin-bottom:10px;
+font-weight:800;
 }
 
 .subtitle{
 color:var(--muted);
-margin-bottom:24px;
+margin-bottom:26px;
 }
+
+/* =========================
+   FORM
+========================= */
 
 .form{
 display:grid;
@@ -100,11 +132,27 @@ gap:14px;
 
 .input{
 width:100%;
-border:1px solid #d1d5db;
+border:1px solid var(--line);
 border-radius:14px;
-padding:12px;
+padding:13px;
 font-size:14px;
+background:rgba(255,255,255,0.03);
+color:white;
 }
+
+.input::placeholder{
+color:#8fa6cc;
+}
+
+.input:focus{
+outline:none;
+border-color:#4f7cff;
+box-shadow:0 0 0 4px rgba(79,124,255,0.15);
+}
+
+/* =========================
+   BUTTON
+========================= */
 
 .btn{
 width:100%;
@@ -112,33 +160,45 @@ border:none;
 border-radius:14px;
 padding:14px;
 font-size:15px;
-font-weight:bold;
+font-weight:700;
 cursor:pointer;
-background:var(--primary);
+background:linear-gradient(135deg,var(--primary),#6aa6ff);
 color:white;
+transition:0.2s;
 }
 
 .btn:hover{
-background:var(--primary-dark);
+background:linear-gradient(135deg,var(--primary-dark),#5d98ff);
+transform:translateY(-1px);
 }
+
+/* =========================
+   LINK
+========================= */
 
 .link{
 text-align:center;
-margin-top:14px;
+margin-top:16px;
 font-size:14px;
+color:var(--muted);
 }
 
 .link a{
-color:var(--primary);
+color:#6aa6ff;
 text-decoration:none;
-font-weight:bold;
+font-weight:700;
 }
+
+/* =========================
+   MESSAGE
+========================= */
 
 .msg{
 margin-top:14px;
-padding:10px;
+padding:12px;
 border-radius:12px;
 display:none;
+font-size:14px;
 }
 
 .msg.show{
@@ -146,13 +206,34 @@ display:block;
 }
 
 .msg.ok{
-background:#dcfce7;
-color:#166534;
+background:rgba(24,195,126,0.15);
+color:#9ff0cd;
 }
 
 .msg.err{
-background:#fee2e2;
-color:#991b1b;
+background:rgba(239,91,91,0.15);
+color:#ffbcbc;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width:900px){
+
+.page{
+grid-template-columns:1fr;
+}
+
+.left{
+padding:30px;
+text-align:center;
+}
+
+.right{
+padding:30px;
+}
+
 }
 
 </style>
@@ -162,6 +243,7 @@ color:#991b1b;
 
 <div class="page">
 
+<!-- LEFT -->
 <div class="left">
 
 <div class="logo">IRISBANK</div>
@@ -169,11 +251,12 @@ color:#991b1b;
 <h1>Créer votre compte bancaire</h1>
 
 <p>
-Rejoignez IrisBank et accédez à votre espace bancaire sécurisé pour gérer vos comptes et vos opérations.
+Accédez à une nouvelle génération de gestion bancaire simple, rapide et sécurisée.
 </p>
 
 </div>
 
+<!-- RIGHT -->
 <div class="right">
 
 <div class="card">
@@ -228,7 +311,6 @@ password:document.getElementById("password").value
 
 try{
 
-// inscription
 const res = await fetch("/api/auth/register",{
 method:"POST",
 headers:{
@@ -246,7 +328,6 @@ msg.textContent=data.error || "Erreur inscription";
 return;
 }
 
-// login automatique
 const login = await fetch("/api/auth/login",{
 method:"POST",
 headers:{
@@ -264,7 +345,6 @@ window.location.href="/login.html";
 return;
 }
 
-// dashboard
 window.location.href="/dashboard.html";
 
 }catch(err){
