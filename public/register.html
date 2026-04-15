@@ -328,23 +328,54 @@ msg.textContent=data.error || "Erreur inscription";
 return;
 }
 
-const login = await fetch("/api/auth/login",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-credentials:"include",
-body:JSON.stringify({
-email:body.email,
-password:body.password
-})
-});
+// ✅ Succès - Afficher message de vérification
+if(data.requiresVerification){
+msg.className="msg show ok";
+msg.innerHTML=`
+  <strong>✓ Inscription réussie!</strong><br>
+  Un email de confirmation a été envoyé à <strong>${data.email}</strong>.<br>
+  <br>
+  <strong>Prochaines étapes:</strong><br>
+  1. Consultez votre boîte mail (et le dossier spam)<br>
+  2. Cliquez sur le lien d'activation présent dans l'email<br>
+  3. Vous pourrez alors vous connecter<br>
+  <br>
+  <small style="color: #999;">L'email devrait arriver dans quelques secondes.</small>
+`;
 
-if(!login.ok){
-window.location.href="/login.html";
+// Désactiver le formulaire
+document.getElementById("registerForm").style.opacity = "0.5";
+document.getElementById("registerForm").style.pointerEvents = "none";
+
+// Bouton pour aller à la page de vérification
+setTimeout(() => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn";
+  btn.textContent = "Aller à la vérification";
+  btn.style.marginTop = "10px";
+  btn.onclick = () => window.location.href = "/verify-email.html";
+  msg.appendChild(btn);
+  
+  const separator = document.createElement("p");
+  separator.textContent = "ou";
+  separator.style.margin = "10px 0";
+  separator.style.color = "#999";
+  msg.appendChild(separator);
+  
+  const link = document.createElement("a");
+  link.href = "/login.html";
+  link.textContent = "Aller à la connexion";
+  link.className = "link";
+  link.style.display = "block";
+  link.style.marginTop = "10px";
+  msg.appendChild(link);
+}, 1000);
+
 return;
 }
 
+// Fallback (ancien comportement)
 window.location.href="/dashboard.html";
 
 }catch(err){

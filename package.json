@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test:email": "node test-email-config.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +22,8 @@
     "express-rate-limit": "^8.3.0",
     "express-session": "^1.19.0",
     "express-validator": "^7.3.1",
-    "mysql2": "^3.18.2"
+    "mysql2": "^3.18.2",
+    "nodemailer": "^8.0.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

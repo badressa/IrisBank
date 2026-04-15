@@ -100,4 +100,14 @@ router.get("/me", authController.me);
 // ========================================
 router.post("/logout", authController.logout);
 
+// ========================================
+// VERIFY EMAIL (Confirmation par token)
+// ========================================
+router.post("/verify-email", authController.verifyEmail);
+
+// ========================================
+// RESEND VERIFICATION EMAIL
+// ========================================
+router.post("/resend-verification", authController.resendVerificationEmail);
+
 module.exports = router;

@@ -333,7 +333,20 @@ const data = await response.json();
 if(!response.ok){
 
 msg.className = "msg show err";
+
+// 📧 Message spécial si email non vérifié
+if(data.requiresVerification){
+msg.innerHTML = `
+  <strong>Email non vérifié</strong><br>
+  Veuillez d'abord cliquer sur le lien d'activation reçu par email.<br>
+  <br>
+  <small style="color: #ccc;">Vous n'avez pas reçu l'email?</small><br>
+  <a href="/verify-email.html" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Renvoyer l'email de confirmation</a>
+`;
+} else {
 msg.textContent = data.error || "Erreur connexion";
+}
+
 return;
 
 }

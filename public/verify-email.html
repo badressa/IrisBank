@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérifier mon email - IRISBANK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(24, 195, 126, 0.1);
+            color: #18c37e;
+            border: 1px solid rgba(24, 195, 126, 0.3);
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(239, 91, 91, 0.1);
+            color: #ef5b5b;
+            border: 1px solid rgba(239, 91, 91, 0.3);
+            display: block;
+        }
+
+        .message.warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            display: block;
+        }
+
+        .actions {
+            margin-top: 30px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .button-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .info-box {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .resend-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .resend-form {
+            margin-top: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .input-group button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .input-group button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔐</div>
+        <h1 id="title">Vérification en cours...</h1>
+        <p class="subtitle">Veuillez patienter pendant que nous vérifions votre adresse email</p>
+
+        <div id="spinner" class="spinner"></div>
+
+        <div id="message" class="message"></div>
+
+        <div id="actions" class="actions" style="display: none;"></div>
+
+        <!-- Section pour renvoyer l'email si expiré -->
+        <div id="resendSection" class="resend-section" style="display: none;">
+            <h3 style="font-size: 16px; margin-bottom: 10px;">Email d'activation expiré?</h3>
+            <p style="color: #999; font-size: 13px; margin-bottom: 15px;">Entrez votre adresse email pour recevoir un nouveau lien d'activation.</p>
+            <div class="resend-form">
+                <div class="input-group">
+                    <input type="email" id="resendEmail" placeholder="Votre email">
+                    <button onclick="resendVerification()">Renvoyer</button>
+                </div>
+                <div id="resendMessage" style="margin-top: 10px; font-size: 12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer les paramètres de l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const userId = urlParams.get('userId');
+
+        const titleEl = document.getElementById('title');
+        const messageEl = document.getElementById('message');
+        const spinnerEl = document.getElementById('spinner');
+        const actionsEl = document.getElementById('actions');
+        const resendSectionEl = document.getElementById('resendSection');
+        const resendEmailEl = document.getElementById('resendEmail');
+
+        function showMessage(text, type = 'info') {
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = text;
+        }
+
+        async function verifyEmail() {
+            if (!token || !userId) {
+                spinnerEl.style.display = 'none';
+                titleEl.textContent = 'Erreur';
+                showMessage('Paramètres d\'activation manquants. Veuillez vérifier votre lien.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, userId })
+                });
+
+                const data = await response.json();
+
+                spinnerEl.style.display = 'none';
+
+                if (response.ok) {
+                    // Succès
+                    titleEl.textContent = '✓ Succès!';
+                    showMessage(data.message, 'success');
+
+                    actionsEl.innerHTML = `
+                        <a href="/login.html" class="button button-primary">Aller à la connexion</a>
+                        <a href="/register.html" class="button button-secondary">Nouvelle inscription</a>
+                    `;
+                    actionsEl.style.display = 'block';
+                } else {
+                    // Erreur
+                    titleEl.textContent = '✗ Erreur';
+                    showMessage(data.error, 'error');
+
+                    if (data.expired) {
+                        resendEmailEl.value = data.email || '';
+                        resendSectionEl.style.display = 'block';
+                    }
+
+                    actionsEl.innerHTML = `
+                        <a href="/register.html" class="button button-secondary">Retour à l'inscription</a>
+                    `;
+                    actionsEl.style.display = 'block';
+                }
+            } catch (err) {
+                spinnerEl.style.display = 'none';
+                titleEl.textContent = '✗ Erreur';
+                showMessage('Erreur serveur. Veuillez réessayer plus tard.', 'error');
+                actionsEl.innerHTML = `
+                    <a href="/register.html" class="button button-secondary">Retour à l'inscription</a>
+                `;
+                actionsEl.style.display = 'block';
+            }
+        }
+
+        async function resendVerification() {
+            const email = document.getElementById('resendEmail').value.trim();
+            const resendMessageEl = document.getElementById('resendMessage');
+
+            if (!email) {
+                resendMessageEl.style.color = '#ef5b5b';
+                resendMessageEl.textContent = 'Veuillez entrer votre email.';
+                return;
+            }
+
+            try {
+                resendMessageEl.textContent = 'Envoi en cours...';
+                resendMessageEl.style.color = '#667eea';
+
+                const response = await fetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resendMessageEl.style.color = '#18c37e';
+                    resendMessageEl.textContent = '✓ ' + data.message;
+                } else {
+                    resendMessageEl.style.color = '#ef5b5b';
+                    resendMessageEl.textContent = '✗ ' + data.error;
+                }
+            } catch (err) {
+                resendMessageEl.style.color = '#ef5b5b';
+                resendMessageEl.textContent = '✗ Erreur serveur';
+            }
+        }
+
+        // Vérifier l'email au chargement
+        document.addEventListener('DOMContentLoaded', verifyEmail);
+    </script>
+</body>
+</html>
