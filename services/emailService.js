@@ -184,3 +184,73 @@ exports.sendPasswordResetEmail = async (email, nom, resetLink) => {
 // Pas besoin de module.exports = transporter car on utilise exports.nom_fonction
 // Si vous avez besoin du transporter ailleurs, vous pouvez faire :
 // exports.transporter = transporter;
+
+
+// Envoyer un email d'alerte dépassement de budget
+exports.sendBudgetAlert = async (email, nom, categorie, total, plafond) => {
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #EF4444, #B91C1C); color: white; padding: 20px; border-radius: 8px; }
+          .content { margin: 20px 0; line-height: 1.6; }
+          .alert-box { background: #FEE2E2; border-left: 4px solid #EF4444; padding: 16px; border-radius: 4px; margin: 20px 0; }
+          .amounts { display: flex; gap: 20px; margin: 16px 0; }
+          .amount-card { background: #F8FAFC; border-radius: 8px; padding: 12px 20px; text-align: center; flex: 1; }
+          .amount-card .label { font-size: 12px; color: #64748B; }
+          .amount-card .value { font-size: 22px; font-weight: bold; margin-top: 4px; }
+          .footer { color: #999; font-size: 12px; margin-top: 30px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>⚠️ Plafond dépassé !</h1>
+          </div>
+          <div class="content">
+            <p>Bonjour <strong>${nom}</strong>,</p>
+            <div class="alert-box">
+              Vous avez dépassé votre plafond mensuel pour la catégorie <strong>${categorie}</strong>.
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="48%" style="background:#FEE2E2;border-radius:8px;padding:12px 20px;text-align:center;">
+                  <div style="font-size:12px;color:#64748B;">DÉPENSÉ</div>
+                  <div style="font-size:22px;font-weight:bold;color:#EF4444;">${total}€</div>
+                </td>
+                <td width="4%"></td>
+                <td width="48%" style="background:#DCFCE7;border-radius:8px;padding:12px 20px;text-align:center;">
+                  <div style="font-size:12px;color:#64748B;">PLAFOND</div>
+                  <div style="font-size:22px;font-weight:bold;color:#16A34A;">${plafond}€</div>
+                </td>
+              </tr>
+            </table>
+            <p style="margin-top:20px;">Pensez à revoir votre budget ou à ajuster votre plafond pour cette catégorie.</p>
+            <p>Cordialement,<br><strong>L'équipe IRISBANK</strong></p>
+          </div>
+          <div class="footer">
+            <p>© 2026 IRISBANK - Tous droits réservés</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: `⚠️ Plafond dépassé — ${categorie} | IRISBANK`,
+      html: htmlContent
+    });
+    console.log('📧 Email alerte budget envoyé:', info.messageId);
+    return { success: true };
+  } catch (error) {
+    console.error('Erreur email budget alert:', error.message);
+    return { success: false };
+  }
+};

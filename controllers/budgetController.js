@@ -3,6 +3,7 @@
 
 const db = require('../config/db');
 
+const { sendBudgetAlert } = require('../services/emailService');
 // ─────────────────────────────────────────────
 // CATÉGORIES
 // ─────────────────────────────────────────────
@@ -305,6 +306,11 @@ async function _verifierPlafond(userId, categorieId, montant) {
         INSERT INTO notifications (user_id, message, type)
         VALUES (?, ?, 'BUDGET_DEPASSE')
       `, [userId, `⚠️ Plafond dépassé pour ${nomCat} : ${total.toFixed(2)}€ / ${plafond.toFixed(2)}€`]);
+    // Email d'alerte (nouveau)
+  const [users] = await db.query('SELECT email, nom FROM users WHERE id = ?', [userId]);
+  if (users.length > 0) {
+    await sendBudgetAlert(users[0].email, users[0].nom, nomCat, total.toFixed(2), plafond.toFixed(2));
+        }
     }
   } catch (err) {
     console.error('_verifierPlafond error:', err);
