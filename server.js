@@ -122,3 +122,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("🚀 IRISBANK server running on port " + PORT);
 });
+
+const budgetRoutes = require('./routes/budgetRoutes');
+app.use('/budget', budgetRoutes);
+require('./services/budgetCron');
