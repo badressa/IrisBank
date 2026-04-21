@@ -18,6 +18,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const contractRoutes = require('./routes/contracts');
 
 const app = express();
 
@@ -125,4 +126,7 @@ app.listen(PORT, () => {
 
 const budgetRoutes = require('./routes/budgetRoutes');
 app.use('/budget', budgetRoutes);
+app.use('/api/contracts', contractRoutes);
+
 require('./services/budgetCron');
+require('./services/salaryService');

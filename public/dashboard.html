@@ -1169,6 +1169,50 @@ select{
     <section>
       <a href="/budget.html">💰 Mon Budget</a>
     </section>
+
+    <section class="panel" id="contractSection" style="margin-top:24px;">
+      <div class="panel-head">
+        <div class="section-badge">Revenus Professionnels</div>
+        <h2>Contrat de Travail</h2>
+        <p>Renseigne ton contrat pour que ton salaire soit versé automatiquement sur ton compte chaque mois.</p>
+      </div>
+    
+      <div class="panel-body">
+        <div class="form-grid">
+          <div>
+            <div class="field-label">Employeur</div>
+            <input class="inputx" id="contEmployeur" placeholder="Ex: Google, Freelance..."/>
+          </div>
+          <div>
+            <div class="field-label">Salaire Mensuel Net</div>
+            <input class="inputx" type="number" id="contSalaire" placeholder="Ex: 2500"/>
+          </div>
+          <div>
+            <div class="field-label">Type de contrat</div>
+            <select class="selectx" id="contType" onchange="document.getElementById('endDateDiv').style.display = this.value === 'CDD' ? 'block' : 'none'">
+              <option value="CDI">CDI (Indéterminé)</option>
+              <option value="CDD">CDD (Temps défini)</option>
+            </select>
+          </div>
+          <div id="endDateDiv" style="display:none">
+            <div class="field-label">Date de fin</div>
+            <input class="inputx" type="date" id="contDateFin"/>
+          </div>
+          <div>
+            <div class="field-label">Jour de versement</div>
+            <input class="inputx" type="number" id="contJour" min="1" max="31" value="1"/>
+          </div>
+          <div>
+            <div class="field-label">Compte de dépôt</div>
+            <select class="selectx" id="contCompteId">
+              <!-- Sera rempli par le JS -->
+            </select>
+          </div>
+          <button id="saveContractBtn" class="btnx btn-primary">Enregistrer le contrat</button>
+        </div>
+        <div id="msgContract" class="msg"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -1246,7 +1290,10 @@ async function loadMe() {
 async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
   const msg = document.getElementById("msgAccounts");
+  const contCompteSelect = document.getElementById("contCompteId"); // <-- AJOUT
+
   tbody.innerHTML = "";
+  if (contCompteSelect) contCompteSelect.innerHTML = ""; // <-- AJOUT
   clearMsg(msg);
 
   const { res, data } = await api("/api/accounts", "GET");
@@ -1267,6 +1314,7 @@ async function loadAccounts() {
   }
 
   comptes.forEach(c => {
+    // 1. Remplissage du tableau
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>#${c.id}</td>
@@ -1290,6 +1338,14 @@ async function loadAccounts() {
     });
 
     tbody.appendChild(tr);
+
+    // 2. Remplissage de la liste déroulante du contrat <-- AJOUT
+    if (contCompteSelect) {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = `${c.type} (#${c.id}) - ${Number(c.solde).toFixed(2)}€`;
+      contCompteSelect.appendChild(option);
+    }
   });
 }
 
@@ -1508,6 +1564,59 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
   }
 });
 
+
+// 1. Envoyer le contrat au serveur
+document.getElementById("saveContractBtn").addEventListener("click", async () => {
+    const employeur = document.getElementById("contEmployeur").value;
+    const salaire_mensuel = document.getElementById("contSalaire").value;
+    const type_contrat = document.getElementById("contType").value;
+    const date_debut = new Date().toISOString().split('T')[0];
+    const date_fin = document.getElementById("contDateFin").value || null;
+    const jour_versement = document.getElementById("contJour").value;
+    const compte_destination_id = document.getElementById("contCompteId").value;
+
+    const msg = document.getElementById("msgContract");
+
+    if (!employeur || !salaire_mensuel || !compte_destination_id) {
+        setMsg(msg, false, "Veuillez remplir tous les champs obligatoires.");
+        return;
+    }
+
+    const body = {
+        employeur,
+        salaire_mensuel: parseFloat(salaire_mensuel),
+        type_contrat,
+        date_debut,
+        date_fin,
+        jour_versement: parseInt(jour_versement),
+        compte_destination_id: parseInt(compte_destination_id)
+    };
+    
+    const { res, data } = await api("/api/contracts/add", "POST", body);
+    if (res.ok) {
+        setMsg(msg, true, "✅ Contrat enregistré ! Ton salaire sera versé automatiquement.");
+    } else {
+        setMsg(msg, false, "Erreur : " + (data.error || "Inconnue"));
+    }
+});
+
+// 2. Vérifier si un salaire doit être versé au chargement
+async function checkSalary() {
+    const { res, data } = await api("/api/contracts/check-and-pay", "GET");
+    if(res.ok && data.paid) {
+        alert("💰 Bonne nouvelle ! Votre salaire de " + data.amount + "€ a été versé sur votre compte.");
+        loadAccounts(); // Rafraichir l'affichage du solde
+    }
+}
+
+// Appelle checkSalary() à l'initialisation (tout en bas de ton code)
+(async () => {
+  await loadCsrfToken();
+  await loadMe();
+  await loadAccounts();
+  await checkSalary(); // <--- AJOUTE ÇA ICI
+  updateSelectedAccountLabel(null);
+})();
 </script>
 
 </body>
