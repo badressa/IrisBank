@@ -90,6 +90,19 @@ router.post(
   authController.login
 );
 
+router.post(
+  "/verify-otp",
+  [
+    body("code")
+      .trim()
+      .notEmpty()
+      .withMessage("Code requis")
+      .matches(/^[0-9]{6}$/)
+      .withMessage("Le code doit contenir exactement 6 chiffres"),
+  ],
+  authController.verifyOtp
+);
+
 // ========================================
 // USER SESSION
 // ========================================

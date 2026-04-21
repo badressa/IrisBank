@@ -229,7 +229,7 @@ function setMsg(text, ok=true){
 
 // NAV
 function goDashboard(){
-  window.location.href = "/dashboard.html";
+  window.location.href = "/dashboard";
 }
 
 // CSRF
@@ -264,7 +264,7 @@ async function loadUser(){
   const {res,data} = await api("/api/auth/me");
 
   if(!res.ok){
-    window.location.href = "/login.html";
+    window.location.href = "/login";
     return;
   }
 
@@ -319,7 +319,7 @@ profileForm.addEventListener("submit", async(e)=>{
 // LOGOUT
 async function logout(){
   await api("/api/auth/logout","POST",{});
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }
 
 // INIT

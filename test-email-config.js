@@ -7,23 +7,30 @@
 require("dotenv").config();
 const emailService = require("./services/emailService");
 
+const smtpHost = process.env.SMTP_HOST || process.env.EMAIL_HOST;
+const smtpPort = process.env.SMTP_PORT || process.env.EMAIL_PORT;
+const smtpSecure = process.env.SMTP_SECURE || process.env.EMAIL_SECURE;
+const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+const smtpPassword = process.env.SMTP_PASSWORD || process.env.EMAIL_PASS;
+const smtpFrom = process.env.SMTP_FROM || process.env.EMAIL_FROM;
+
 console.log("\n🔧 Vérification de la configuration des emails...\n");
 
 // Vérifier les variables d'environnement
 console.log(" Variables d'environnement détectées:");
-console.log(`   • SMTP_HOST: ${process.env.SMTP_HOST || " NON CONFIGURÉ"}`);
-console.log(`   • SMTP_PORT: ${process.env.SMTP_PORT || " NON CONFIGURÉ"}`);
-console.log(`   • SMTP_SECURE: ${process.env.SMTP_SECURE || " NON CONFIGURÉ"}`);
-console.log(`   • SMTP_USER: ${process.env.SMTP_USER ? "Configuré" : " NON CONFIGURÉ"}`);
-console.log(`   • SMTP_PASSWORD: ${process.env.SMTP_PASSWORD ? "Configuré" : " NON CONFIGURÉ"}`);
-console.log(`   • SMTP_FROM: ${process.env.SMTP_FROM || "NON CONFIGURÉ"}\n`);
+console.log(`   • SMTP_HOST: ${smtpHost || " NON CONFIGURÉ"}`);
+console.log(`   • SMTP_PORT: ${smtpPort || " NON CONFIGURÉ"}`);
+console.log(`   • SMTP_SECURE: ${smtpSecure || " NON CONFIGURÉ"}`);
+console.log(`   • SMTP_USER: ${smtpUser ? "Configuré" : " NON CONFIGURÉ"}`);
+console.log(`   • SMTP_PASSWORD: ${smtpPassword ? "Configuré" : " NON CONFIGURÉ"}`);
+console.log(`   • SMTP_FROM: ${smtpFrom || "NON CONFIGURÉ"}\n`);
 
 // Vérifier les paramètres obligatoires
 if (
-  !process.env.SMTP_HOST ||
-  !process.env.SMTP_PORT ||
-  !process.env.SMTP_USER ||
-  !process.env.SMTP_PASSWORD
+  !smtpHost ||
+  !smtpPort ||
+  !smtpUser ||
+  !smtpPassword
 ) {
   console.error("ERREUR: Configuration SMTP incomplète!");
   console.log("\n Veuillez configurer votre fichier .env :");
@@ -40,7 +47,8 @@ if (
 console.log(" Tentative d'envoi d'un email de test...\n");
 
 emailService
-  .sendWelcomeEmail("test@example.com", "Dupont", "Jean")
+  .verifyTransport()
+  .then(() => emailService.sendWelcomeEmail("test@example.com", "Dupont", "Jean"))
   .then((result) => {
     if (result.success) {
       console.log(" EMAIL ENVOYÉ AVEC SUCCÈS!");

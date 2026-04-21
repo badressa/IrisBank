@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRISBANK | Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#07111f;
+--bg-soft:#0b1729;
+--panel:rgba(15,27,45,0.82);
+--panel-2:rgba(19,35,58,0.92);
+--text:#eef4ff;
+--muted:#9db0cc;
+--primary:#4f7cff;
+--secondary:#18c37e;
+--accent:#f5b942;
+--line:rgba(255,255,255,0.08);
+--shadow:0 24px 70px rgba(0,0,0,0.28);
+--radius:24px;
+}
+
+*{
+box-sizing:border-box;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+margin:0;
+font-family:"Manrope",sans-serif;
+color:var(--text);
+background:
+radial-gradient(circle at 15% 20%, rgba(79,124,255,0.28), transparent 22%),
+radial-gradient(circle at 85% 18%, rgba(24,195,126,0.16), transparent 18%),
+radial-gradient(circle at 50% 100%, rgba(245,185,66,0.08), transparent 24%),
+linear-gradient(180deg,var(--bg),var(--bg-soft));
+min-height:100vh;
+}
+
+a{
+color:inherit;
+text-decoration:none;
+}
+
+.shell{
+max-width:1240px;
+margin:0 auto;
+padding:28px;
+}
+
+.nav{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:20px;
+padding:14px 0 22px;
+}
+
+.brand{
+display:flex;
+align-items:center;
+gap:14px;
+}
+
+.brand-mark{
+width:48px;
+height:48px;
+border-radius:16px;
+display:grid;
+place-items:center;
+font-family:"Space Grotesk",sans-serif;
+font-size:18px;
+font-weight:700;
+background:linear-gradient(135deg,#4f7cff,#72a4ff);
+box-shadow:0 16px 40px rgba(79,124,255,0.32);
+}
+
+.brand-copy strong,
+.hero-copy h1,
+.section-title,
+.stat strong{
+font-family:"Space Grotesk",sans-serif;
+}
+
+.brand-copy span{
+display:block;
+font-size:13px;
+color:var(--muted);
+}
+
+.nav-links{
+display:flex;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.link,
+.button,
+.ghost{
+border-radius:999px;
+padding:12px 18px;
+font-weight:700;
+transition:0.2s ease;
+}
+
+.link{
+color:#dce7fb;
+}
+
+.link:hover,
+.ghost:hover{
+background:rgba(255,255,255,0.06);
+}
+
+.button{
+background:linear-gradient(135deg,var(--primary),#6aa6ff);
+box-shadow:0 16px 40px rgba(79,124,255,0.28);
+}
+
+.button:hover{
+transform:translateY(-1px);
+}
+
+.ghost{
+border:1px solid var(--line);
+background:rgba(255,255,255,0.03);
+}
+
+.hero{
+display:grid;
+grid-template-columns:1.1fr 0.9fr;
+gap:24px;
+align-items:stretch;
+padding:24px 0 18px;
+}
+
+.hero-copy,
+.hero-panel,
+.feature-card,
+.cta{
+background:var(--panel);
+backdrop-filter:blur(16px);
+border:1px solid var(--line);
+border-radius:var(--radius);
+box-shadow:var(--shadow);
+}
+
+.hero-copy{
+padding:44px;
+position:relative;
+overflow:hidden;
+}
+
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap:10px;
+padding:10px 14px;
+border-radius:999px;
+background:rgba(255,255,255,0.05);
+color:#c7d7f6;
+font-size:13px;
+font-weight:700;
+margin-bottom:22px;
+}
+
+.hero-copy h1{
+font-size:clamp(42px,7vw,72px);
+line-height:0.98;
+margin:0 0 18px;
+letter-spacing:-0.05em;
+max-width:10ch;
+}
+
+.hero-copy p{
+max-width:58ch;
+font-size:16px;
+line-height:1.8;
+color:#d1def5;
+margin:0 0 28px;
+}
+
+.hero-actions{
+display:flex;
+gap:14px;
+flex-wrap:wrap;
+margin-bottom:30px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:14px;
+}
+
+.stat{
+padding:16px;
+border-radius:18px;
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.05);
+}
+
+.stat strong{
+display:block;
+font-size:28px;
+margin-bottom:8px;
+}
+
+.stat span{
+color:var(--muted);
+font-size:14px;
+}
+
+.hero-panel{
+padding:28px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+background:
+linear-gradient(180deg,rgba(19,35,58,0.96),rgba(15,27,45,0.82)),
+radial-gradient(circle at top right, rgba(79,124,255,0.22), transparent 30%);
+}
+
+.panel-top{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:16px;
+margin-bottom:22px;
+}
+
+.chip{
+padding:9px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:800;
+letter-spacing:0.04em;
+text-transform:uppercase;
+}
+
+.chip.live{
+background:rgba(24,195,126,0.12);
+color:#9ff0cd;
+}
+
+.preview-graph{
+height:220px;
+border-radius:20px;
+position:relative;
+overflow:hidden;
+border:1px solid rgba(255,255,255,0.07);
+background:
+linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+}
+
+.preview-graph::before,
+.preview-graph::after{
+content:"";
+position:absolute;
+inset:0;
+}
+
+.preview-graph::before{
+background:linear-gradient(transparent 92%, rgba(255,255,255,0.05) 92%);
+background-size:100% 44px;
+}
+
+.preview-graph::after{
+left:8%;
+right:8%;
+top:26%;
+bottom:20%;
+inset:auto 8% 20% 8%;
+border-radius:24px;
+background:linear-gradient(135deg, rgba(79,124,255,0.18), rgba(24,195,126,0.16));
+clip-path:path("M 0 140 C 60 120, 70 20, 150 50 C 220 76, 250 130, 330 92 C 390 62, 430 8, 520 44 L 520 180 L 0 180 Z");
+}
+
+.panel-list{
+display:grid;
+gap:12px;
+margin-top:24px;
+}
+
+.panel-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:14px;
+padding:14px 16px;
+border-radius:16px;
+background:rgba(255,255,255,0.04);
+}
+
+.panel-item span{
+font-size:14px;
+color:#dbe7fd;
+}
+
+.panel-item strong{
+font-size:14px;
+}
+
+.features{
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:18px;
+padding:20px 0 24px;
+}
+
+.feature-card{
+padding:24px;
+background:rgba(15,27,45,0.7);
+}
+
+.feature-icon{
+width:52px;
+height:52px;
+display:grid;
+place-items:center;
+border-radius:16px;
+margin-bottom:16px;
+font-size:22px;
+background:rgba(255,255,255,0.06);
+}
+
+.feature-card h2{
+margin:0 0 10px;
+font-size:22px;
+}
+
+.feature-card p{
+margin:0;
+line-height:1.75;
+color:var(--muted);
+}
+
+.feature-card a{
+display:inline-block;
+margin-top:18px;
+color:#ddebff;
+font-weight:800;
+}
+
+.cta{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:18px;
+padding:28px 32px;
+margin-bottom:24px;
+}
+
+.section-title{
+font-size:30px;
+margin:0 0 8px;
+letter-spacing:-0.03em;
+}
+
+.cta p{
+margin:0;
+color:var(--muted);
+line-height:1.7;
+max-width:62ch;
+}
+
+@media (max-width: 1080px){
+.hero,
+.features{
+grid-template-columns:1fr;
+}
+}
+
+@media (max-width: 760px){
+.shell{
+padding:18px;
+}
+
+.nav{
+align-items:flex-start;
+flex-direction:column;
+}
+
+.nav-links,
+.hero-actions,
+.cta{
+width:100%;
+}
+
+.nav-links{
+justify-content:flex-start;
+}
+
+.hero-copy,
+.hero-panel,
+.feature-card,
+.cta{
+padding:22px;
+}
+
+.stats{
+grid-template-columns:1fr;
+}
+
+.cta{
+flex-direction:column;
+align-items:flex-start;
+}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark">IB</div>
+      <div class="brand-copy">
+        <strong>IRISBANK</strong>
+        <span>Banque digitale, budget intelligent et parcours sécurisé</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a class="link" href="/login">Connexion</a>
+      <a class="link" href="/register">Inscription</a>
+      <a class="button" href="/dashboard">Accéder au tableau de bord</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Pilotage bancaire nouvelle génération</div>
+      <h1>Votre argent, lisible en un regard.</h1>
+      <p>IRISBANK centralise vos comptes, vos transactions et votre budget dans une interface claire. L’objectif est simple : réduire la friction, accélérer les décisions et garder une vision nette de vos mouvements financiers.</p>
+      <div class="hero-actions">
+        <a class="button" href="/register">Ouvrir un compte</a>
+        <a class="ghost" href="/login">Se connecter</a>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong>24/7</strong>
+          <span>Suivi de vos opérations en continu</span>
+        </div>
+        <div class="stat">
+          <strong>CSRF</strong>
+          <span>Protection active sur les opérations sensibles</span>
+        </div>
+        <div class="stat">
+          <strong>Budget</strong>
+          <span>Vision catégorie par catégorie</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="hero-panel">
+      <div>
+        <div class="panel-top">
+          <div>
+            <div class="section-title">Vue consolidée</div>
+            <p style="margin:8px 0 0;color:var(--muted);line-height:1.7;">Un espace de contrôle pour comptes, dépenses, notifications et profil.</p>
+          </div>
+          <div class="chip live">Session sécurisée</div>
+        </div>
+        <div class="preview-graph"></div>
+      </div>
+
+      <div class="panel-list">
+        <div class="panel-item">
+          <span>Navigation utilisateur</span>
+          <strong>/dashboard</strong>
+        </div>
+        <div class="panel-item">
+          <span>Gestion du budget</span>
+          <strong>/budget</strong>
+        </div>
+        <div class="panel-item">
+          <span>Administration</span>
+          <strong>/admin</strong>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="features">
+    <article class="feature-card">
+      <div class="feature-icon">01</div>
+      <h2>Connexion et inscription</h2>
+      <p>Le parcours d’entrée reste direct, avec des formulaires orientés clarté et une vérification d’email déjà prévue dans l’application.</p>
+      <a href="/login">Aller vers la connexion</a>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">02</div>
+      <h2>Suivi des opérations</h2>
+      <p>Le tableau de bord regroupe l’activité bancaire, les actions fréquentes et la lecture des comptes dans une seule page opérationnelle.</p>
+      <a href="/dashboard">Voir le dashboard</a>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">03</div>
+      <h2>Maîtrise du budget</h2>
+      <p>Le module budget aide à poser des plafonds, comprendre les catégories et suivre les paiements sans passer d’écran en écran.</p>
+      <a href="/budget">Ouvrir le module budget</a>
+    </article>
+  </section>
+
+  <section class="cta">
+    <div>
+      <h2 class="section-title">Point d’entrée principal de l’application</h2>
+      <p>Désormais, l’URL racine de l’application sert cette page d’accueil. Les utilisateurs peuvent ensuite naviguer vers la connexion, l’inscription ou les vues internes selon leur rôle.</p>
+    </div>
+    <a class="button" href="/register">Commencer</a>
+  </section>
+</div>
+</body>
+</html>

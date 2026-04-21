@@ -251,8 +251,8 @@
                     showMessage(data.message, 'success');
 
                     actionsEl.innerHTML = `
-                        <a href="/login.html" class="button button-primary">Aller à la connexion</a>
-                        <a href="/register.html" class="button button-secondary">Nouvelle inscription</a>
+                        <a href="/login" class="button button-primary">Aller à la connexion</a>
+                        <a href="/register" class="button button-secondary">Nouvelle inscription</a>
                     `;
                     actionsEl.style.display = 'block';
                 } else {
@@ -266,7 +266,7 @@
                     }
 
                     actionsEl.innerHTML = `
-                        <a href="/register.html" class="button button-secondary">Retour à l'inscription</a>
+                        <a href="/register" class="button button-secondary">Retour à l'inscription</a>
                     `;
                     actionsEl.style.display = 'block';
                 }
@@ -275,7 +275,7 @@
                 titleEl.textContent = '✗ Erreur';
                 showMessage('Erreur serveur. Veuillez réessayer plus tard.', 'error');
                 actionsEl.innerHTML = `
-                    <a href="/register.html" class="button button-secondary">Retour à l'inscription</a>
+                    <a href="/register" class="button button-secondary">Retour à l'inscription</a>
                 `;
                 actionsEl.style.display = 'block';
             }

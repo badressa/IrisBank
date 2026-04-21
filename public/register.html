@@ -280,7 +280,7 @@ Accédez à une nouvelle génération de gestion bancaire simple, rapide et séc
 
 <div class="link">
 Déjà inscrit ?
-<a href="/login.html">Se connecter</a>
+<a href="/login">Se connecter</a>
 </div>
 
 <div id="message" class="msg"></div>
@@ -354,7 +354,7 @@ setTimeout(() => {
   btn.className = "btn";
   btn.textContent = "Aller à la vérification";
   btn.style.marginTop = "10px";
-  btn.onclick = () => window.location.href = "/verify-email.html";
+  btn.onclick = () => window.location.href = "/verify-email";
   msg.appendChild(btn);
   
   const separator = document.createElement("p");
@@ -364,7 +364,7 @@ setTimeout(() => {
   msg.appendChild(separator);
   
   const link = document.createElement("a");
-  link.href = "/login.html";
+  link.href = "/login";
   link.textContent = "Aller à la connexion";
   link.className = "link";
   link.style.display = "block";
@@ -376,7 +376,7 @@ return;
 }
 
 // Fallback (ancien comportement)
-window.location.href="/dashboard.html";
+window.location.href="/dashboard";
 
 }catch(err){
 

@@ -271,14 +271,16 @@ Connectez-vous pour accéder à vos comptes, effectuer des virements et gérer v
 
 <input class="input" type="email" id="email" placeholder="Email" required>
 <input class="input" type="password" id="password" placeholder="Mot de passe" required>
+<input class="input" type="text" id="otpCode" placeholder="Code de verification a 6 chiffres" inputmode="numeric" maxlength="6" style="display:none">
 
 <button class="btn" type="submit">Se connecter</button>
+<button class="btn" type="button" id="backToPassword" style="display:none;background:rgba(255,255,255,0.08)">Retour</button>
 
 </form>
 
 <div class="link">
 Pas encore de compte ?
-<a href="/register.html">Créer un compte</a>
+<a href="/register">Créer un compte</a>
 </div>
 
 <div id="message" class="msg"></div>
@@ -292,6 +294,7 @@ Pas encore de compte ?
 <script>
 
 let csrfToken = "";
+let awaitingOtp = false;
 
 async function loadCsrfToken(){
 
@@ -304,21 +307,54 @@ csrfToken = data.csrfToken;
 
 }
 
+function resetOtpStep(){
+
+awaitingOtp = false;
+document.getElementById("otpCode").style.display = "none";
+document.getElementById("otpCode").value = "";
+document.getElementById("password").style.display = "block";
+document.getElementById("password").disabled = false;
+document.getElementById("email").disabled = false;
+document.querySelector("button[type='submit']").textContent = "Se connecter";
+document.getElementById("backToPassword").style.display = "none";
+
+}
+
+document.getElementById("backToPassword").addEventListener("click", () => {
+
+resetOtpStep();
+const msg = document.getElementById("message");
+msg.className = "msg";
+msg.textContent = "";
+
+});
+
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
 e.preventDefault();
 
 const email = document.getElementById("email").value.trim();
 const password = document.getElementById("password").value;
+const otpCode = document.getElementById("otpCode").value.trim();
 
 const msg = document.getElementById("message");
 
 msg.className = "msg show info";
-msg.textContent = "Connexion...";
+msg.textContent = awaitingOtp ? "Verification du code..." : "Connexion...";
 
 try{
 
-const response = await fetch("/api/auth/login",{
+const response = awaitingOtp
+? await fetch("/api/auth/verify-otp",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"CSRF-Token":csrfToken
+},
+credentials:"include",
+body:JSON.stringify({code:otpCode})
+})
+: await fetch("/api/auth/login",{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
@@ -341,12 +377,28 @@ msg.innerHTML = `
   Veuillez d'abord cliquer sur le lien d'activation reçu par email.<br>
   <br>
   <small style="color: #ccc;">Vous n'avez pas reçu l'email?</small><br>
-  <a href="/verify-email.html" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Renvoyer l'email de confirmation</a>
+   <a href="/register" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Retour a l'inscription</a>
 `;
 } else {
 msg.textContent = data.error || "Erreur connexion";
 }
 
+return;
+
+}
+
+if(data.requiresOtp){
+
+awaitingOtp = true;
+document.getElementById("otpCode").style.display = "block";
+document.getElementById("password").disabled = true;
+document.getElementById("password").style.display = "none";
+document.getElementById("email").disabled = true;
+document.getElementById("backToPassword").style.display = "block";
+document.querySelector("button[type='submit']").textContent = "Valider le code";
+msg.className = "msg show info";
+msg.textContent = data.message || "Entrez le code recu par email pour terminer la connexion.";
+document.getElementById("otpCode").focus();
 return;
 
 }
@@ -364,11 +416,11 @@ setTimeout(() => {
 
 if(isAdmin){
 
-window.location.href = "/admin.html";
+window.location.href = "/admin";
 
 }else{
 
-window.location.href = "/dashboard.html";
+window.location.href = "/dashboard";
 
 }
 

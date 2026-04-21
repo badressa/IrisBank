@@ -1167,7 +1167,7 @@ select{
     </section>
 
     <section>
-      <a href="/budget.html">💰 Mon Budget</a>
+      <a href="/budget">💰 Mon Budget</a>
     </section>
   </main>
 </div>
@@ -1177,7 +1177,7 @@ let selectedAccountId = null;
 let csrfToken = "";
 
 function goProfile() {
-  window.location.href = "/profile.html";
+  window.location.href = "/profile";
 }
 
 async function loadCsrfToken() {
@@ -1239,7 +1239,7 @@ async function loadMe() {
   if (res.ok && data.user) {
     who.innerHTML = '<span class="status-dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
   } else {
-    window.location.href = "/login.html";
+    window.location.href = "/login";
   }
 }
 
@@ -1466,7 +1466,7 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   } catch (e) {
     console.error("Logout error:", e);
   }
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 });
 
 (async () => {
