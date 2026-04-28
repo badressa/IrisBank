@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : dim. 19 avr. 2026 à 20:10
+-- Généré le : mar. 21 avr. 2026 à 17:29
 -- Version du serveur : 10.4.27-MariaDB
 -- Version de PHP : 8.2.0
 
@@ -75,7 +75,11 @@ INSERT INTO `budget_historique` (`id`, `paiement_id`, `transaction_id`, `montant
 (1, 2, 63, '17.67', 4, 2026, '2026-04-19 18:01:12'),
 (2, 3, 64, '7.90', 4, 2026, '2026-04-19 18:01:43'),
 (3, 4, 65, '34.99', 4, 2026, '2026-04-19 18:02:54'),
-(4, 5, 66, '17.90', 4, 2026, '2026-04-19 18:08:20');
+(4, 5, 66, '17.90', 4, 2026, '2026-04-19 18:08:20'),
+(5, 6, 67, '30.00', 4, 2026, '2026-04-19 18:16:48'),
+(6, 7, 68, '34.21', 4, 2026, '2026-04-19 18:17:44'),
+(7, 8, 69, '50.00', 4, 2026, '2026-04-19 21:06:46'),
+(8, 9, 70, '649.00', 4, 2026, '2026-04-20 14:58:55');
 
 -- --------------------------------------------------------
 
@@ -99,7 +103,9 @@ CREATE TABLE `budget_limites` (
 INSERT INTO `budget_limites` (`id`, `user_id`, `categorie_id`, `plafond`, `created_at`, `updated_at`) VALUES
 (1, 28, 10, '50.00', '2026-04-19 18:02:05', '2026-04-19 18:02:05'),
 (2, 28, 7, '250.00', '2026-04-19 18:02:23', '2026-04-19 18:02:23'),
-(3, 28, 2, '50.00', '2026-04-19 18:03:13', '2026-04-19 18:03:13');
+(3, 28, 2, '50.00', '2026-04-19 18:03:13', '2026-04-19 18:03:13'),
+(4, 28, 4, '50.00', '2026-04-19 18:17:12', '2026-04-19 18:17:12'),
+(5, 28, 3, '10.00', '2026-04-19 21:06:24', '2026-04-19 21:06:24');
 
 -- --------------------------------------------------------
 
@@ -130,7 +136,11 @@ INSERT INTO `budget_paiements` (`id`, `user_id`, `compte_source_id`, `categorie_
 (2, 28, 30, 7, '17.67', 'FRANPRIX', 0, 'ACTIF', NULL, '2026-04-19 18:01:12', '2026-04-19 18:01:12'),
 (3, 28, 30, 10, '7.90', 'NETFLIX', 1, 'ACTIF', '2026-04-30', '2026-04-19 18:01:43', '2026-04-19 18:01:43'),
 (4, 28, 30, 2, '34.99', 'ON AIR', 1, 'ACTIF', '2026-04-30', '2026-04-19 18:02:54', '2026-04-19 18:02:54'),
-(5, 28, 30, 2, '17.90', 'Decathlon Ballon', 0, 'ACTIF', NULL, '2026-04-19 18:08:20', '2026-04-19 18:08:20');
+(5, 28, 30, 2, '17.90', 'Decathlon Ballon', 0, 'ACTIF', NULL, '2026-04-19 18:08:20', '2026-04-19 18:08:20'),
+(6, 28, 30, 9, '30.00', 'Medecin Generaliste', 0, 'ACTIF', NULL, '2026-04-19 18:16:48', '2026-04-19 18:16:48'),
+(7, 28, 30, 4, '34.21', 'Brunch Paris', 0, 'ACTIF', NULL, '2026-04-19 18:17:44', '2026-04-19 18:17:44'),
+(8, 28, 30, 3, '50.00', 'Jeux Steam', 0, 'ACTIF', NULL, '2026-04-19 21:06:46', '2026-04-19 21:06:46'),
+(9, 28, 30, 6, '649.00', 'Loyer', 1, 'ACTIF', '2026-04-30', '2026-04-20 14:58:55', '2026-04-20 14:58:55');
 
 -- --------------------------------------------------------
 
@@ -159,7 +169,28 @@ INSERT INTO `comptes_bancaires` (`id`, `user_id`, `iban`, `type`, `solde`, `stat
 (26, 26, 'FR76-YBNK-8393-8092-1271', 'PEL', '11120.00', 'ACTIF', '2026-04-02 09:27:56'),
 (28, 28, 'FR76-YBNK-7978-8367-3305', 'COURANT', '10000.00', 'ACTIF', '2026-04-19 17:28:07'),
 (29, 28, 'FR76-YBNK-2981-9304-0151', 'LIVRET_A', '10000.00', 'ACTIF', '2026-04-19 17:28:10'),
-(30, 28, 'FR76-YBNK-4525-3206-3021', 'PEL', '9913.55', 'ACTIF', '2026-04-19 17:28:12');
+(30, 28, 'FR76-YBNK-4525-3206-3021', 'PEL', '9150.34', 'ACTIF', '2026-04-19 17:28:12');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `contrats_pro`
+--
+
+CREATE TABLE `contrats_pro` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `compte_destination_id` int(11) NOT NULL,
+  `employeur` varchar(150) NOT NULL,
+  `salaire_mensuel` decimal(10,2) NOT NULL,
+  `type_contrat` enum('CDI','CDD') NOT NULL,
+  `date_debut` date NOT NULL,
+  `date_fin` date DEFAULT NULL,
+  `jour_versement` int(11) DEFAULT 1,
+  `dernier_versement` date DEFAULT NULL,
+  `statut` enum('ACTIF','TERMINE') DEFAULT 'ACTIF',
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -228,7 +259,12 @@ INSERT INTO `notifications` (`id`, `message`, `type`, `created_at`, `user_id`) V
 (83, '💳 Paiement de 7.9€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 18:01:43', 28),
 (84, '💳 Paiement de 34.99€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 18:02:54', 28),
 (85, '💳 Paiement de 17.9€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 18:08:20', 28),
-(86, '⚠️ Plafond dépassé pour Sport : 52.89€ / 50.00€', 'BUDGET_DEPASSE', '2026-04-19 18:08:20', 28);
+(86, '⚠️ Plafond dépassé pour Sport : 52.89€ / 50.00€', 'BUDGET_DEPASSE', '2026-04-19 18:08:20', 28),
+(87, '💳 Paiement de 30€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 18:16:48', 28),
+(88, '💳 Paiement de 34.21€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 18:17:44', 28),
+(89, '💳 Paiement de 50€ effectué', 'BUDGET_PAIEMENT', '2026-04-19 21:06:46', 28),
+(90, '⚠️ Plafond dépassé pour Jeux / Loisirs : 50.00€ / 10.00€', 'BUDGET_DEPASSE', '2026-04-19 21:06:46', 28),
+(91, '💳 Paiement de 649€ effectué', 'BUDGET_PAIEMENT', '2026-04-20 14:58:55', 28);
 
 -- --------------------------------------------------------
 
@@ -272,7 +308,11 @@ INSERT INTO `transactions` (`id`, `type`, `montant`, `description`, `compte_sour
 (63, 'RETRAIT', '17.67', 'FRANPRIX', 30, NULL, '2026-04-19 18:01:12', 7),
 (64, 'RETRAIT', '7.90', 'NETFLIX', 30, NULL, '2026-04-19 18:01:43', 10),
 (65, 'RETRAIT', '34.99', 'ON AIR', 30, NULL, '2026-04-19 18:02:54', 2),
-(66, 'RETRAIT', '17.90', 'Decathlon Ballon', 30, NULL, '2026-04-19 18:08:20', 2);
+(66, 'RETRAIT', '17.90', 'Decathlon Ballon', 30, NULL, '2026-04-19 18:08:20', 2),
+(67, 'RETRAIT', '30.00', 'Medecin Generaliste', 30, NULL, '2026-04-19 18:16:48', 9),
+(68, 'RETRAIT', '34.21', 'Brunch Paris', 30, NULL, '2026-04-19 18:17:44', 4),
+(69, 'RETRAIT', '50.00', 'Jeux Steam', 30, NULL, '2026-04-19 21:06:46', 3),
+(70, 'RETRAIT', '649.00', 'Loyer', 30, NULL, '2026-04-20 14:58:55', 6);
 
 -- --------------------------------------------------------
 
@@ -347,6 +387,12 @@ ALTER TABLE `comptes_bancaires`
   ADD UNIQUE KEY `unique_user_type` (`user_id`,`type`);
 
 --
+-- Index pour la table `contrats_pro`
+--
+ALTER TABLE `contrats_pro`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Index pour la table `notifications`
 --
 ALTER TABLE `notifications`
@@ -379,19 +425,19 @@ ALTER TABLE `budget_categories`
 -- AUTO_INCREMENT pour la table `budget_historique`
 --
 ALTER TABLE `budget_historique`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `budget_limites`
 --
 ALTER TABLE `budget_limites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT pour la table `budget_paiements`
 --
 ALTER TABLE `budget_paiements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT pour la table `comptes_bancaires`
@@ -400,16 +446,22 @@ ALTER TABLE `comptes_bancaires`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
+-- AUTO_INCREMENT pour la table `contrats_pro`
+--
+ALTER TABLE `contrats_pro`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT pour la table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 
 --
 -- AUTO_INCREMENT pour la table `users`

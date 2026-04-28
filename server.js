@@ -20,6 +20,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
+const contractRoutes = require("./routes/contracts");
 
 const app = express();
 
@@ -348,6 +349,7 @@ app.use("/api/notifications", csrfProtection, notificationRoutes);
 app.use("/api/profile", csrfProtection, profileRoutes);
 app.use("/api/ai", csrfProtection, aiRoutes);
 app.use("/budget", budgetRoutes);
+app.use("/api/contracts", csrfProtection, contractRoutes);
 app.use("/api/cards",         csrfProtection, cardRoutes);
 app.use("/api/kyc",           csrfProtection, kycRoutes);
 app.use("/api/tickets",       csrfProtection, ticketRoutes);
@@ -424,4 +426,4 @@ app.listen(PORT, () => {
   console.log("🚀 IRISBANK server running on port " + PORT);
   console.log(`📋 Env: ${process.env.NODE_ENV || "development"}`);
 });
-
+require("./services/salaryService");
