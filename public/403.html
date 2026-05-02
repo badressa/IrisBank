@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IRISBANK — Accès refusé</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      background:#0a0f1e;
+      color:#e2e8f0;
+      font-family:'Segoe UI',sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+    }
+    .card{
+      background:#111827;
+      border:1px solid #1e293b;
+      border-radius:16px;
+      padding:48px 40px;
+      text-align:center;
+      max-width:440px;
+      width:90%;
+    }
+    .logo{
+      width:56px;height:56px;
+      background:linear-gradient(135deg,#6366f1,#8b5cf6);
+      border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;font-size:20px;color:#fff;
+      margin:0 auto 24px;
+    }
+    .code{
+      font-size:64px;font-weight:800;
+      background:linear-gradient(135deg,#ef4444,#f97316);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      line-height:1;
+      margin-bottom:12px;
+    }
+    h1{font-size:22px;font-weight:700;margin-bottom:8px;color:#f1f5f9;}
+    p{color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:32px;}
+    .btn{
+      display:inline-block;
+      padding:12px 28px;
+      background:linear-gradient(135deg,#6366f1,#8b5cf6);
+      color:#fff;font-weight:600;font-size:14px;
+      border-radius:10px;text-decoration:none;
+      transition:opacity .2s;
+    }
+    .btn:hover{opacity:.85;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">IR</div>
+    <div class="code">403</div>
+    <h1>Accès refusé</h1>
+    <p>Vous devez être connecté pour accéder à cette page.<br/>Veuillez vous identifier pour continuer.</p>
+    <a href="/login.html" class="btn">Se connecter</a>
+  </div>
+</body>
+</html>

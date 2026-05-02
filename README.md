@@ -36,6 +36,7 @@ IRISBANK est une application bancaire développée avec Node.js et Express. Elle
 
 4. Configurez les variables d'environnement :
    - Créez un fichier `.env` à la racine avec les variables nécessaires (ex. : SESSION_SECRET, informations de DB).
+   - Pour Stripe en mode test, ajoutez aussi `STRIPE_SECRET_KEY` et `STRIPE_PUBLISHABLE_KEY`.
 
 ## Utilisation
 Pour démarrer le serveur :
@@ -59,6 +60,12 @@ L'application sera accessible sur `http://localhost:3000` (ou le port configuré
 
 ## Scripts
 - `npm test` : Exécute les tests (à configurer).
+
+## Stripe test
+- L'API expose `GET /api/stripe/config` pour récupérer la clé publique Stripe côté frontend.
+- L'API expose `GET /api/stripe/test-cards` pour lister quelques cartes de test utiles.
+- L'API expose `POST /api/stripe/create-payment-intent` avec `amount`, `currency` et `description`.
+- Exemple de carte test Stripe succès : `4242 4242 4242 4242`.
 
 ## Licence
 ISC

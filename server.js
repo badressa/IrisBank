@@ -19,13 +19,18 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const contractRoutes = require('./routes/contracts');
+const pageRoutes = require('./routes/pageRoutes');
 
 const app = express();
 
 // ===============================
 // MIDDLEWARES
 // ===============================
-app.use(express.static("public"));
+// Routes de pages HTML (AVANT static pour bloquer l'accès direct)
+app.use(pageRoutes);
+
+// Fichiers statiques : CSS, JS, images (les .html sont gérés par pageRoutes)
+app.use(express.static("public", { index: false, extensions: [] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -130,3 +135,15 @@ app.use('/api/contracts', contractRoutes);
 
 require('./services/budgetCron');
 require('./services/salaryService');
+
+// ===============================
+// 404 — route inconnue
+// ===============================
+app.use((req, res) => {
+  // API → JSON
+  if (req.path.startsWith('/api') || req.path.startsWith('/budget')) {
+    return res.status(404).json({ error: 'Route introuvable' });
+  }
+  // Page → 404.html
+  res.status(404).sendFile(require('path').join(__dirname, 'public', '404.html'));
+});

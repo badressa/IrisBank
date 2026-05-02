@@ -342,10 +342,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `nom`, `prenom`, `email`, `telephone`, `adresse`, `date_naissance`, `password_hash`, `role`, `created_at`, `is_admin`, `email_verified`, `verification_token`, `token_expiry`) VALUES
-(2, 'Rajo', 'Rajit', 'rajo@gmail.com', '0612345678', 'Paris', '2000-01-01', '$2b$10$fpPnJSHqslRjrL4I4wp.EOxVNY0MqBebf161ipuoLvELbvb/1PoMO', 'ADMIN', '2026-03-04 16:18:53', 1, 0, NULL, NULL),
-(26, 'DELON', 'Alexi', 'delon@gmail.com', '0678678756', '40 rue de la Paix', '2001-12-12', '$2b$10$rdgTukr9hIxiac/YsSpzW.VdUpvCQHaP3LNYejDH40.Nf2WM7XyaC', 'CLIENT', '2026-04-02 09:25:42', 0, 0, NULL, NULL),
-(25, 'Sad', 'JEya', 'sad@gmail.com', '0767766775', '40 rue de la Paix', '2026-04-02', '$2b$10$2w2L4hjsx9o3PDYR/pP/M.WgIJAQQRaZcgXVqzOB.4yZpOK0cL0/2', 'CLIENT', '2026-04-01 09:21:33', 0, 0, NULL, NULL),
-(27, 'Lahlouh', 'Nassim', 'greyfullbuster111@gmail.com', '0783058000', '45 avenue des rose', '1996-11-11', '$2b$10$n64SDfbJYvyXFCIeIdQzAu2ot4mRBfF5DMPjAfvnLaYAzYcr.irki', 'CLIENT', '2026-04-15 20:49:03', 0, 0, 'be994386289d8654d38226e9aaf1d8382247f6b3f99c6c228bdd8d3309e3a592', '2026-04-16 22:49:03'),
+(2, 'Rajo', 'Rajit', 'rajo@gmail.com', '0612345678', 'Paris', '2000-01-01', '$2b$10$fpPnJSHqslRjrL4I4wp.EOxVNY0MqBebf161ipuoLvELbvb/1PoMO', 'ADMIN', '2026-03-04 16:18:53', 1, 1, NULL, NULL),
+(26, 'DELON', 'Alexi', 'delon@gmail.com', '0678678756', '40 rue de la Paix', '2001-12-12', '$2b$10$rdgTukr9hIxiac/YsSpzW.VdUpvCQHaP3LNYejDH40.Nf2WM7XyaC', 'CLIENT', '2026-04-02 09:25:42', 0, 1, NULL, NULL),
+(25, 'Sad', 'JEya', 'sad@gmail.com', '0767766775', '40 rue de la Paix', '2026-04-02', '$2b$10$2w2L4hjsx9o3PDYR/pP/M.WgIJAQQRaZcgXVqzOB.4yZpOK0cL0/2', 'CLIENT', '2026-04-01 09:21:33', 0, 1, NULL, NULL),
+(27, 'Lahlouh', 'Nassim', 'greyfullbuster111@gmail.com', '0783058000', '45 avenue des rose', '1996-11-11', '$2b$10$n64SDfbJYvyXFCIeIdQzAu2ot4mRBfF5DMPjAfvnLaYAzYcr.irki', 'CLIENT', '2026-04-15 20:49:03', 0, 1, NULL, NULL),
 (28, 'Lahlouh', 'Nassim', 'lahlouhnassim@gmail.com', '0783050000', '32 avenue DES ROSES', '1995-03-22', '$2b$10$jMBRGZnOOUcqrgNAstkAKePC7hcQGAsFpGTeXOfH69xZSmJekA4gq', 'CLIENT', '2026-04-15 21:07:32', 0, 1, NULL, NULL),
 (29, 'Lahlouh', 'Nassim', 'lahlouhnassimdev@gmail.com', '0783050000', '32 avenue du temple', '1996-12-12', '$2b$10$fmei3D8Z3UBcWxJcttJ7BeGVs3W6gzW0QkwuMzqziHrw.lehO.qri', 'CLIENT', '2026-04-16 11:14:19', 0, 1, NULL, NULL);
 
@@ -383,8 +383,7 @@ ALTER TABLE `budget_paiements`
 --
 ALTER TABLE `comptes_bancaires`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `iban` (`iban`),
-  ADD UNIQUE KEY `unique_user_type` (`user_id`,`type`);
+  ADD UNIQUE KEY `iban` (`iban`);
 
 --
 -- Index pour la table `contrats_pro`
