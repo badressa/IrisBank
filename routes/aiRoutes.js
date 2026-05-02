@@ -19,4 +19,10 @@ router.post(
   aiController.chat
 );
 
+router.post(
+  "/budget-analysis",
+  requireAuth,
+  aiController.analyzeBudget
+);
+
 module.exports = router;

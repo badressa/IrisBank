@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Budget — IrisBank</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/vendor/chartjs/chart.umd.min.js"></script>
   <style>
     :root {
       --bg:#07111f;
@@ -393,6 +393,70 @@
       color: #eaf2ff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
+
+    /* ── ANALYSE IA ── */
+    .ai-box {
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(19,35,58,0.98), rgba(11,22,39,0.98));
+      padding: 16px;
+    }
+
+    .ai-wide { margin-top: 24px; }
+    .ai-wide .ai-box { margin-top: 0; }
+
+    .ai-top {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-top input {
+      flex: 1;
+      min-width: 180px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: #eaf2ff;
+      font-size: 13px;
+    }
+
+    .ai-btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ai-btn:disabled {
+      background: #64748b;
+      cursor: not-allowed;
+    }
+
+    .ai-meta {
+      font-size: 12px;
+      color: #9db0cc;
+      margin-bottom: 8px;
+    }
+
+    .ai-output {
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e5efff;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 88px;
+    }
   </style>
 </head>
 <body>
@@ -547,6 +611,18 @@
 
     </div>
   </div>
+
+  <div class="card ai-wide">
+    <div class="ai-box">
+      <h2 style="margin-bottom:10px;">Analyse IA budget</h2>
+      <div class="ai-top">
+        <input id="ai-question" type="text" placeholder="Ex: comment reduire mes depenses assurance et marche ?">
+        <button id="ai-btn" class="ai-btn" onclick="runBudgetAI()">Analyser</button>
+      </div>
+      <div id="ai-meta" class="ai-meta">Source: en attente</div>
+      <div id="ai-output" class="ai-output">Cliquez sur Analyser pour generer un rapport IA.</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -556,6 +632,7 @@ let dashboardData  = [];
 let paiementsData  = [];
 let pieChart       = null;
 let notificationsData = [];
+let csrfToken = null;
 
 // ── Init
 document.addEventListener('DOMContentLoaded', () => {
@@ -571,9 +648,19 @@ async function loadAll() {
 
 // ── API helpers
 async function api(url, options = {}) {
+  const method = String(options.method || 'GET').toUpperCase();
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+
+  if (method !== 'GET' && method !== 'HEAD') {
+    await ensureCsrfToken();
+    if (csrfToken) {
+      headers['x-csrf-token'] = csrfToken;
+    }
+  }
+
   const res = await fetch(url, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options
   });
 
@@ -586,6 +673,17 @@ async function api(url, options = {}) {
   }
 
   return data;
+}
+
+async function ensureCsrfToken() {
+  if (csrfToken) return;
+  try {
+    const res = await fetch('/api/csrf-token', { credentials: 'include' });
+    const data = await res.json();
+    csrfToken = data.csrfToken || null;
+  } catch (_) {
+    csrfToken = null;
+  }
 }
 
 // ── Charger les catégories
@@ -911,6 +1009,48 @@ function showAlert(message, type = 'success') {
   box.textContent = message;
   box.style.display = 'block';
   setTimeout(() => { box.style.display = 'none'; }, 4000);
+}
+
+// ── Analyse IA budget (Ollama/local fallback)
+async function runBudgetAI() {
+  const btn = document.getElementById('ai-btn');
+  const out = document.getElementById('ai-output');
+  const meta = document.getElementById('ai-meta');
+  const question = (document.getElementById('ai-question').value || '').trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Analyse...';
+  out.textContent = 'Generation du rapport budget en cours...';
+
+  const now = new Date();
+  const data = await api('/api/ai/budget-analysis', {
+    method: 'POST',
+    body: JSON.stringify({
+      month: now.getMonth() + 1,
+      year: now.getFullYear(),
+      question
+    })
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Analyser';
+
+  if (data.success) {
+    const provider = data.provider || 'unknown';
+    const model = data.model || 'unknown';
+    const humanReason = data.aiErrorMessage || data.ollamaError || '';
+    const reason = humanReason ? ` | Cause fallback: ${humanReason}` : '';
+    meta.textContent = `Source: ${provider} | Modele: ${model}${reason}`;
+    out.textContent = data.analysis || 'Aucun texte retourne par le moteur IA.';
+
+    if (provider === 'local-fallback') {
+      out.textContent += `\n\n[Moteur IA indisponible: ${humanReason || 'service temporairement indisponible'}. L'analyse ci-dessus est generee localement.]`;
+    }
+    return;
+  }
+
+  meta.textContent = 'Source: erreur';
+  out.textContent = data.error || data.message || 'Erreur pendant l\'analyse IA.';
 }
 </script>
 

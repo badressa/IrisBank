@@ -3,6 +3,7 @@ const session = require("express-session");
 const rateLimit = require("express-rate-limit");
 const csrf = require("csurf");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 require("dotenv").config();
 
@@ -57,6 +58,9 @@ app.use((req, res, next) => {
 
 // Routes de pages HTML (APRÈS session pour pouvoir lire req.session.user)
 app.use(pageRoutes);
+
+// Bibliotheques frontend servies localement (evite les blocages tracking des CDN)
+app.use("/vendor/chartjs", express.static(path.join(__dirname, "node_modules", "chart.js", "dist")));
 
 // Fichiers statiques : CSS, JS, images (les .html sont gérés par pageRoutes)
 app.use(express.static("public", { index: false, extensions: [] }));
@@ -146,5 +150,5 @@ app.use((req, res) => {
     return res.status(404).json({ error: 'Route introuvable' });
   }
   // Page → 404.html
-  res.status(404).sendFile(require('path').join(__dirname, 'public', '404.html'));
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });

@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const db = require("../config/db");
+const { isOllamaEnabled, generateWithOllama, OLLAMA_MODEL } = require("../services/ollamaService");
+const { isGeminiEnabled, generateWithGemini, GEMINI_MODEL } = require("../services/geminiService");
 
 // ==============================
 // BUILD USER CONTEXT
@@ -204,6 +206,348 @@ Exemples :
 - Comment faire un virement ?
 - Est-ce que j’ai un compte bloqué ?`;
 }
+
+function parseMonthYear(inputMonth, inputYear) {
+  const now = new Date();
+  const month = Number(inputMonth) || (now.getMonth() + 1);
+  const year = Number(inputYear) || now.getFullYear();
+
+  if (month < 1 || month > 12) {
+    return { month: now.getMonth() + 1, year: now.getFullYear() };
+  }
+
+  return { month, year };
+}
+
+function mapAiErrorForUser(rawError, provider) {
+  const raw = String(rawError || "").trim();
+  if (!raw) {
+    return "Le moteur IA est momentanement indisponible.";
+  }
+
+  if (raw.includes("GEMINI_HTTP_429")) {
+    return "Le quota Gemini est temporairement depasse (limite minute/jour). Reessayez dans 1-2 minutes.";
+  }
+
+  if (raw.includes("GEMINI_HTTP_403") || raw.includes("GEMINI_MISSING_API_KEY")) {
+    return "La configuration Gemini est invalide (cle API manquante ou non autorisee).";
+  }
+
+  if (raw.includes("GEMINI_HTTP_404")) {
+    return "Le modele Gemini configure est introuvable pour cette API.";
+  }
+
+  if (raw.includes("This operation was aborted") || raw.includes("AbortError")) {
+    return provider === "gemini"
+      ? "Gemini a depasse le delai de reponse. Reessayez avec une requete plus courte."
+      : "Ollama a depasse le delai de reponse. Verifiez que le modele est bien charge.";
+  }
+
+  if (raw.includes("OLLAMA_HTTP_")) {
+    return "Ollama a renvoye une erreur HTTP. Verifiez le service local Ollama.";
+  }
+
+  if (raw.includes("GEMINI_HTTP_")) {
+    return "Gemini a renvoye une erreur HTTP. Verifiez le quota et le modele configure.";
+  }
+
+  return "Le moteur IA est indisponible pour le moment. L'analyse locale est utilisee.";
+}
+
+async function buildBudgetAnalysisContext(userId, month, year) {
+  const [depenses] = await db.query(
+    `SELECT
+      bc.nom,
+      COALESCE(SUM(bh.montant), 0) AS total_depense,
+      COALESCE(bl.plafond, 0) AS plafond
+     FROM budget_categories bc
+     LEFT JOIN budget_paiements bp ON bp.categorie_id = bc.id AND bp.user_id = ?
+     LEFT JOIN budget_historique bh ON bh.paiement_id = bp.id AND bh.mois = ? AND bh.annee = ?
+     LEFT JOIN budget_limites bl ON bl.categorie_id = bc.id AND bl.user_id = ?
+     GROUP BY bc.id
+     HAVING total_depense > 0 OR plafond > 0
+     ORDER BY total_depense DESC`,
+    [userId, month, year, userId]
+  );
+
+  const prevMonth = month === 1 ? 12 : month - 1;
+  const prevYear = month === 1 ? year - 1 : year;
+
+  const [depensesPrev] = await db.query(
+    `SELECT
+      bc.nom,
+      COALESCE(SUM(bh.montant), 0) AS total_depense
+     FROM budget_categories bc
+     LEFT JOIN budget_paiements bp ON bp.categorie_id = bc.id AND bp.user_id = ?
+     LEFT JOIN budget_historique bh ON bh.paiement_id = bp.id AND bh.mois = ? AND bh.annee = ?
+     GROUP BY bc.id
+     HAVING total_depense > 0`,
+    [userId, prevMonth, prevYear]
+  );
+
+  const [recurrents] = await db.query(
+    `SELECT
+      bp.montant,
+      bc.nom AS categorie
+     FROM budget_paiements bp
+     JOIN budget_categories bc ON bc.id = bp.categorie_id
+     WHERE bp.user_id = ? AND bp.recurrent = 1 AND bp.statut = 'ACTIF'
+     ORDER BY bp.montant DESC`,
+    [userId]
+  );
+
+  const [monthlyTotals] = await db.query(
+    `SELECT
+      bh.annee,
+      bh.mois,
+      COALESCE(SUM(bh.montant), 0) AS total
+     FROM budget_historique bh
+     JOIN budget_paiements bp ON bp.id = bh.paiement_id
+     WHERE bp.user_id = ?
+     GROUP BY bh.annee, bh.mois
+     ORDER BY bh.annee DESC, bh.mois DESC
+     LIMIT 3`,
+    [userId]
+  );
+
+  const totalMonth = depenses.reduce((sum, row) => sum + Number(row.total_depense || 0), 0);
+
+  const assuranceSpent = depenses
+    .filter((d) => /assurance/i.test(String(d.nom || "")))
+    .reduce((sum, d) => sum + Number(d.total_depense || 0), 0);
+
+  const marcheSpent = depenses
+    .filter((d) => /marche|supermarche|courses|alimentation/i.test(String(d.nom || "")))
+    .reduce((sum, d) => sum + Number(d.total_depense || 0), 0);
+
+  const depassements = depenses
+    .filter((d) => Number(d.plafond || 0) > 0 && Number(d.total_depense || 0) > Number(d.plafond || 0))
+    .map((d) => ({
+      categorie: d.nom,
+      depense: Number(d.total_depense || 0),
+      plafond: Number(d.plafond || 0),
+      excedent: Number(d.total_depense || 0) - Number(d.plafond || 0)
+    }));
+
+  return {
+    month,
+    year,
+    totalMonth: Number(totalMonth.toFixed(2)),
+    assuranceSpent: Number(assuranceSpent.toFixed(2)),
+    marcheSpent: Number(marcheSpent.toFixed(2)),
+    depenses: depenses.map((d) => ({
+      categorie: d.nom,
+      total_depense: Number(d.total_depense || 0),
+      plafond: Number(d.plafond || 0)
+    })),
+    depensesPrev: depensesPrev.map((d) => ({
+      categorie: d.nom,
+      total_depense: Number(d.total_depense || 0)
+    })),
+    recurrents: recurrents.map((r) => ({
+      categorie: r.categorie,
+      montant: Number(r.montant || 0)
+    })),
+    monthlyTotals: monthlyTotals.map((m) => ({
+      annee: Number(m.annee),
+      mois: Number(m.mois),
+      total: Number(m.total || 0)
+    })),
+    depassements
+  };
+}
+
+function buildLocalBudgetFallback(context, question) {
+  const lines = [];
+  const total = context.totalMonth || 0;
+  const topDepenses = context.depenses.slice(0, 5);
+  const topCat = topDepenses[0];
+  const prevMap = new Map(context.depensesPrev.map((d) => [String(d.categorie), Number(d.total_depense || 0)]));
+
+  const alerts = [];
+  topDepenses.forEach((d) => {
+    const prev = prevMap.get(String(d.categorie)) || 0;
+    if (prev > 0) {
+      const pct = ((Number(d.total_depense) - prev) / prev) * 100;
+      if (pct >= 20) {
+        alerts.push(`Vos depenses en ${d.categorie} ont augmente de ${pct.toFixed(0)}% par rapport au mois precedent.`);
+      }
+    }
+  });
+
+  if (topCat && total > 0) {
+    const share = (Number(topCat.total_depense) / total) * 100;
+    if (share >= 40) {
+      alerts.push(`La categorie ${topCat.categorie} represente ${share.toFixed(0)}% de vos depenses mensuelles.`);
+    }
+  }
+
+  if (alerts.length === 0) {
+    alerts.push("Alerte faible: aucune hausse critique detectee sur les categories principales.");
+  }
+
+  const depassementTotal = context.depassements.reduce((s, d) => s + Number(d.excedent || 0), 0);
+  const recurringTotal = context.recurrents.reduce((s, r) => s + Number(r.montant || 0), 0);
+  const estimationEco = Number((depassementTotal + recurringTotal * 0.1).toFixed(2));
+
+  const forecastBase = context.monthlyTotals.length > 0
+    ? context.monthlyTotals.reduce((s, m) => s + Number(m.total || 0), 0) / context.monthlyTotals.length
+    : total;
+  const forecast = Number(forecastBase.toFixed(2));
+
+  const remainingByCat = context.depenses
+    .filter((d) => Number(d.plafond || 0) > 0)
+    .map((d) => Number(d.plafond || 0) - Number(d.total_depense || 0));
+  const minRemaining = remainingByCat.length > 0 ? Math.min(...remainingByCat) : 0;
+
+  lines.push("Analyse automatique des depenses");
+  lines.push("L'IA analyse les transactions et les classe par categories.");
+  lines.push(`Total mensuel analyse: ${total.toFixed(2)} EUR.`);
+  topDepenses.forEach((d) => {
+    const pct = total > 0 ? (Number(d.total_depense) / total) * 100 : 0;
+    lines.push(`- ${d.categorie}: ${Number(d.total_depense).toFixed(2)} EUR (${pct.toFixed(1)}%)`);
+  });
+
+  lines.push("");
+  lines.push("Alertes intelligentes");
+  alerts.forEach((a) => lines.push(`- ${a}`));
+  context.depassements.forEach((d) => {
+    lines.push(`- Plafond depasse sur ${d.categorie}: +${Number(d.excedent).toFixed(2)} EUR`);
+  });
+
+  lines.push("");
+  lines.push("Conseils personnalises");
+  lines.push("- Ajuster en priorite les plafonds des 3 categories les plus depensieres.");
+  lines.push("- Auditer les abonnements recurrents pour supprimer ceux peu utilises.");
+  lines.push("- Fixer un budget hebdomadaire sur alimentation/marche et suivre l'ecart.");
+  lines.push(`- Economie potentielle estimee: ${estimationEco.toFixed(2)} EUR / mois.`);
+
+  lines.push("");
+  lines.push("Prevision de budget");
+  lines.push(`- Depense probable le mois prochain: ${forecast.toFixed(2)} EUR (base historique recente).`);
+
+  lines.push("");
+  lines.push("Chatbot bancaire");
+  lines.push(`- Combien ai-je depense ce mois-ci ? -> ${total.toFixed(2)} EUR.`);
+  lines.push(`- Quelle categorie me coute le plus cher ? -> ${topCat ? topCat.categorie : "Aucune categorie dominante"}.`);
+  if (remainingByCat.length > 0) {
+    lines.push(`- Puis-je faire ce virement sans depasser mon budget ? -> Oui si le montant reste <= ${Math.max(0, minRemaining).toFixed(2)} EUR sur la categorie concernee.`);
+  } else {
+    lines.push("- Puis-je faire ce virement sans depasser mon budget ? -> Definir des plafonds categories pour une verification automatique.");
+  }
+
+  if (question) {
+    lines.push("");
+    lines.push(`Question utilisateur: ${question}`);
+  }
+
+  return lines.join("\n");
+}
+
+exports.analyzeBudget = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { month, year } = parseMonthYear(req.body?.month, req.body?.year);
+    const question = String(req.body?.question || "").trim();
+
+    const context = await buildBudgetAnalysisContext(userId, month, year);
+
+    let analysis = "";
+    let provider = "local-fallback";
+    let model = "rules";
+    let ollamaError = null;
+    const aiProvider = String(process.env.AI_PROVIDER || "ollama").toLowerCase();
+
+    const topCats = context.depenses.slice(0, 5).map(d =>
+      `${d.categorie}: ${d.total_depense.toFixed(2)}EUR (plafond ${d.plafond.toFixed(2)}EUR)`
+    ).join(", ");
+    const depassStr = context.depassements.map(d =>
+      `${d.categorie} +${d.excedent.toFixed(2)}EUR`
+    ).join(", ") || "aucun";
+    const prevTotaux = context.monthlyTotals.map(m => `${m.mois}/${m.annee}:${m.total.toFixed(2)}`).join(", ") || "pas d historique";
+
+    const prompt = [
+      "Tu es un conseiller financier bancaire. Reponds en francais, concis, sans emojis.",
+      `Mois analyse: ${context.month}/${context.year}. Total depenses: ${context.totalMonth.toFixed(2)}EUR.`,
+      `Categories: ${topCats}.`,
+      `Depassements plafond: ${depassStr}.`,
+      `Historique 3 mois: ${prevTotaux}.`,
+      context.recurrents.length > 0 ? `Recurrents: ${context.recurrents.map(r => `${r.categorie} ${r.montant}EUR`).join(", ")}.` : "",
+      question ? `Question utilisateur: ${question}` : "",
+      "",
+      "Genere une analyse structuree avec ces 5 sections exactes (titre puis contenu):",
+      "Analyse automatique des depenses",
+      "Alertes intelligentes",
+      "Conseils personnalises",
+      "Prevision de budget",
+      "Chatbot bancaire (reponds: combien depense ce mois, categorie la plus chere, peut-on faire un virement sans depasser)"
+    ].filter(Boolean).join("\n");
+
+    if (aiProvider === "gemini") {
+      if (isGeminiEnabled()) {
+        const result = await generateWithGemini(prompt);
+        if (result.ok && result.text) {
+          analysis = result.text;
+          provider = "gemini";
+          model = result.model;
+        } else {
+          ollamaError = result.error || "GEMINI_UNAVAILABLE";
+        }
+      } else {
+        ollamaError = "GEMINI_DISABLED";
+      }
+
+      if (!analysis && isOllamaEnabled()) {
+        const fallbackOllama = await generateWithOllama(prompt);
+        if (fallbackOllama.ok && fallbackOllama.text) {
+          analysis = fallbackOllama.text;
+          provider = "ollama";
+          model = fallbackOllama.model;
+        } else {
+          ollamaError = `${ollamaError || "GEMINI_FAILED"}; ${fallbackOllama.error || "OLLAMA_UNAVAILABLE"}`;
+        }
+      }
+    } else if (isOllamaEnabled()) {
+      const result = await generateWithOllama(prompt);
+      if (result.ok && result.text) {
+        analysis = result.text;
+        provider = "ollama";
+        model = result.model;
+      } else {
+        ollamaError = result.error || "OLLAMA_UNAVAILABLE";
+      }
+    } else {
+      ollamaError = "OLLAMA_DISABLED";
+    }
+
+    if (!analysis) {
+      analysis = buildLocalBudgetFallback(context, question);
+    }
+
+    return res.json({
+      success: true,
+      provider,
+      model,
+      configuredProvider: aiProvider,
+      ollamaModelDefault: OLLAMA_MODEL,
+      geminiModelDefault: GEMINI_MODEL,
+      ollamaError,
+      aiErrorMessage: provider === "local-fallback"
+        ? mapAiErrorForUser(ollamaError, aiProvider)
+        : null,
+      setupHint: provider === "local-fallback"
+        ? (aiProvider === "gemini"
+            ? `Gemini indisponible (${ollamaError || "erreur inconnue"}). Verifier la cle API et le quota Google AI Studio.`
+            : `Ollama indisponible (${ollamaError || "erreur inconnue"}). Verifier qu'Ollama est actif et que le modele est installe.`)
+        : null,
+      context,
+      analysis
+    });
+  } catch (err) {
+    console.error("AI BUDGET ANALYSIS ERROR:", err);
+    return res.status(500).json({ error: "Erreur analyse budget" });
+  }
+};
 
 // ==============================
 // AI CHAT (LOCAL / GRATUIT)
