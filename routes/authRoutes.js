@@ -110,4 +110,51 @@ router.post("/verify-email", authController.verifyEmail);
 // ========================================
 router.post("/resend-verification", authController.resendVerificationEmail);
 
+// ========================================
+// FORGOT PASSWORD
+// ========================================
+router.post(
+  "/forgot-password",
+  [
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email requis")
+      .isEmail()
+      .withMessage("Email invalide")
+      .normalizeEmail()
+  ],
+  authController.forgotPassword
+);
+
+// ========================================
+// RESET PASSWORD
+// ========================================
+router.post(
+  "/reset-password",
+  [
+    body("token")
+      .trim()
+      .notEmpty()
+      .withMessage("Token requis"),
+
+    body("userId")
+      .notEmpty()
+      .withMessage("Utilisateur requis")
+      .isInt({ min: 1 })
+      .withMessage("Utilisateur invalide"),
+
+    body("password")
+      .notEmpty()
+      .withMessage("Mot de passe requis")
+      .isLength({ min: 8, max: 100 })
+      .withMessage("Le mot de passe doit contenir entre 8 et 100 caractères")
+      .matches(/[A-Z]/)
+      .withMessage("Le mot de passe doit contenir au moins une majuscule")
+      .matches(/[0-9]/)
+      .withMessage("Le mot de passe doit contenir au moins un chiffre")
+  ],
+  authController.resetPassword
+);
+
 module.exports = router;

@@ -353,3 +353,119 @@ exports.resendVerificationEmail = async (req, res) => {
     });
   }
 };
+
+// ==============================
+// FORGOT PASSWORD
+// ==============================
+exports.forgotPassword = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: errors.array()[0].msg,
+        errors: errors.array()
+      });
+    }
+
+    const { email } = req.body;
+    const emailClean = email.trim().toLowerCase();
+
+    const [users] = await db.query(
+      "SELECT id, prenom, email FROM users WHERE email = ? LIMIT 1",
+      [emailClean]
+    );
+
+    // Réponse neutre pour éviter l'énumération des comptes
+    if (users.length === 0) {
+      return res.json({
+        message: "Si cet email existe, un lien de réinitialisation a été envoyé."
+      });
+    }
+
+    const user = users[0];
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1h
+
+    await db.query(
+      `UPDATE users
+       SET password_reset_token = ?, password_reset_expires = ?
+       WHERE id = ?`,
+      [resetToken, resetExpiry, user.id]
+    );
+
+    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password.html?token=${resetToken}&userId=${user.id}`;
+
+    await emailService.sendPasswordResetEmail(user.email, user.prenom, resetLink).catch(err => {
+      console.error("Erreur envoi email reset password:", err);
+    });
+
+    return res.json({
+      message: "Si cet email existe, un lien de réinitialisation a été envoyé."
+    });
+  } catch (err) {
+    console.error("FORGOT PASSWORD ERROR:", err);
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
+  }
+};
+
+// ==============================
+// RESET PASSWORD
+// ==============================
+exports.resetPassword = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: errors.array()[0].msg,
+        errors: errors.array()
+      });
+    }
+
+    const { token, userId, password } = req.body;
+
+    const [users] = await db.query(
+      `SELECT id, password_reset_token, password_reset_expires
+       FROM users
+       WHERE id = ? AND password_reset_token = ?`,
+      [userId, token]
+    );
+
+    if (users.length === 0) {
+      return res.status(400).json({
+        error: "Lien de réinitialisation invalide"
+      });
+    }
+
+    const user = users[0];
+
+    if (!user.password_reset_expires || new Date() > new Date(user.password_reset_expires)) {
+      return res.status(400).json({
+        error: "Lien de réinitialisation expiré"
+      });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await db.query(
+      `UPDATE users
+       SET password_hash = ?,
+           password_reset_token = NULL,
+           password_reset_expires = NULL
+       WHERE id = ?`,
+      [hash, user.id]
+    );
+
+    return res.json({
+      message: "Mot de passe réinitialisé avec succès"
+    });
+  } catch (err) {
+    console.error("RESET PASSWORD ERROR:", err);
+    return res.status(500).json({
+      error: "Erreur serveur"
+    });
+  }
+};

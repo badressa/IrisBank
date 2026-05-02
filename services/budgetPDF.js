@@ -7,6 +7,10 @@
 const PDFDocument = require('pdfkit');
 const db = require('../config/db');
 
+function sanitizePdfText(value) {
+   return String(value || '').replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '');
+}
+
 async function generateBudgetPDF(userId, res) {
   const now   = new Date();
   const mois  = now.getMonth() + 1;
@@ -22,7 +26,6 @@ async function generateBudgetPDF(userId, res) {
   const [depenses] = await db.query(`
     SELECT
       bc.nom AS categorie,
-      bc.icone,
       bc.couleur,
       COALESCE(SUM(bh.montant), 0) AS total,
       COALESCE(bl.plafond, 0) AS plafond
@@ -39,7 +42,7 @@ async function generateBudgetPDF(userId, res) {
 
   // ── Détail des transactions du mois
   const [transactions] = await db.query(`
-    SELECT t.montant, t.description, t.created_at, bc_cat.nom AS categorie, bc_cat.icone
+      SELECT t.montant, t.description, t.created_at, bc_cat.nom AS categorie
     FROM transactions t
     JOIN comptes_bancaires cb ON t.compte_source_id = cb.id
     LEFT JOIN budget_categories bc_cat ON t.categorie_id = bc_cat.id
@@ -77,7 +80,7 @@ async function generateBudgetPDF(userId, res) {
      .text(`Relevé de budget — ${moisLabel}`, 50, 62);
 
   doc.fillColor(ACCENT).fontSize(10)
-     .text(`${user.prenom} ${user.nom} · ${user.email}`, 50, 80);
+     .text(`${sanitizePdfText(user.prenom)} ${sanitizePdfText(user.nom)} - ${sanitizePdfText(user.email)}`, 50, 80);
 
   doc.moveDown(4);
 
@@ -121,7 +124,7 @@ async function generateBudgetPDF(userId, res) {
 
     // Catégorie
     doc.fillColor(BLUE).fontSize(12).font('Helvetica-Bold')
-       .text(`${d.icone}  ${d.categorie}`, 65, y + 4);
+       .text(`${sanitizePdfText(d.categorie)}`, 65, y + 4);
 
     // Montant
     doc.fillColor(depasse ? RED : BLUE).fontSize(12).font('Helvetica-Bold')
@@ -170,11 +173,12 @@ async function generateBudgetPDF(userId, res) {
       if (i % 2 === 0) doc.rect(50, y - 2, 495, 18).fill('#F8FAFC');
 
       const date = new Date(t.created_at).toLocaleDateString('fr-FR');
-      const desc = t.description ? t.description.substring(0, 28) : '—';
+      const desc = t.description ? sanitizePdfText(t.description).substring(0, 28) : '-';
+      const categorie = sanitizePdfText(t.categorie || '-');
 
       doc.fillColor('#334155').fontSize(9).font('Helvetica')
          .text(date, 50, y)
-         .text(`${t.icone || ''} ${t.categorie || '—'}`, 130, y)
+         .text(categorie, 130, y)
          .text(desc, 260, y)
          .fillColor(RED)
          .text(`-${parseFloat(t.montant).toFixed(2)} €`, 460, y);
@@ -197,10 +201,15 @@ async function generateBudgetPDF(userId, res) {
   doc.end();
 }
 
+exports.generateBudgetPDF = generateBudgetPDF;
+
 // ── Route handler à ajouter dans budgetController.js
 exports.exportPDF = async (req, res) => {
   try {
-    const userId = req.session.userId;
+      const userId = (req.session.user && req.session.user.id) || req.session.userId;
+      if (!userId) {
+         return res.status(401).json({ success: false, message: 'Non connecté' });
+      }
     await generateBudgetPDF(userId, res);
   } catch (err) {
     console.error('exportPDF error:', err);

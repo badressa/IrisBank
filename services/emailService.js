@@ -158,7 +158,7 @@ exports.sendPasswordResetEmail = async (email, nom, resetLink) => {
           <p>Bonjour ${nom},</p>
           <p>Vous avez demandé une réinitialisation de mot de passe. Cliquez ci-dessous pour continuer :</p>
           <a href="${resetLink}" class="button">Réinitialiser mon mot de passe</a>
-          <p><strong>Attention :</strong> Ce lien expire dans 24 heures.</p>
+          <p><strong>Attention :</strong> Ce lien expire dans 1 heure.</p>
           <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
         </div>
       </body>

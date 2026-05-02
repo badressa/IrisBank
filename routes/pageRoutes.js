@@ -19,7 +19,7 @@ function sendPage(res, filename) {
 // ─────────────────────────────────────────────
 function requireSession(req, res, next) {
   if (req.session && req.session.user) return next();
-  return res.status(403).sendFile(path.join(PUBLIC_DIR, "403.html"));
+  return res.redirect("/login");
 }
 
 // ─────────────────────────────────────────────
@@ -27,8 +27,8 @@ function requireSession(req, res, next) {
 // ─────────────────────────────────────────────
 function requireAdminSession(req, res, next) {
   if (req.session && req.session.user && req.session.user.is_admin) return next();
-  if (req.session && req.session.user) return res.status(403).sendFile(path.join(PUBLIC_DIR, "403.html"));
-  return res.status(403).sendFile(path.join(PUBLIC_DIR, "403.html"));
+  if (req.session && req.session.user) return res.redirect("/dashboard");
+  return res.redirect("/login");
 }
 
 // ─────────────────────────────────────────────
@@ -36,12 +36,12 @@ function requireAdminSession(req, res, next) {
 // ─────────────────────────────────────────────
 router.get(["/", "/login", "/login.html"], (req, res) => {
   // Si déjà connecté → redirige vers dashboard
-  if (req.session && req.session.user) return res.redirect("/dashboard.html");
+  if (req.session && req.session.user) return res.redirect("/dashboard");
   sendPage(res, "login.html");
 });
 
 router.get(["/register", "/register.html"], (req, res) => {
-  if (req.session && req.session.user) return res.redirect("/dashboard.html");
+  if (req.session && req.session.user) return res.redirect("/dashboard");
   sendPage(res, "register.html");
 });
 
@@ -64,7 +64,7 @@ router.get(["/profile", "/profile.html"], requireSession, (req, res) => {
   sendPage(res, "profile.html");
 });
 
-router.get(["/budget.html"], requireSession, (req, res) => {
+router.get(["/budget", "/budget.html"], requireSession, (req, res) => {
   sendPage(res, "budget.html");
 });
 

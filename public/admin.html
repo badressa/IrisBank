@@ -588,14 +588,14 @@ async function checkAuth(){
   });
 
   if(!res.ok){
-    window.location.href = "/login.html";
+    window.location.href = "/login";
     return false;
   }
 
   const data = await res.json().catch(() => ({}));
 
   if (!data.user || data.user.role !== "ADMIN") {
-    window.location.href = "/login.html";
+    window.location.href = "/login";
     return false;
   }
 
@@ -929,7 +929,7 @@ function renderTransactionsPreview(items){
 
 async function logout(){
   await api("/api/auth/logout","POST",{});
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }
 
 async function resetBank(){

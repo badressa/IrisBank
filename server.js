@@ -26,11 +26,6 @@ const app = express();
 // ===============================
 // MIDDLEWARES
 // ===============================
-// Routes de pages HTML (AVANT static pour bloquer l'accès direct)
-app.use(pageRoutes);
-
-// Fichiers statiques : CSS, JS, images (les .html sont gérés par pageRoutes)
-app.use(express.static("public", { index: false, extensions: [] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -59,6 +54,12 @@ app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
+
+// Routes de pages HTML (APRÈS session pour pouvoir lire req.session.user)
+app.use(pageRoutes);
+
+// Fichiers statiques : CSS, JS, images (les .html sont gérés par pageRoutes)
+app.use(express.static("public", { index: false, extensions: [] }));
 
 // ===============================
 // RATE LIMIT LOGIN
@@ -130,7 +131,7 @@ app.listen(PORT, () => {
 });
 
 const budgetRoutes = require('./routes/budgetRoutes');
-app.use('/budget', budgetRoutes);
+app.use('/api/budget', budgetRoutes);
 app.use('/api/contracts', contractRoutes);
 
 require('./services/budgetCron');
@@ -141,7 +142,7 @@ require('./services/salaryService');
 // ===============================
 app.use((req, res) => {
   // API → JSON
-  if (req.path.startsWith('/api') || req.path.startsWith('/budget')) {
+  if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'Route introuvable' });
   }
   // Page → 404.html

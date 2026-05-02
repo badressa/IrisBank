@@ -6,28 +6,75 @@
   <title>Budget — IrisBank</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --bg:#07111f;
+      --bg-soft:#0b1729;
+      --panel:#0f1b2d;
+      --panel-2:#13233a;
+      --line:rgba(255,255,255,0.08);
+      --text:#eef4ff;
+      --muted:#9db0cc;
+      --primary:#4f7cff;
+      --primary-dark:#3f68e8;
+      --success:#18c37e;
+      --danger:#ef5b5b;
+      --warning:#f5b942;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #F8FAFC;
-      color: #1E293B;
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79,124,255,0.18), transparent 28%),
+        linear-gradient(180deg,var(--bg),var(--bg-soft));
+      color: var(--text);
       min-height: 100vh;
     }
 
     .header {
-      background: linear-gradient(135deg, #1E3A5F, #2563EB);
+      background: linear-gradient(135deg, #0f1b2d, #13233a);
       color: white;
       padding: 24px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.24);
     }
 
     .header h1 { font-size: 22px; font-weight: 600; }
     .header p  { font-size: 13px; opacity: 0.8; margin-top: 4px; }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .container { max-width: 1150px; margin: 0 auto; padding: 32px 24px; }
+
+    .header-actions {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn-nav {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--line);
+      border-radius:10px;
+      color:#dbe7ff;
+      font-size:14px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+
+    .btn-nav:hover {
+      background:rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
 
     /* ── CARTES STATS ── */
     .stats-grid {
@@ -38,15 +85,16 @@
     }
 
     .stat-card {
-      background: white;
+      background: linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
       border-radius: 12px;
       padding: 20px;
-      border: 1px solid #E2E8F0;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.18);
     }
 
-    .stat-card .label { font-size: 12px; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-card .value { font-size: 26px; font-weight: 700; margin-top: 6px; color: #1E293B; }
-    .stat-card .sub   { font-size: 12px; color: #94A3B8; margin-top: 4px; }
+    .stat-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 26px; font-weight: 700; margin-top: 6px; color: var(--text); }
+    .stat-card .sub   { font-size: 12px; color: #87a0c4; margin-top: 4px; }
 
     /* ── GRILLE PRINCIPALE ── */
     .main-grid {
@@ -58,17 +106,18 @@
     @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
 
     .card {
-      background: white;
+      background: linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
       border-radius: 12px;
-      border: 1px solid #E2E8F0;
+      border: 1px solid var(--line);
       padding: 24px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
     }
 
     .card h2 {
       font-size: 16px;
       font-weight: 600;
       margin-bottom: 20px;
-      color: #1E293B;
+      color: var(--text);
     }
 
     /* ── FORMULAIRE PAIEMENT ── */
@@ -78,7 +127,7 @@
       display: block;
       font-size: 13px;
       font-weight: 500;
-      color: #475569;
+      color: #cddcf5;
       margin-bottom: 6px;
     }
 
@@ -86,38 +135,42 @@
     .form-group input {
       width: 100%;
       padding: 10px 14px;
-      border: 1px solid #CBD5E1;
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 8px;
       font-size: 14px;
-      color: #1E293B;
-      background: #F8FAFC;
+      color: #eaf2ff;
+      background: rgba(255,255,255,0.04);
       transition: border-color 0.2s;
     }
 
     .form-group select:focus,
     .form-group input:focus {
       outline: none;
-      border-color: #2563EB;
-      background: white;
+      border-color: #6aa6ff;
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 0 0 4px rgba(79,124,255,0.16);
     }
+
+    .form-group select option { background:#0f1b2d; color:#eaf2ff; }
 
     .recurrent-toggle {
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 12px;
-      background: #F1F5F9;
+      background: rgba(255,255,255,0.04);
       border-radius: 8px;
       cursor: pointer;
+      border:1px solid var(--line);
     }
 
     .recurrent-toggle input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-    .recurrent-toggle span { font-size: 14px; color: #334155; }
+    .recurrent-toggle span { font-size: 14px; color: #dce8ff; }
 
     .btn-pay {
       width: 100%;
       padding: 12px;
-      background: #2563EB;
+      background: linear-gradient(135deg,var(--primary),#6aa6ff);
       color: white;
       border: none;
       border-radius: 8px;
@@ -128,7 +181,7 @@
       transition: background 0.2s, transform 0.1s;
     }
 
-    .btn-pay:hover    { background: #1D4ED8; }
+    .btn-pay:hover    { background: linear-gradient(135deg,var(--primary-dark),#5d98ff); }
     .btn-pay:active   { transform: scale(0.98); }
     .btn-pay:disabled { background: #94A3B8; cursor: not-allowed; }
 
@@ -235,17 +288,17 @@
       align-items: center;
       gap: 8px;
       padding: 10px 18px;
-      background: #F1F5F9;
-      border: 1px solid #CBD5E1;
+      background: linear-gradient(135deg,var(--primary),#6aa6ff);
+      border: 1px solid rgba(126,180,255,0.3);
       border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 700;
       cursor: pointer;
-      color: #334155;
+      color: #fff;
       transition: background 0.2s;
     }
 
-    .btn-export:hover { background: #E2E8F0; }
+    .btn-export:hover { background: linear-gradient(135deg,var(--primary-dark),#5d98ff); }
 
     /* ── ALERT ── */
     .alert {
@@ -259,6 +312,51 @@
     .alert.success { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
     .alert.error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
     .alert.warning { background: #FEF9C3; color: #854D0E; border: 1px solid #FEF08A; }
+
+    /* ── NOTIFICATIONS ── */
+    .notif-panel {
+      display: none;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
+      box-shadow: 0 10px 22px rgba(0,0,0,0.16);
+      overflow: hidden;
+    }
+
+    .notif-head {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      color: #cddcf5;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+      max-height: 240px;
+      overflow: auto;
+    }
+
+    .notif-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+      color: #e5efff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item .meta { font-size: 11px; color: #9db0cc; white-space: nowrap; }
+    .notif-item.depasse { background: rgba(245,185,66,0.08); }
+    .notif-item.paiement { background: rgba(24,195,126,0.07); }
 
     .badge-recurrent {
       font-size: 10px;
@@ -291,8 +389,8 @@
     }
 
     .tab.active {
-      background: white;
-      color: #1E293B;
+      background: rgba(255,255,255,0.12);
+      color: #eaf2ff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
   </style>
@@ -301,18 +399,28 @@
 
 <div class="header">
   <div>
-    <h1>💰 Mon Budget</h1>
+    <h1>Mon Budget</h1>
     <p id="header-date">Chargement...</p>
   </div>
-  <button class="btn-export" onclick="exportPDF()">
-    📄 Export PDF du mois
-  </button>
+  <div class="header-actions">
+    <button class="btn-nav" onclick="window.location.href='/dashboard'">← Retour dashboard</button>
+    <button class="btn-export" onclick="exportPDF()">Export PDF du mois</button>
+  </div>
 </div>
 
 <div class="container">
 
   <!-- ALERTES -->
   <div id="alert-box" class="alert"></div>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notif-panel" class="notif-panel">
+    <div class="notif-head">
+      <span>Notifications récentes</span>
+      <button class="btn-nav" style="padding:6px 10px; font-size:12px;" onclick="loadNotifications()">Rafraîchir</button>
+    </div>
+    <div id="notif-list" class="notif-list"></div>
+  </div>
 
   <!-- STATS -->
   <div class="stats-grid">
@@ -401,7 +509,7 @@
         <div class="form-group">
           <label class="recurrent-toggle">
             <input type="checkbox" id="f-recurrent">
-            <span>🔄 Prélèvement automatique mensuel</span>
+            <span>Prelevement automatique mensuel</span>
           </label>
         </div>
 
@@ -447,6 +555,7 @@ let categoriesData = [];
 let dashboardData  = [];
 let paiementsData  = [];
 let pieChart       = null;
+let notificationsData = [];
 
 // ── Init
 document.addEventListener('DOMContentLoaded', () => {
@@ -457,21 +566,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadAll() {
-  await Promise.all([loadCategories(), loadComptes(), loadDashboard(), loadPaiements(), loadLimites()]);
+  await Promise.all([loadCategories(), loadComptes(), loadDashboard(), loadPaiements(), loadLimites(), loadNotifications()]);
 }
 
 // ── API helpers
 async function api(url, options = {}) {
   const res = await fetch(url, {
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options
   });
-  return res.json();
+
+  const text = await res.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch (_) { data = {}; }
+
+  if (!res.ok && !data.error && !data.message) {
+    data.error = `Erreur HTTP ${res.status}`;
+  }
+
+  return data;
 }
 
 // ── Charger les catégories
 async function loadCategories() {
-  const data = await api('/budget/categories');
+  const data = await api('/api/budget/categories');
   if (!data.success) return;
   categoriesData = data.data;
 
@@ -480,7 +599,7 @@ async function loadCategories() {
     const sel = document.getElementById(id);
     sel.innerHTML = `<option value="">Choisir une catégorie...</option>`;
     categoriesData.forEach(c => {
-      sel.innerHTML += `<option value="${c.id}">${c.icone} ${c.nom}</option>`;
+      sel.innerHTML += `<option value="${c.id}">${c.nom}</option>`;
     });
   });
 }
@@ -490,11 +609,16 @@ async function loadComptes() {
   const data = await api('/api/accounts');
   const comptes = data.comptes || [];
   const sel = document.getElementById('f-compte');
+  const payBtn = document.getElementById('btn-payer');
   sel.innerHTML = '';
   if (comptes.length === 0) {
     sel.innerHTML = '<option value="">Aucun compte trouvé</option>';
+    payBtn.disabled = true;
+    payBtn.textContent = 'Créez d\'abord un compte';
     return;
   }
+  payBtn.disabled = false;
+  payBtn.textContent = 'Effectuer le paiement';
   comptes.forEach(c => {
     sel.innerHTML += `<option value="${c.id}">****${c.iban.slice(-4)} — ${parseFloat(c.solde).toFixed(2)}€</option>`;
   });
@@ -502,7 +626,7 @@ async function loadComptes() {
 
 // ── Charger le dashboard (dépenses du mois)
 async function loadDashboard() {
-  const data = await api('/budget/dashboard');
+  const data = await api('/api/budget/dashboard');
   if (!data.success) return;
   dashboardData = data.data.depenses;
 
@@ -519,7 +643,7 @@ async function loadDashboard() {
 
 // ── Charger les paiements récurrents
 async function loadPaiements() {
-  const data = await api('/budget/paiements');
+  const data = await api('/api/budget/paiements');
   if (!data.success) return;
   paiementsData = data.data.filter(p => p.recurrent && p.statut === 'ACTIF');
   document.getElementById('stat-recurrents').textContent = paiementsData.length;
@@ -528,9 +652,39 @@ async function loadPaiements() {
 
 // ── Charger les limites
 async function loadLimites() {
-  const data = await api('/budget/limites');
+  const data = await api('/api/budget/limites');
   if (!data.success) return;
   document.getElementById('stat-plafonds').textContent = data.data.length;
+}
+
+// ── Charger les notifications (affichées en haut)
+async function loadNotifications() {
+  const data = await api('/api/notifications');
+  const rows = Array.isArray(data.notifications) ? data.notifications : [];
+  const list = document.getElementById('notif-list');
+  const panel = document.getElementById('notif-panel');
+
+  notificationsData = rows
+    .filter(n => ['BUDGET_DEPASSE', 'BUDGET_PAIEMENT'].includes(n.type))
+    .slice(0, 8);
+
+  if (notificationsData.length === 0) {
+    panel.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  panel.style.display = 'block';
+  list.innerHTML = notificationsData.map(n => {
+    const cls = n.type === 'BUDGET_DEPASSE' ? 'depasse' : 'paiement';
+    const when = n.created_at ? new Date(n.created_at).toLocaleString('fr-FR') : '—';
+    return `
+      <div class="notif-item ${cls}">
+        <div>${n.message}</div>
+        <div class="meta">${when}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ── Rendu des catégories visuelles
@@ -542,8 +696,7 @@ function renderCategories() {
   }
   grid.innerHTML = dashboardData.map(d => `
     <div class="cat-card" style="background:${d.couleur}18; border-color:${d.couleur}40;"
-         onclick="selectCategorie(${d.categorie_id})">
-      <div class="icon">${d.icone}</div>
+         onclick="selectCategorie(${d.categorie_id}, this)">
       <div class="name" style="color:${d.couleur};">${d.nom}</div>
       <div class="spent" style="color:${d.couleur};">${parseFloat(d.total_depense).toFixed(2)}€</div>
     </div>
@@ -564,7 +717,7 @@ function renderProgressBars() {
     return `
       <div class="progress-item">
         <div class="top">
-          <span class="cat-label">${d.icone} ${d.nom}</span>
+          <span class="cat-label">${d.nom}</span>
           <span class="amounts">${parseFloat(d.total_depense).toFixed(2)}€ / ${parseFloat(d.plafond).toFixed(2)}€</span>
         </div>
         <div class="progress-bar">
@@ -602,7 +755,7 @@ function renderPieChart() {
   document.getElementById('chart-legend').innerHTML = avecDepenses.map(d => `
     <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
       <span style="width:12px;height:12px;border-radius:3px;background:${d.couleur};flex-shrink:0;"></span>
-      <span style="flex:1;color:#475569;">${d.icone} ${d.nom}</span>
+      <span style="flex:1;color:#475569;">${d.nom}</span>
       <span style="font-weight:600;">${parseFloat(d.total_depense).toFixed(2)}€</span>
     </div>
   `).join('');
@@ -618,7 +771,7 @@ function renderPaiements() {
   list.innerHTML = paiementsData.map(p => `
     <div class="paiement-item">
       <div class="left">
-        <div class="avatar" style="background:${p.couleur}20;">${p.icone}</div>
+        <div class="avatar" style="background:${p.couleur}20;">${(p.categorie_nom || '?').charAt(0).toUpperCase()}</div>
         <div>
           <div class="nom">${p.categorie_nom} <span class="badge-recurrent">AUTO</span></div>
           <div class="date">Prochain : ${p.prochaine_echeance ? new Date(p.prochaine_echeance).toLocaleDateString('fr-FR') : '—'}</div>
@@ -633,10 +786,10 @@ function renderPaiements() {
 }
 
 // ── Sélectionner une catégorie depuis la grille
-function selectCategorie(id) {
+function selectCategorie(id, el) {
   document.getElementById('f-categorie').value = id;
   document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  if (el) el.classList.add('active');
 }
 
 // ── Soumettre un paiement
@@ -656,10 +809,45 @@ async function submitPaiement() {
   btn.disabled = true;
   btn.textContent = 'Traitement...';
 
-  const data = await api('/budget/paiement', {
+  const payload = {
+    compte_source_id: compteId,
+    categorie_id: categorieId,
+    montant: parseFloat(montant),
+    description,
+    recurrent
+  };
+
+  let data = await api('/api/budget/paiement', {
     method: 'POST',
-    body: JSON.stringify({ compte_source_id: compteId, categorie_id: categorieId, montant: parseFloat(montant), description, recurrent })
+    body: JSON.stringify(payload)
   });
+
+  // Si plafond dépassé: on bloque ici et on demande une confirmation explicite.
+  if (!data.success && data.require_confirmation) {
+    const details = data.details || {};
+    const msg = [
+      data.message || 'Ce paiement dépasse votre plafond.',
+      '',
+      `Catégorie: ${details.categorie_nom || '—'}`,
+      `Plafond: ${Number(details.plafond || 0).toFixed(2)}€`,
+      `Total après paiement: ${Number(details.total_apres || 0).toFixed(2)}€`,
+      '',
+      'Voulez-vous confirmer malgré le dépassement ?'
+    ].join('\n');
+
+    const confirmed = window.confirm(msg);
+    if (!confirmed) {
+      btn.disabled = false;
+      btn.textContent = 'Effectuer le paiement';
+      showAlert('Paiement annulé (dépassement non confirmé).', 'warning');
+      return;
+    }
+
+    data = await api('/api/budget/paiement', {
+      method: 'POST',
+      body: JSON.stringify({ ...payload, force_depassement: true })
+    });
+  }
 
   btn.disabled = false;
   btn.textContent = 'Effectuer le paiement';
@@ -671,7 +859,7 @@ async function submitPaiement() {
     document.getElementById('f-recurrent').checked = false;
     loadAll();
   } else {
-    showAlert(data.message || 'Erreur lors du paiement.', 'error');
+    showAlert(data.message || data.error || 'Erreur lors du paiement.', 'error');
   }
 }
 
@@ -685,7 +873,7 @@ async function submitLimite() {
     return;
   }
 
-  const data = await api('/budget/limites', {
+  const data = await api('/api/budget/limites', {
     method: 'POST',
     body: JSON.stringify({ categorie_id: categorieId, plafond: parseFloat(plafond) })
   });
@@ -695,25 +883,25 @@ async function submitLimite() {
     document.getElementById('p-montant').value = '';
     loadAll();
   } else {
-    showAlert(data.message, 'error');
+    showAlert(data.message || data.error || 'Erreur lors de l\'enregistrement du plafond.', 'error');
   }
 }
 
 // ── Annuler un paiement récurrent
 async function annulerPaiement(id) {
   if (!confirm('Annuler ce prélèvement automatique ?')) return;
-  const data = await api(`/budget/paiement/${id}`, { method: 'DELETE' });
+  const data = await api(`/api/budget/paiement/${id}`, { method: 'DELETE' });
   if (data.success) {
     showAlert('Prélèvement annulé.', 'success');
     loadPaiements();
   } else {
-    showAlert(data.message, 'error');
+    showAlert(data.message || data.error || 'Erreur lors de l\'annulation.', 'error');
   }
 }
 
 // ── Export PDF
 function exportPDF() {
-  window.location.href = '/budget/export-pdf';
+  window.location.href = '/api/budget/export-pdf';
 }
 
 // ── Afficher une alerte

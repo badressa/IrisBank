@@ -4,6 +4,7 @@
 const db = require('../config/db');
 
 const { sendBudgetAlert } = require('../services/emailService');
+const { generateBudgetPDF } = require('../services/budgetPDF');
 // ─────────────────────────────────────────────
 // CATÉGORIES
 // ─────────────────────────────────────────────
@@ -79,7 +80,7 @@ exports.createPaiement = async (req, res) => {
     await conn.beginTransaction();
 
     const userId = req.session.user.id;
-    const { compte_source_id, categorie_id, montant, description, recurrent } = req.body;
+    const { compte_source_id, categorie_id, montant, description, recurrent, force_depassement } = req.body;
 
     // Validations de base
     if (!compte_source_id || !categorie_id || !montant || montant <= 0) {
@@ -103,6 +104,26 @@ exports.createPaiement = async (req, res) => {
     if (compte.solde < montant) {
       await conn.rollback();
       return res.status(400).json({ success: false, message: 'Solde insuffisant' });
+    }
+
+    // Vérifier le plafond AVANT prélèvement: on bloque tant que l'utilisateur n'a pas confirmé.
+    const depassement = await _checkDepassementPlafond(userId, categorie_id, montant);
+    if (depassement.depasse && !force_depassement) {
+      await conn.rollback();
+      return res.status(409).json({
+        success: false,
+        require_confirmation: true,
+        code: 'BUDGET_LIMIT_EXCEEDED',
+        message: `Ce paiement dépasse votre plafond ${depassement.nomCat}: ${depassement.totalApres.toFixed(2)}€ / ${depassement.plafond.toFixed(2)}€. Confirmer pour continuer ?`,
+        details: {
+          categorie_id,
+          categorie_nom: depassement.nomCat,
+          plafond: depassement.plafond,
+          total_actuel: depassement.totalActuel,
+          total_apres: depassement.totalApres,
+          montant
+        }
+      });
     }
 
     // Calculer la prochaine échéance (1er du mois suivant si récurrent)
@@ -267,7 +288,7 @@ async function _effectuerPrelevement(conn, paiementId, userId, compteId, categor
   await conn.query(`
     INSERT INTO notifications (user_id, message, type)
     VALUES (?, ?, 'BUDGET_PAIEMENT')
-  `, [userId, `💳 Paiement de ${montant}€ effectué`]);
+  `, [userId, `Paiement de ${montant}€ effectue`]);
 }
 
 // Vérifie si le plafond mensuel est dépassé et notifie
@@ -305,7 +326,7 @@ async function _verifierPlafond(userId, categorieId, montant) {
       await db.query(`
         INSERT INTO notifications (user_id, message, type)
         VALUES (?, ?, 'BUDGET_DEPASSE')
-      `, [userId, `⚠️ Plafond dépassé pour ${nomCat} : ${total.toFixed(2)}€ / ${plafond.toFixed(2)}€`]);
+      `, [userId, `Plafond depasse pour ${nomCat} : ${total.toFixed(2)}€ / ${plafond.toFixed(2)}€`]);
     // Email d'alerte (nouveau)
   const [users] = await db.query('SELECT email, nom FROM users WHERE id = ?', [userId]);
   if (users.length > 0) {
@@ -317,7 +338,62 @@ async function _verifierPlafond(userId, categorieId, montant) {
   }
 }
 
+// Vérifie un potentiel dépassement sans exécuter le paiement
+async function _checkDepassementPlafond(userId, categorieId, montant) {
+  const [limites] = await db.query(
+    'SELECT plafond FROM budget_limites WHERE user_id = ? AND categorie_id = ?',
+    [userId, categorieId]
+  );
+
+  if (limites.length === 0) {
+    return {
+      depasse: false,
+      plafond: 0,
+      totalActuel: 0,
+      totalApres: parseFloat(montant),
+      nomCat: ''
+    };
+  }
+
+  const plafond = parseFloat(limites[0].plafond);
+  const now = new Date();
+  const mois = now.getMonth() + 1;
+  const annee = now.getFullYear();
+
+  const [totaux] = await db.query(`
+    SELECT COALESCE(SUM(bh.montant), 0) AS total
+    FROM budget_historique bh
+    JOIN budget_paiements bp ON bh.paiement_id = bp.id
+    WHERE bp.user_id = ? AND bp.categorie_id = ?
+      AND bh.mois = ? AND bh.annee = ?
+  `, [userId, categorieId, mois, annee]);
+
+  const totalActuel = parseFloat(totaux[0].total);
+  const totalApres = totalActuel + parseFloat(montant);
+
+  const [cat] = await db.query('SELECT nom FROM budget_categories WHERE id = ?', [categorieId]);
+  const nomCat = cat[0]?.nom || 'cette catégorie';
+
+  return {
+    depasse: totalApres > plafond,
+    plafond,
+    totalActuel,
+    totalApres,
+    nomCat
+  };
+}
+
 // ─────────────────────────────────────────────
 // EXPORT pour le cron job
 // ─────────────────────────────────────────────
+exports.exportPDF = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    await generateBudgetPDF(userId, res);
+  } catch (err) {
+    console.error('exportPDF controller error:', err);
+    res.status(500).json({ success: false, message: 'Erreur génération PDF' });
+  }
+};
+
 exports._effectuerPrelevement = _effectuerPrelevement;

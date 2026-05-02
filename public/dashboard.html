@@ -810,6 +810,35 @@ select{
   min-height:18px;
 }
 
+.budget-cta{
+  margin-top:24px;
+  background:linear-gradient(135deg, rgba(79,124,255,0.18), rgba(24,195,126,0.10));
+  border:1px solid rgba(126,180,255,0.22);
+  border-radius:20px;
+  padding:18px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  box-shadow:var(--shadow-soft);
+}
+
+.budget-cta h3{
+  margin:0;
+  font-size:18px;
+  font-weight:800;
+}
+
+.budget-cta p{
+  margin:6px 0 0;
+  color:#c8dcff;
+  font-size:13px;
+}
+
+.budget-cta .btnx{
+  white-space:nowrap;
+}
+
 /* SCROLLBAR */
 
 .table-wrap::-webkit-scrollbar,
@@ -1066,8 +1095,10 @@ select{
           <div class="panel-body">
             <div class="form-grid">
               <div>
-                <div class="field-label">Compte ID</div>
-                <input class="inputx" id="opAccountId" placeholder="Compte ID"/>
+                <div class="field-label">Compte à débiter</div>
+                <select class="selectx" id="opAccountId">
+                  <option value="">Choisir un compte...</option>
+                </select>
               </div>
 
               <div>
@@ -1098,8 +1129,10 @@ select{
           <div class="panel-body">
             <div class="form-grid">
               <div>
-                <div class="field-label">Compte source ID</div>
-                <input class="inputx" id="transferFrom" placeholder="Compte source ID"/>
+                <div class="field-label">Compte source</div>
+                <select class="selectx" id="transferFrom">
+                  <option value="">Choisir un compte...</option>
+                </select>
               </div>
 
               <div>
@@ -1113,7 +1146,7 @@ select{
               </div>
 
               <button id="transferBtn" class="btnx btn-success" type="button">Faire le virement</button>
-              <div class="form-note">Le virement échoue si le solde est insuffisant, si l’IBAN n’existe pas ou si l’un des comptes est bloqué.</div>
+              <div class="form-note">Choisis ton compte source puis l'IBAN destination. Le virement échoue si le solde est insuffisant, si l’IBAN n’existe pas ou si l’un des comptes est bloqué.</div>
             </div>
 
             <div id="msgTransfer" class="msg"></div>
@@ -1166,8 +1199,12 @@ select{
       </div>
     </section>
 
-    <section>
-      <a href="/budget.html">💰 Mon Budget</a>
+    <section class="budget-cta">
+      <div>
+        <h3>💰 Mon Budget</h3>
+        <p>Pilote tes dépenses, plafonds mensuels et exporte ton rapport PDF en un clic.</p>
+      </div>
+      <button class="btnx btn-primary" type="button" onclick="window.location.href='/budget'">Ouvrir Budget</button>
     </section>
 
     <section class="panel" id="contractSection" style="margin-top:24px;">
@@ -1221,7 +1258,7 @@ let selectedAccountId = null;
 let csrfToken = "";
 
 function goProfile() {
-  window.location.href = "/profile.html";
+  window.location.href = "/profile";
 }
 
 async function loadCsrfToken() {
@@ -1283,7 +1320,7 @@ async function loadMe() {
   if (res.ok && data.user) {
     who.innerHTML = '<span class="status-dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
   } else {
-    window.location.href = "/login.html";
+    window.location.href = "/login";
   }
 }
 
@@ -1291,9 +1328,13 @@ async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
   const msg = document.getElementById("msgAccounts");
   const contCompteSelect = document.getElementById("contCompteId"); // <-- AJOUT
+  const opSelect = document.getElementById("opAccountId");
+  const transferSelect = document.getElementById("transferFrom");
 
   tbody.innerHTML = "";
   if (contCompteSelect) contCompteSelect.innerHTML = ""; // <-- AJOUT
+  if (opSelect) opSelect.innerHTML = '<option value="">Choisir un compte...</option>';
+  if (transferSelect) transferSelect.innerHTML = '<option value="">Choisir un compte...</option>';
   clearMsg(msg);
 
   const { res, data } = await api("/api/accounts", "GET");
@@ -1339,7 +1380,22 @@ async function loadAccounts() {
 
     tbody.appendChild(tr);
 
-    // 2. Remplissage de la liste déroulante du contrat <-- AJOUT
+    // 2bis. Remplissage des sélecteurs opérations/virements
+    if (opSelect) {
+      const optionOp = document.createElement("option");
+      optionOp.value = c.id;
+      optionOp.textContent = `#${c.id} • ${c.type} • ${Number(c.solde).toFixed(2)}€`;
+      opSelect.appendChild(optionOp);
+    }
+
+    if (transferSelect) {
+      const optionTr = document.createElement("option");
+      optionTr.value = c.id;
+      optionTr.textContent = `#${c.id} • ${c.type} • ${Number(c.solde).toFixed(2)}€`;
+      transferSelect.appendChild(optionTr);
+    }
+
+    // 3. Remplissage de la liste déroulante du contrat <-- AJOUT
     if (contCompteSelect) {
       const option = document.createElement("option");
       option.value = c.id;
@@ -1347,7 +1403,34 @@ async function loadAccounts() {
       contCompteSelect.appendChild(option);
     }
   });
+
+  // Pré-sélectionner un compte par défaut si aucun compte n'a encore été choisi
+  if (!selectedAccountId && comptes.length > 0) {
+    selectedAccountId = comptes[0].id;
+    if (opSelect) opSelect.value = String(selectedAccountId);
+    if (transferSelect) transferSelect.value = String(selectedAccountId);
+    updateSelectedAccountLabel(selectedAccountId);
+    loadTransactions(selectedAccountId);
+  }
 }
+
+document.getElementById("opAccountId").addEventListener("change", (e) => {
+  const id = Number(e.target.value);
+  if (!id) return;
+  selectedAccountId = id;
+  document.getElementById("transferFrom").value = String(id);
+  updateSelectedAccountLabel(id);
+  loadTransactions(id);
+});
+
+document.getElementById("transferFrom").addEventListener("change", (e) => {
+  const id = Number(e.target.value);
+  if (!id) return;
+  selectedAccountId = id;
+  document.getElementById("opAccountId").value = String(id);
+  updateSelectedAccountLabel(id);
+  loadTransactions(id);
+});
 
 async function loadTransactions(accountId) {
   const list = document.getElementById("transactions");
@@ -1522,7 +1605,7 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   } catch (e) {
     console.error("Logout error:", e);
   }
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 });
 
 (async () => {

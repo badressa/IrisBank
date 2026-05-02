@@ -25,6 +25,6 @@ router.delete('/paiement/:id', budgetController.annulerPaiement);
 router.get('/dashboard', budgetController.getDashboard);
 
 // Export PDF fin de mois
-//router.get('/export-pdf', budgetController.exportPDF);
+router.get('/export-pdf', budgetController.exportPDF);
 
 module.exports = router;

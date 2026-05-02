@@ -278,7 +278,11 @@ Connectez-vous pour accéder à vos comptes, effectuer des virements et gérer v
 
 <div class="link">
 Pas encore de compte ?
-<a href="/register.html">Créer un compte</a>
+<a href="/register">Créer un compte</a>
+</div>
+
+<div class="link" style="margin-top:8px;">
+<a href="/reset-password">Mot de passe oublié ?</a>
 </div>
 
 <div id="message" class="msg"></div>
@@ -341,7 +345,7 @@ msg.innerHTML = `
   Veuillez d'abord cliquer sur le lien d'activation reçu par email.<br>
   <br>
   <small style="color: #ccc;">Vous n'avez pas reçu l'email?</small><br>
-  <a href="/verify-email.html" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Renvoyer l'email de confirmation</a>
+   <a href="/verify-email" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Renvoyer l'email de confirmation</a>
 `;
 } else {
 msg.textContent = data.error || "Erreur connexion";
@@ -364,11 +368,11 @@ setTimeout(() => {
 
 if(isAdmin){
 
-window.location.href = "/admin.html";
+window.location.href = "/admin";
 
 }else{
 
-window.location.href = "/dashboard.html";
+window.location.href = "/dashboard";
 
 }
 
