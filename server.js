@@ -105,7 +105,8 @@ const htmlPages = {
   "/profile": "profile.html",
   "/admin": "admin.html",
   "/verify-email": "verify-email.html",
-  "/budget": "budget.html"
+  "/budget": "budget.html",
+  "/reset-password": "reset-password.html"
 };
 
 Object.entries(htmlPages).forEach(([routePath, fileName]) => {
@@ -148,7 +149,11 @@ app.use((req, res) => {
 // ERREUR CSRF
 // ===============================
 app.use((err, req, res, next) => {
-  if (err.code === "EBADCSRFTOKEN") {
+  const isCsrfError =
+    err?.code === "EBADCSRFTOKEN" ||
+    (err?.status === 403 && /csrf/i.test(String(err?.message || "")));
+
+  if (isCsrfError) {
     return res.status(403).json({
       error: "Token CSRF invalide ou manquant"
     });
@@ -198,10 +203,12 @@ const aiRoutes = require("./routes/aiRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 
 // NOUVELLES ROUTES
+const contractRoutes    = require("./routes/contracts");
 const cardRoutes        = require("./routes/cardRoutes");
 const kycRoutes         = require("./routes/kycRoutes");
 const ticketRoutes      = require("./routes/ticketRoutes");
 const rgpdRoutes        = require("./routes/rgpdRoutes");
+const stripeRoutes      = require("./routes/stripeRoutes");
 
 const app = express();
 
@@ -323,7 +330,8 @@ const htmlPages = {
   "/profile": "profile.html",
   "/admin": "admin.html",
   "/verify-email": "verify-email.html",
-  "/budget": "budget.html"
+  "/budget": "budget.html",
+  "/reset-password": "reset-password.html"
 };
 
 Object.entries(htmlPages).forEach(([routePath, fileName]) => {
@@ -337,6 +345,7 @@ Object.entries(htmlPages).forEach(([routePath, fileName]) => {
 // ===============================
 app.use("/api/auth/login",      loginLimiter);
 app.use("/api/auth/verify-otp", otpLimiter);
+app.use("/api/auth/verify-secret-code", otpLimiter);
 app.use("/api/auth",            authRoutes);
 
 // ===============================
@@ -354,6 +363,7 @@ app.use("/api/cards",         csrfProtection, cardRoutes);
 app.use("/api/kyc",           csrfProtection, kycRoutes);
 app.use("/api/tickets",       csrfProtection, ticketRoutes);
 app.use("/api/rgpd",          csrfProtection, rgpdRoutes);
+app.use("/api/stripe",        csrfProtection, stripeRoutes);
 
 // ===============================
 // 404
@@ -372,7 +382,11 @@ app.use((req, res) => {
 // ERREUR CSRF
 // ===============================
 app.use((err, req, res, next) => {
-  if (err.code === "EBADCSRFTOKEN") {
+  const isCsrfError =
+    err?.code === "EBADCSRFTOKEN" ||
+    (err?.status === 403 && /csrf/i.test(String(err?.message || "")));
+
+  if (isCsrfError) {
     return res.status(403).json({
       error: "Token CSRF invalide ou manquant"
     });
@@ -399,7 +413,11 @@ app.use("/uploads", (req, res, next) => {
 // GESTION ERREURS
 // ===============================
 app.use((err, req, res, next) => {
-  if (err.code === "EBADCSRFTOKEN") {
+  const isCsrfError =
+    err?.code === "EBADCSRFTOKEN" ||
+    (err?.status === 403 && /csrf/i.test(String(err?.message || "")));
+
+  if (isCsrfError) {
     return res.status(403).json({ error: "Token CSRF invalide ou manquant" });
   }
 

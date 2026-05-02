@@ -197,10 +197,15 @@ async function generateBudgetPDF(userId, res) {
   doc.end();
 }
 
+exports.generateBudgetPDF = generateBudgetPDF;
+
 // ── Route handler à ajouter dans budgetController.js
 exports.exportPDF = async (req, res) => {
   try {
-    const userId = req.session.userId;
+      const userId = req.session?.user?.id;
+      if (!userId) {
+         return res.status(401).json({ success: false, message: 'Non connecté' });
+      }
     await generateBudgetPDF(userId, res);
   } catch (err) {
     console.error('exportPDF error:', err);

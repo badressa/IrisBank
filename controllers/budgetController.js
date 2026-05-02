@@ -4,6 +4,7 @@
 const db = require('../config/db');
 
 const { sendBudgetAlert } = require('../services/emailService');
+const { generateBudgetPDF } = require('../services/budgetPDF');
 // ─────────────────────────────────────────────
 // CATÉGORIES
 // ─────────────────────────────────────────────
@@ -233,6 +234,17 @@ exports.getDashboard = async (req, res) => {
   } catch (err) {
     console.error('getDashboard error:', err);
     res.status(500).json({ success: false, message: 'Erreur serveur' });
+  }
+};
+
+// GET /budget/export-pdf
+exports.exportPDF = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    await generateBudgetPDF(userId, res);
+  } catch (err) {
+    console.error('exportPDF error:', err);
+    res.status(500).json({ success: false, message: 'Erreur génération PDF' });
   }
 };
 

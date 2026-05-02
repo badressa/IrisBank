@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test:email": "node test-email-config.js"
+    "test:email": "node test-email-config.js",
+    "test:routes": "node test-routes-smoke.js"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +27,8 @@
     "mysql2": "^3.18.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.5",
-    "pdfkit": "^0.18.0"
+    "pdfkit": "^0.18.0",
+    "stripe": "^22.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

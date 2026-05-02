@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Budget — IrisBank</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -132,6 +133,14 @@
     .btn-pay:active   { transform: scale(0.98); }
     .btn-pay:disabled { background: #94A3B8; cursor: not-allowed; }
 
+    .btn-pay.secondary {
+      background: #0F766E;
+    }
+
+    .btn-pay.secondary:hover {
+      background: #0D5F58;
+    }
+
     /* ── CATÉGORIES GRID ── */
     .categories-grid {
       display: grid;
@@ -246,6 +255,81 @@
     }
 
     .btn-export:hover { background: #E2E8F0; }
+
+    .stripe-shell {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    }
+
+    .stripe-note {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #64748B;
+      margin: -8px 0 16px;
+    }
+
+    .stripe-card-box {
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 14px;
+      background: white;
+      min-height: 48px;
+    }
+
+    .stripe-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .stripe-cards {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stripe-card-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 12px;
+      background: white;
+    }
+
+    .stripe-card-item strong {
+      display: block;
+      font-size: 13px;
+      color: #0F172A;
+    }
+
+    .stripe-card-item span {
+      display: block;
+      font-size: 12px;
+      color: #64748B;
+      margin-top: 4px;
+      word-break: break-word;
+    }
+
+    .mini-btn {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      background: #F8FAFC;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mini-btn:hover {
+      background: #E2E8F0;
+    }
 
     /* ── ALERT ── */
     .alert {
@@ -410,6 +494,44 @@
         </button>
       </div>
 
+      <div class="card" style="margin-bottom: 24px;">
+        <h2>Carte test Stripe</h2>
+        <p class="stripe-note">Teste un paiement carte en mode Stripe sandbox directement depuis le module budget. Utilise les cartes de test affichées plus bas, aucune vraie carte n'est débitée.</p>
+
+        <div class="stripe-shell">
+          <div class="form-group">
+            <label>Montant test (€)</label>
+            <input type="number" id="stripe-montant" placeholder="Ex: 19.99" min="0.50" step="0.01">
+          </div>
+
+          <div class="form-group">
+            <label>Nom du titulaire</label>
+            <input type="text" id="stripe-holder" placeholder="Ex: IrisBank Test User">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="stripe-description" placeholder="Ex: Paiement de test budget">
+          </div>
+
+          <div class="form-group">
+            <label>Carte</label>
+            <div id="stripe-card-element" class="stripe-card-box">Chargement de Stripe...</div>
+          </div>
+
+          <div class="stripe-actions">
+            <button class="btn-pay" id="btn-stripe-pay" onclick="submitStripePayment()">Payer avec carte test</button>
+            <button class="btn-pay secondary" type="button" onclick="copySuccessCard()">Copier carte test OK</button>
+          </div>
+
+          <div id="stripe-inline-status" class="alert" style="display:none; margin-top: 14px;"></div>
+
+          <div class="stripe-cards" id="stripe-test-cards">
+            <p style="color:#94A3B8; font-size:13px;">Chargement des cartes de test...</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Définir un plafond -->
       <div class="card" style="margin-bottom: 24px;">
         <h2>Définir un plafond mensuel</h2>
@@ -447,6 +569,10 @@ let categoriesData = [];
 let dashboardData  = [];
 let paiementsData  = [];
 let pieChart       = null;
+let csrfToken      = '';
+let stripe         = null;
+let stripeCard     = null;
+let stripeCards    = [];
 
 // ── Init
 document.addEventListener('DOMContentLoaded', () => {
@@ -457,16 +583,50 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadAll() {
-  await Promise.all([loadCategories(), loadComptes(), loadDashboard(), loadPaiements(), loadLimites()]);
+  await loadCsrfToken();
+  await Promise.all([
+    loadCategories(),
+    loadComptes(),
+    loadDashboard(),
+    loadPaiements(),
+    loadLimites(),
+    initStripeSection()
+  ]);
 }
 
 // ── API helpers
 async function api(url, options = {}) {
+  const method = (options.method || 'GET').toUpperCase();
+  const headers = {
+    ...(options.headers || {})
+  };
+
+  if (method !== 'GET' && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  if (method !== 'GET' && csrfToken) {
+    headers['CSRF-Token'] = csrfToken;
+  }
+
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    headers,
     ...options
   });
-  return res.json();
+
+  const contentType = res.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await res.json() : null;
+
+  return data || { success: res.ok };
+}
+
+async function loadCsrfToken() {
+  const res = await fetch('/api/csrf-token', {
+    credentials: 'include'
+  });
+  const data = await res.json();
+  csrfToken = data.csrfToken || '';
 }
 
 // ── Charger les catégories
@@ -636,7 +796,10 @@ function renderPaiements() {
 function selectCategorie(id) {
   document.getElementById('f-categorie').value = id;
   document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  const selected = document.querySelector(`.cat-card[onclick="selectCategorie(${id})"]`);
+  if (selected) {
+    selected.classList.add('active');
+  }
 }
 
 // ── Soumettre un paiement
@@ -713,7 +876,7 @@ async function annulerPaiement(id) {
 
 // ── Export PDF
 function exportPDF() {
-  window.location.href = '/budget/export-pdf';
+  window.open('/budget/export-pdf', '_blank', 'noopener');
 }
 
 // ── Afficher une alerte
@@ -723,6 +886,161 @@ function showAlert(message, type = 'success') {
   box.textContent = message;
   box.style.display = 'block';
   setTimeout(() => { box.style.display = 'none'; }, 4000);
+}
+
+function showStripeStatus(message, type = 'success') {
+  const box = document.getElementById('stripe-inline-status');
+  box.className = `alert ${type}`;
+  box.textContent = message;
+  box.style.display = 'block';
+}
+
+async function initStripeSection() {
+  await Promise.all([loadStripeConfig(), loadStripeTestCards()]);
+}
+
+async function loadStripeConfig() {
+  const config = await api('/api/stripe/config');
+  const mountPoint = document.getElementById('stripe-card-element');
+
+  if (!config.publishableKey) {
+    mountPoint.textContent = 'Stripe test n\'est pas configuré sur ce serveur.';
+    document.getElementById('btn-stripe-pay').disabled = true;
+    showStripeStatus(config.error || 'Renseigne STRIPE_SECRET_KEY et STRIPE_PUBLISHABLE_KEY dans .env.', 'warning');
+    return;
+  }
+
+  stripe = Stripe(config.publishableKey);
+  const elements = stripe.elements();
+  stripeCard = elements.create('card', {
+    hidePostalCode: false,
+    style: {
+      base: {
+        fontSize: '14px',
+        color: '#0F172A',
+        '::placeholder': {
+          color: '#94A3B8'
+        }
+      }
+    }
+  });
+
+  mountPoint.textContent = '';
+  stripeCard.mount('#stripe-card-element');
+}
+
+async function loadStripeTestCards() {
+  const data = await api('/api/stripe/test-cards');
+  stripeCards = data.cards || [];
+  renderStripeCards();
+}
+
+function renderStripeCards() {
+  const list = document.getElementById('stripe-test-cards');
+  if (!stripeCards.length) {
+    list.innerHTML = '<p style="color:#94A3B8; font-size:13px;">Aucune carte de test disponible.</p>';
+    return;
+  }
+
+  list.innerHTML = stripeCards.map(card => `
+    <div class="stripe-card-item">
+      <div>
+        <strong>${card.brand} · ${card.label}</strong>
+        <span>${formatCardNumber(card.number)}</span>
+        <span>Expiration: ${card.expiry} · CVC: ${card.cvc}</span>
+      </div>
+      <button class="mini-btn" type="button" onclick="copyTestCard('${card.number}')">Copier</button>
+    </div>
+  `).join('');
+}
+
+function formatCardNumber(number) {
+  return String(number).replace(/(.{4})/g, '$1 ').trim();
+}
+
+async function copyTestCard(number) {
+  try {
+    await navigator.clipboard.writeText(number);
+    showStripeStatus(`Carte ${formatCardNumber(number)} copiée dans le presse-papiers.`, 'success');
+  } catch (error) {
+    showStripeStatus('Impossible de copier la carte automatiquement.', 'warning');
+  }
+}
+
+function copySuccessCard() {
+  const successCard = stripeCards.find(card => card.number === '4242424242424242');
+  if (successCard) {
+    copyTestCard(successCard.number);
+  }
+}
+
+async function submitStripePayment() {
+  if (!stripe || !stripeCard) {
+    showStripeStatus('Stripe test n\'est pas prêt.', 'warning');
+    return;
+  }
+
+  const amount = document.getElementById('stripe-montant').value;
+  const description = document.getElementById('stripe-description').value.trim() || 'Paiement carte test budget';
+  const holderName = document.getElementById('stripe-holder').value.trim() || 'IrisBank Test User';
+  const button = document.getElementById('btn-stripe-pay');
+
+  if (!amount || Number(amount) < 0.5) {
+    showStripeStatus('Le montant test doit être d\'au moins 0,50€.', 'error');
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Paiement en cours...';
+  showStripeStatus('Création du paiement Stripe...', 'warning');
+
+  const intent = await api('/api/stripe/create-payment-intent', {
+    method: 'POST',
+    body: JSON.stringify({
+      amount: Number(amount),
+      currency: 'eur',
+      description,
+      metadata: {
+        source: 'budget-page'
+      }
+    })
+  });
+
+  if (!intent.clientSecret) {
+    button.disabled = false;
+    button.textContent = 'Payer avec carte test';
+    showStripeStatus(intent.error || 'Impossible de créer le paiement Stripe.', 'error');
+    return;
+  }
+
+  const result = await stripe.confirmCardPayment(intent.clientSecret, {
+    payment_method: {
+      card: stripeCard,
+      billing_details: {
+        name: holderName
+      }
+    }
+  });
+
+  button.disabled = false;
+  button.textContent = 'Payer avec carte test';
+
+  if (result.error) {
+    showStripeStatus(result.error.message || 'Paiement refusé.', 'error');
+    return;
+  }
+
+  if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+    stripeCard.clear();
+    document.getElementById('stripe-montant').value = '';
+    document.getElementById('stripe-description').value = '';
+    document.getElementById('stripe-holder').value = '';
+    showStripeStatus(`Paiement test confirmé (${(result.paymentIntent.amount / 100).toFixed(2)} €).`, 'success');
+    showAlert('Paiement Stripe test confirmé.', 'success');
+    return;
+  }
+
+  showStripeStatus(`Paiement en statut ${result.paymentIntent?.status || 'inconnu'}.`, 'warning');
 }
 </script>
 

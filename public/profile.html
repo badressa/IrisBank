@@ -156,6 +156,24 @@ body{
 .msg.err{
   background:rgba(239,91,91,0.15);
 }
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px;
+  margin-top:22px;
+}
+
+.small-note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 
@@ -187,30 +205,52 @@ body{
   <!-- MESSAGE -->
   <div id="msg" class="msg" style="display:none;"></div>
 
-  <!-- PROFILE CARD -->
-  <div class="card">
-    <div class="hd">
-      <h2>Informations personnelles</h2>
-      <div class="small">Modifie tes informations utilisateur</div>
+  <div class="grid">
+    <div class="card">
+      <div class="hd">
+        <h2>Informations personnelles</h2>
+        <div class="small">Modifie tes informations utilisateur</div>
+      </div>
+
+      <div class="bd">
+        <form id="profileForm">
+
+          <input class="input" id="nom" placeholder="Nom"/>
+          <input class="input" id="prenom" placeholder="Prénom"/>
+          <input class="input" id="email" placeholder="Email"/>
+          <input class="input" id="telephone" placeholder="Téléphone"/>
+          <input class="input" id="adresse" placeholder="Adresse"/>
+
+          <input class="input" id="date_naissance" readonly/>
+          <input class="input" id="role" readonly/>
+
+          <button class="btn btn-green" type="submit">
+            Enregistrer
+          </button>
+
+        </form>
+      </div>
     </div>
 
-    <div class="bd">
-      <form id="profileForm">
+    <div class="card">
+      <div class="hd">
+        <h2>Code secret</h2>
+        <div class="small">Connexion simple, style app bancaire</div>
+      </div>
 
-        <input class="input" id="nom" placeholder="Nom"/>
-        <input class="input" id="prenom" placeholder="Prénom"/>
-        <input class="input" id="email" placeholder="Email"/>
-        <input class="input" id="telephone" placeholder="Téléphone"/>
-        <input class="input" id="adresse" placeholder="Adresse"/>
+      <div class="bd">
+        <div id="secretCodeStatus" class="small-note">Chargement...</div>
 
-        <input class="input" id="date_naissance" readonly/>
-        <input class="input" id="role" readonly/>
+        <form id="secretCodeForm">
+          <input class="input" id="currentPassword" type="password" placeholder="Mot de passe actuel"/>
+          <input class="input" id="secretCode" type="password" inputmode="numeric" maxlength="4" placeholder="Nouveau code secret a 4 chiffres"/>
+          <input class="input" id="secretCodeConfirm" type="password" inputmode="numeric" maxlength="4" placeholder="Confirmer le code secret"/>
 
-        <button class="btn btn-green" type="submit">
-          Enregistrer
-        </button>
-
-      </form>
+          <button class="btn btn-green" type="submit">
+            Enregistrer le code secret
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -218,6 +258,7 @@ body{
 
 <script>
 let csrfToken = "";
+let profileData = null;
 
 // MSG
 function setMsg(text, ok=true){
@@ -284,6 +325,7 @@ async function loadProfile(){
   }
 
   const u = data.user;
+  profileData = u;
 
   nom.value = u.nom || "";
   prenom.value = u.prenom || "";
@@ -293,6 +335,9 @@ async function loadProfile(){
 
   date_naissance.value = u.date_naissance ? u.date_naissance.slice(0,10) : "";
   role.value = u.role || "";
+  document.getElementById("secretCodeStatus").textContent = u.has_secret_code
+    ? "Un code secret est deja configure. Il sera demande a la connexion a la place du code email."
+    : "Aucun code secret configure. Tant qu'il manque, la connexion continue avec le code email a 6 chiffres.";
 }
 
 // UPDATE
@@ -311,6 +356,39 @@ profileForm.addEventListener("submit", async(e)=>{
 
   if(res.ok){
     setMsg("Profil mis à jour");
+  }else{
+    setMsg(data.error || "Erreur", false);
+  }
+});
+
+secretCodeForm.addEventListener("submit", async(e)=>{
+  e.preventDefault();
+
+  const currentPasswordValue = document.getElementById("currentPassword").value;
+  const secretCodeValue = document.getElementById("secretCode").value.trim();
+  const secretCodeConfirmValue = document.getElementById("secretCodeConfirm").value.trim();
+
+  if(!/^\d{4}$/.test(secretCodeValue)){
+    setMsg("Le code secret doit contenir exactement 4 chiffres", false);
+    return;
+  }
+
+  if(secretCodeValue !== secretCodeConfirmValue){
+    setMsg("La confirmation du code secret ne correspond pas", false);
+    return;
+  }
+
+  const {res,data} = await api("/api/profile/secret-code","PUT",{
+    currentPassword: currentPasswordValue,
+    secretCode: secretCodeValue
+  });
+
+  if(res.ok){
+    document.getElementById("currentPassword").value = "";
+    document.getElementById("secretCode").value = "";
+    document.getElementById("secretCodeConfirm").value = "";
+    document.getElementById("secretCodeStatus").textContent = "Code secret actif. Il sera demande a la prochaine connexion.";
+    setMsg(data.message || "Code secret enregistre");
   }else{
     setMsg(data.error || "Erreur", false);
   }

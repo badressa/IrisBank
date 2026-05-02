@@ -17,7 +17,10 @@ function generateFakeIban() {
 // ==============================
 exports.listMine = async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Non connecté" });
+    }
 
     const [rows] = await db.query(
       `SELECT id, iban, type, solde, statut, created_at
@@ -48,7 +51,10 @@ exports.getOneMine = async (req, res) => {
   }
 
   try {
-    const userId = req.session.user.id;
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Non connecté" });
+    }
     const accountId = Number(req.params.id);
 
     if (!accountId || Number.isNaN(accountId)) {
@@ -86,7 +92,10 @@ exports.create = async (req, res) => {
     });
   }
 
-  const userId = req.session.user.id;
+  const userId = req.session?.user?.id;
+  if (!userId) {
+    return res.status(401).json({ error: "Non connecté" });
+  }
   const { type } = req.body;
 
   const allowedTypes = ["COURANT", "LIVRET_A", "PEL"];
@@ -155,10 +164,11 @@ exports.create = async (req, res) => {
     );
 
     await db.query(
-      "INSERT INTO notifications (message, type) VALUES (?, ?)",
+      "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
       [
         `Nouveau compte ${type} créé pour ${user.prenom} ${user.nom} (${iban})`,
-        "NEW_ACCOUNT"
+        "NEW_ACCOUNT",
+        userId
       ]
     );
 
@@ -186,7 +196,10 @@ exports.remove = async (req, res) => {
   }
 
   try {
-    const userId = req.session.user.id;
+    const userId = req.session?.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Non connecté" });
+    }
     const accountId = Number(req.params.id);
 
     if (!accountId || Number.isNaN(accountId)) {
@@ -235,10 +248,11 @@ exports.remove = async (req, res) => {
     );
 
     await db.query(
-      "INSERT INTO notifications (message, type) VALUES (?, ?)",
+      "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
       [
         `Compte supprimé par ${user.prenom} ${user.nom} (${iban})`,
-        "DELETE_ACCOUNT"
+        "DELETE_ACCOUNT",
+        userId
       ]
     );
 

@@ -274,9 +274,14 @@ Connectez-vous pour accéder à vos comptes, effectuer des virements et gérer v
 <input class="input" type="text" id="otpCode" placeholder="Code de verification a 6 chiffres" inputmode="numeric" maxlength="6" style="display:none">
 
 <button class="btn" type="submit">Se connecter</button>
+<button class="btn" type="button" id="resendSecretCode" style="display:none;background:rgba(79,124,255,0.12)">Renvoyer un code secret par email</button>
 <button class="btn" type="button" id="backToPassword" style="display:none;background:rgba(255,255,255,0.08)">Retour</button>
 
 </form>
+
+<div class="link">
+<a href="/reset-password" style="color:#9db0cc;font-weight:400">Mot de passe oublié ?</a>
+</div>
 
 <div class="link">
 Pas encore de compte ?
@@ -295,6 +300,53 @@ Pas encore de compte ?
 
 let csrfToken = "";
 let awaitingOtp = false;
+let awaitingSecretCode = false;
+let resendCooldownTimer = null;
+
+function setResendButtonState({ disabled, label }) {
+
+const button = document.getElementById("resendSecretCode");
+button.disabled = disabled;
+button.style.opacity = disabled ? "0.65" : "1";
+button.style.cursor = disabled ? "not-allowed" : "pointer";
+button.textContent = label;
+
+}
+
+function startResendCooldown(seconds) {
+
+const cooldownSeconds = Math.max(1, Number(seconds) || 15);
+let remainingSeconds = cooldownSeconds;
+
+if (resendCooldownTimer) {
+clearInterval(resendCooldownTimer);
+}
+
+setResendButtonState({
+disabled: true,
+label: `Renvoyer dans ${remainingSeconds}s`
+});
+
+resendCooldownTimer = setInterval(() => {
+remainingSeconds -= 1;
+
+if (remainingSeconds <= 0) {
+clearInterval(resendCooldownTimer);
+resendCooldownTimer = null;
+setResendButtonState({
+disabled: false,
+label: "Renvoyer un code secret par email"
+});
+return;
+}
+
+setResendButtonState({
+disabled: true,
+label: `Renvoyer dans ${remainingSeconds}s`
+});
+}, 1000);
+
+}
 
 async function loadCsrfToken(){
 
@@ -310,6 +362,7 @@ csrfToken = data.csrfToken;
 function resetOtpStep(){
 
 awaitingOtp = false;
+awaitingSecretCode = false;
 document.getElementById("otpCode").style.display = "none";
 document.getElementById("otpCode").value = "";
 document.getElementById("password").style.display = "block";
@@ -317,6 +370,34 @@ document.getElementById("password").disabled = false;
 document.getElementById("email").disabled = false;
 document.querySelector("button[type='submit']").textContent = "Se connecter";
 document.getElementById("backToPassword").style.display = "none";
+document.getElementById("resendSecretCode").style.display = "none";
+setResendButtonState({ disabled: false, label: "Renvoyer un code secret par email" });
+document.getElementById("otpCode").placeholder = "Code de verification a 6 chiffres";
+document.getElementById("otpCode").maxLength = 6;
+
+}
+
+function showSecondStep({ secretCode = false, message = "" } = {}){
+
+awaitingOtp = !secretCode;
+awaitingSecretCode = secretCode;
+document.getElementById("otpCode").style.display = "block";
+document.getElementById("password").disabled = true;
+document.getElementById("password").style.display = "none";
+document.getElementById("email").disabled = true;
+document.getElementById("backToPassword").style.display = "block";
+document.getElementById("resendSecretCode").style.display = secretCode ? "block" : "none";
+document.querySelector("button[type='submit']").textContent = secretCode ? "Valider le code secret" : "Valider le code";
+document.getElementById("otpCode").placeholder = secretCode ? "Code secret a 4 chiffres" : "Code de verification a 6 chiffres";
+document.getElementById("otpCode").maxLength = secretCode ? 4 : 6;
+
+const msg = document.getElementById("message");
+msg.className = "msg show info";
+msg.textContent = message || (secretCode
+? "Entrez votre code secret pour terminer la connexion."
+: "Entrez le code recu par email pour terminer la connexion.");
+
+document.getElementById("otpCode").focus();
 
 }
 
@@ -326,6 +407,56 @@ resetOtpStep();
 const msg = document.getElementById("message");
 msg.className = "msg";
 msg.textContent = "";
+
+});
+
+document.getElementById("resendSecretCode").addEventListener("click", async () => {
+
+const msg = document.getElementById("message");
+msg.className = "msg show info";
+msg.textContent = "Envoi d'un nouveau code secret...";
+
+try {
+
+setResendButtonState({
+disabled: true,
+label: "Envoi en cours..."
+});
+
+const response = await fetch("/api/auth/resend-secret-code", {
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"CSRF-Token":csrfToken
+},
+credentials:"include"
+});
+
+const data = await response.json();
+
+msg.className = response.ok ? "msg show ok" : "msg show err";
+msg.textContent = data.message || data.error || "Erreur serveur";
+
+if (response.ok || response.status === 429) {
+startResendCooldown(data.retryAfterSeconds || 15);
+return;
+}
+
+setResendButtonState({
+disabled: false,
+label: "Renvoyer un code secret par email"
+});
+
+} catch (err) {
+
+msg.className = "msg show err";
+msg.textContent = "Erreur serveur";
+setResendButtonState({
+disabled: false,
+label: "Renvoyer un code secret par email"
+});
+
+}
 
 });
 
@@ -340,11 +471,21 @@ const otpCode = document.getElementById("otpCode").value.trim();
 const msg = document.getElementById("message");
 
 msg.className = "msg show info";
-msg.textContent = awaitingOtp ? "Verification du code..." : "Connexion...";
+msg.textContent = awaitingOtp || awaitingSecretCode ? "Verification..." : "Connexion...";
 
 try{
 
-const response = awaitingOtp
+const response = awaitingSecretCode
+? await fetch("/api/auth/verify-secret-code",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"CSRF-Token":csrfToken
+},
+credentials:"include",
+body:JSON.stringify({code:otpCode})
+})
+: awaitingOtp
 ? await fetch("/api/auth/verify-otp",{
 method:"POST",
 headers:{
@@ -388,17 +529,14 @@ return;
 }
 
 if(data.requiresOtp){
+showSecondStep({ message: data.message || "Entrez le code recu par email pour terminer la connexion." });
+return;
 
-awaitingOtp = true;
-document.getElementById("otpCode").style.display = "block";
-document.getElementById("password").disabled = true;
-document.getElementById("password").style.display = "none";
-document.getElementById("email").disabled = true;
-document.getElementById("backToPassword").style.display = "block";
-document.querySelector("button[type='submit']").textContent = "Valider le code";
-msg.className = "msg show info";
-msg.textContent = data.message || "Entrez le code recu par email pour terminer la connexion.";
-document.getElementById("otpCode").focus();
+}
+
+if(data.requiresSecretCode){
+
+showSecondStep({ secretCode:true, message: data.message || "Entrez votre code secret pour terminer la connexion." });
 return;
 
 }

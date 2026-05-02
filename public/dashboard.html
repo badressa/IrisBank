@@ -723,6 +723,77 @@ select{
   line-height:1.6;
 }
 
+/* CARDS */
+
+.cards-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:12px;
+}
+
+.cards-item{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.cards-item-left{
+  display:grid;
+  gap:6px;
+}
+
+.cards-title{
+  font-size:14px;
+  font-weight:800;
+}
+
+.cards-sub{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.cards-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.chip-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.mini-chip{
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.04);
+  color:#dbe7ff;
+  font-weight:700;
+}
+
+.mini-chip.warn{
+  background:rgba(245,185,66,0.14);
+  border-color:rgba(245,185,66,0.22);
+  color:#ffe3a6;
+}
+
+.mini-chip.ok{
+  background:rgba(24,195,126,0.14);
+  border-color:rgba(24,195,126,0.22);
+  color:#b8ffd8;
+}
+
 /* IA CHAT */
 
 .ai-chat-box{
@@ -922,6 +993,7 @@ select{
       <button class="active" type="button">🏠 Vue d’ensemble</button>
       <button type="button" onclick="goProfile()">👤 Mon profil</button>
       <button type="button" onclick="document.getElementById('createSection').scrollIntoView({behavior:'smooth'})">➕ Créer un compte</button>
+      <button type="button" onclick="document.getElementById('cardsSection').scrollIntoView({behavior:'smooth'})">💳 Mes cartes</button>
       <button type="button" onclick="document.getElementById('operationsSection').scrollIntoView({behavior:'smooth'})">💸 Opérations</button>
       <button type="button" onclick="document.getElementById('transferSection').scrollIntoView({behavior:'smooth'})">🔁 Virement</button>
       <button type="button" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">🧾 Historique</button>
@@ -1088,6 +1160,54 @@ select{
           </div>
         </div>
 
+        <div class="panel" id="cardsSection">
+          <div class="panel-head">
+            <div class="section-badge">Cartes bancaires</div>
+            <h2>Carte virtuelle ou physique</h2>
+            <p>Choisis le type de carte comme dans une app bancaire moderne: virtuelle instantanée, ou physique avec adresse de livraison.</p>
+          </div>
+
+          <div class="panel-body">
+            <div class="form-grid">
+              <div>
+                <div class="field-label">Compte rattaché</div>
+                <select id="cardAccountId" class="selectx"></select>
+              </div>
+
+              <div>
+                <div class="field-label">Type de carte</div>
+                <select id="cardType" class="selectx">
+                  <option value="virtual">Virtuelle (immédiate)</option>
+                  <option value="physical">Physique (livraison)</option>
+                </select>
+              </div>
+
+              <div>
+                <div class="field-label">Réseau</div>
+                <select id="cardNetwork" class="selectx">
+                  <option value="VISA">VISA</option>
+                  <option value="MASTERCARD">MASTERCARD</option>
+                </select>
+              </div>
+
+              <div id="cardAddressWrap" style="display:none;">
+                <div class="field-label">Adresse de livraison (obligatoire pour physique)</div>
+                <input class="inputx" id="cardAddress" placeholder="Ex: 32 avenue des Roses, Paris"/>
+              </div>
+
+              <div class="actions">
+                <button id="createCardBtn" class="btnx btn-success" type="button">Créer la carte</button>
+                <a href="/budget" class="btnx btn-ghost2" style="display:inline-flex; align-items:center; text-decoration:none;">Voir les cartes test Stripe</a>
+              </div>
+
+              <div class="form-note">Cartes test Stripe: 4242 4242 4242 4242 (succès), 4000 0000 0000 0002 (refus). Le test paiement se fait dans le module budget.</div>
+            </div>
+
+            <div id="msgCards" class="msg"></div>
+            <ul id="cardsList" class="cards-list" style="margin-top:14px;"></ul>
+          </div>
+        </div>
+
         <div class="panel" id="transferSection">
           <div class="panel-head">
             <div class="section-badge">Virement</div>
@@ -1166,8 +1286,17 @@ select{
       </div>
     </section>
 
-    <section>
-      <a href="/budget">💰 Mon Budget</a>
+    <section class="panel" style="margin-top:24px;">
+      <div class="panel-head">
+        <div class="section-badge">Budget</div>
+        <h2>💰 Mon Budget</h2>
+        <p>Accès direct au suivi mensuel, à l'export PDF et au test de carte Stripe depuis le module budget.</p>
+      </div>
+      <div class="panel-body">
+        <a href="/budget" class="btnx btn-primary" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
+          Ouvrir le module budget
+        </a>
+      </div>
     </section>
 
     <section class="panel" id="contractSection" style="margin-top:24px;">
@@ -1291,9 +1420,11 @@ async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
   const msg = document.getElementById("msgAccounts");
   const contCompteSelect = document.getElementById("contCompteId"); // <-- AJOUT
+  const cardAccountSelect = document.getElementById("cardAccountId");
 
   tbody.innerHTML = "";
   if (contCompteSelect) contCompteSelect.innerHTML = ""; // <-- AJOUT
+  if (cardAccountSelect) cardAccountSelect.innerHTML = "";
   clearMsg(msg);
 
   const { res, data } = await api("/api/accounts", "GET");
@@ -1309,6 +1440,9 @@ async function loadAccounts() {
   document.getElementById("statsBalance").textContent = totalBalance.toFixed(2) + "€";
 
   if (comptes.length === 0) {
+    if (cardAccountSelect) {
+      cardAccountSelect.innerHTML = '<option value="">Aucun compte disponible</option>';
+    }
     setMsg(msg, true, "Aucun compte. Crée-en un à droite.", "info");
     return;
   }
@@ -1346,7 +1480,128 @@ async function loadAccounts() {
       option.textContent = `${c.type} (#${c.id}) - ${Number(c.solde).toFixed(2)}€`;
       contCompteSelect.appendChild(option);
     }
+
+    if (cardAccountSelect) {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = `${c.type} (#${c.id}) - ${Number(c.solde).toFixed(2)}€`;
+      cardAccountSelect.appendChild(option);
+    }
   });
+}
+
+function cardStatusChip(status) {
+  const value = String(status || "").toLowerCase();
+
+  if (value === "active") {
+    return '<span class="mini-chip ok">Active</span>';
+  }
+
+  if (value === "blocked") {
+    return '<span class="mini-chip warn">Bloquée</span>';
+  }
+
+  if (value === "pending_delivery") {
+    return '<span class="mini-chip">En livraison</span>';
+  }
+
+  return `<span class="mini-chip">${status || "Inconnu"}</span>`;
+}
+
+function renderCards(cards) {
+  const list = document.getElementById("cardsList");
+
+  if (!cards.length) {
+    list.innerHTML = "<li class='small-muted'>Aucune carte active. Crée une carte virtuelle ou physique ci-dessus.</li>";
+    return;
+  }
+
+  list.innerHTML = cards.map((c) => {
+    const canBlock = c.status === "active" || c.status === "blocked";
+    const action = c.status === "blocked" ? "unblock" : "block";
+    const actionLabel = c.status === "blocked" ? "Débloquer" : "Bloquer";
+    const typeLabel = c.card_type === "physical" ? "Physique" : "Virtuelle";
+
+    return `
+      <li class="cards-item">
+        <div class="cards-item-left">
+          <div class="cards-title">${c.masked_number} • ${c.network}</div>
+          <div class="cards-sub">Type: ${typeLabel} • Expiration: ${String(c.expiry_date || "").slice(0,10)} • Compte: ${c.account_type || "-"}</div>
+          <div class="chip-row">
+            ${cardStatusChip(c.status)}
+            <span class="mini-chip">****${c.last4}</span>
+          </div>
+        </div>
+        <div class="cards-actions">
+          ${canBlock ? `<button class="btnx btn-ghost2" type="button" onclick="toggleCardStatus(${c.id}, '${action}')">${actionLabel}</button>` : ""}
+          <button class="btnx btn-danger2" type="button" onclick="cancelCard(${c.id})">Annuler</button>
+        </div>
+      </li>
+    `;
+  }).join("");
+}
+
+async function loadCards() {
+  const list = document.getElementById("cardsList");
+  const msg = document.getElementById("msgCards");
+
+  if (!list || !msg) return;
+
+  clearMsg(msg);
+  list.innerHTML = "<li class='small-muted'>Chargement des cartes...</li>";
+
+  const { res, data } = await api("/api/cards", "GET");
+
+  if (!res.ok) {
+    list.innerHTML = "";
+    setMsg(msg, false, data.error || "Impossible de charger les cartes");
+    return;
+  }
+
+  renderCards(data.cards || []);
+}
+
+function toggleCardDeliveryField() {
+  const type = document.getElementById("cardType").value;
+  const wrap = document.getElementById("cardAddressWrap");
+  const input = document.getElementById("cardAddress");
+
+  if (type === "physical") {
+    wrap.style.display = "block";
+  } else {
+    wrap.style.display = "none";
+    input.value = "";
+  }
+}
+
+async function toggleCardStatus(cardId, action) {
+  const msg = document.getElementById("msgCards");
+  const { res, data } = await api(`/api/cards/${cardId}/toggle`, "PATCH", { action });
+
+  if (res.ok) {
+    setMsg(msg, true, data.message || "Carte mise à jour");
+    await loadCards();
+  } else {
+    setMsg(msg, false, data.error || "Erreur carte");
+  }
+}
+
+async function cancelCard(cardId) {
+  const msg = document.getElementById("msgCards");
+  const confirmed = confirm("Confirmer l'annulation de cette carte ?");
+
+  if (!confirmed) {
+    return;
+  }
+
+  const { res, data } = await api(`/api/cards/${cardId}`, "DELETE");
+
+  if (res.ok) {
+    setMsg(msg, true, data.message || "Carte annulée");
+    await loadCards();
+  } else {
+    setMsg(msg, false, data.error || "Erreur carte");
+  }
 }
 
 async function loadTransactions(accountId) {
@@ -1394,6 +1649,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   if (res.ok) {
     setMsg(msg, true, "Compte créé");
     loadAccounts();
+    loadCards();
   } else {
     setMsg(msg, false, data.error || "Erreur");
   }
@@ -1454,6 +1710,53 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
     loadTransactions(fromAccountId);
   } else {
     setMsg(msg, false, data.error || "Erreur");
+  }
+});
+
+document.getElementById("cardType").addEventListener("change", () => {
+  toggleCardDeliveryField();
+});
+
+document.getElementById("createCardBtn").addEventListener("click", async () => {
+  const msg = document.getElementById("msgCards");
+  const accountId = Number(document.getElementById("cardAccountId").value);
+  const cardType = document.getElementById("cardType").value;
+  const network = document.getElementById("cardNetwork").value;
+  const address = document.getElementById("cardAddress").value.trim();
+
+  if (!accountId) {
+    setMsg(msg, false, "Sélectionne un compte pour créer la carte");
+    return;
+  }
+
+  if (!["virtual", "physical"].includes(cardType)) {
+    setMsg(msg, false, "Type de carte invalide");
+    return;
+  }
+
+  if (cardType === "physical" && !address) {
+    setMsg(msg, false, "L'adresse de livraison est obligatoire pour une carte physique");
+    return;
+  }
+
+  const body = {
+    account_id: accountId,
+    card_type: cardType,
+    network
+  };
+
+  if (cardType === "physical") {
+    body.delivery_address = address;
+  }
+
+  const { res, data } = await api("/api/cards", "POST", body);
+
+  if (res.ok) {
+    setMsg(msg, true, data.message || "Carte créée");
+    document.getElementById("cardAddress").value = "";
+    await loadCards();
+  } else {
+    setMsg(msg, false, data.error || "Erreur lors de la création de la carte");
   }
 });
 
@@ -1525,13 +1828,6 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   window.location.href = "/login";
 });
 
-(async () => {
-  await loadCsrfToken();
-  await loadMe();
-  await loadAccounts();
-  updateSelectedAccountLabel(null);
-})();
-
 document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
   const accountId = Number(document.getElementById("opAccountId").value);
   const msg = document.getElementById("msgOp");
@@ -1559,6 +1855,7 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
     document.getElementById("transactions").innerHTML =
       "<li class='small-muted'>Aucun compte sélectionné.</li>";
     loadAccounts();
+    loadCards();
   } else {
     setMsg(msg, false, data.error || "Erreur lors de la suppression");
   }
@@ -1614,6 +1911,8 @@ async function checkSalary() {
   await loadCsrfToken();
   await loadMe();
   await loadAccounts();
+  toggleCardDeliveryField();
+  await loadCards();
   await checkSalary(); // <--- AJOUTE ÇA ICI
   updateSelectedAccountLabel(null);
 })();

@@ -58,4 +58,20 @@ router.put(
   profileController.updateProfile
 );
 
+router.put(
+  "/secret-code",
+  requireAuth,
+  [
+    body("currentPassword")
+      .notEmpty()
+      .withMessage("Mot de passe actuel requis"),
+
+    body("secretCode")
+      .trim()
+      .matches(/^[0-9]{4}$/)
+      .withMessage("Le code secret doit contenir exactement 4 chiffres")
+  ],
+  profileController.updateSecretCode
+);
+
 module.exports = router;

@@ -103,6 +103,53 @@ router.post(
   authController.verifyOtp
 );
 
+router.post(
+  "/verify-secret-code",
+  [
+    body("code")
+      .trim()
+      .notEmpty()
+      .withMessage("Code secret requis")
+      .matches(/^[0-9]{4}$/)
+      .withMessage("Le code secret doit contenir exactement 4 chiffres"),
+  ],
+  authController.verifySecretCode
+);
+
+router.post("/resend-secret-code", authController.resendSecretCode);
+
+// ========================================
+// FORGOT PASSWORD
+// ========================================
+router.post(
+  "/forgot-password",
+  [
+    body("email")
+      .trim()
+      .notEmpty().withMessage("Email requis")
+      .isEmail().withMessage("Email invalide")
+      .normalizeEmail()
+  ],
+  authController.forgotPassword
+);
+
+// ========================================
+// RESET PASSWORD
+// ========================================
+router.post(
+  "/reset-password",
+  [
+    body("token").notEmpty().withMessage("Token requis"),
+    body("userId").notEmpty().withMessage("userId requis"),
+    body("password")
+      .notEmpty().withMessage("Mot de passe requis")
+      .isLength({ min: 8, max: 100 }).withMessage("Le mot de passe doit contenir entre 8 et 100 caractères")
+      .matches(/[A-Z]/).withMessage("Le mot de passe doit contenir au moins une majuscule")
+      .matches(/[0-9]/).withMessage("Le mot de passe doit contenir au moins un chiffre")
+  ],
+  authController.resetPassword
+);
+
 // ========================================
 // USER SESSION
 // ========================================

@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const db = require("../config/db");
 
@@ -9,7 +10,8 @@ exports.getProfile = async (req, res) => {
     const userId = req.session.user.id;
 
     const [rows] = await db.query(
-      `SELECT id, nom, prenom, email, telephone, adresse, date_naissance, role, is_admin
+      `SELECT id, nom, prenom, email, telephone, adresse, date_naissance, role, is_admin,
+              CASE WHEN secret_code_hash IS NULL THEN 0 ELSE 1 END AS has_secret_code
        FROM users
        WHERE id = ?`,
       [userId]
@@ -75,7 +77,8 @@ exports.updateProfile = async (req, res) => {
     );
 
     const [updatedRows] = await db.query(
-      `SELECT id, nom, prenom, email, telephone, adresse, date_naissance, role, is_admin
+      `SELECT id, nom, prenom, email, telephone, adresse, date_naissance, role, is_admin,
+              CASE WHEN secret_code_hash IS NULL THEN 0 ELSE 1 END AS has_secret_code
        FROM users
        WHERE id = ?`,
       [userId]
@@ -87,6 +90,46 @@ exports.updateProfile = async (req, res) => {
     });
   } catch (err) {
     console.error("UPDATE PROFILE ERROR :", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// ==============================
+// UPDATE SECRET CODE
+// ==============================
+exports.updateSecretCode = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { currentPassword, secretCode } = req.body;
+
+    const [rows] = await db.query(
+      "SELECT password_hash FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Utilisateur introuvable" });
+    }
+
+    const passwordOk = await bcrypt.compare(currentPassword, rows[0].password_hash || "");
+
+    if (!passwordOk) {
+      return res.status(401).json({ error: "Mot de passe actuel incorrect" });
+    }
+
+    const secretCodeHash = await bcrypt.hash(secretCode, 12);
+
+    await db.query(
+      "UPDATE users SET secret_code_hash = ? WHERE id = ?",
+      [secretCodeHash, userId]
+    );
+
+    return res.json({
+      message: "Code secret enregistré",
+      hasSecretCode: true
+    });
+  } catch (err) {
+    console.error("UPDATE SECRET CODE ERROR :", err);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
