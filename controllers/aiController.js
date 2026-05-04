@@ -255,6 +255,42 @@ function mapAiErrorForUser(rawError, provider) {
 }
 
 async function buildBudgetAnalysisContext(userId, month, year) {
+  // Infos personnelles de l'utilisateur
+  const [[user]] = await db.query(
+    `SELECT id, nom, prenom, email FROM users WHERE id = ?`,
+    [userId]
+  );
+
+  // Comptes bancaires avec soldes
+  const [accounts] = await db.query(
+    `SELECT id, iban, type, solde, statut, created_at
+     FROM comptes_bancaires
+     WHERE user_id = ?
+     ORDER BY id DESC`,
+    [userId]
+  );
+
+  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.solde || 0), 0);
+
+  // Transactions recentes detaillees (50 dernieres)
+  const [recentTransactions] = await db.query(
+    `SELECT
+        t.id,
+        t.type,
+        t.montant,
+        t.created_at,
+        s.iban AS source_iban,
+        d.iban AS dest_iban
+     FROM transactions t
+     LEFT JOIN comptes_bancaires s ON t.compte_source_id = s.id
+     LEFT JOIN comptes_bancaires d ON t.compte_destination_id = d.id
+     WHERE t.compte_source_id IN (SELECT id FROM comptes_bancaires WHERE user_id = ?)
+        OR t.compte_destination_id IN (SELECT id FROM comptes_bancaires WHERE user_id = ?)
+     ORDER BY t.created_at DESC
+     LIMIT 50`,
+    [userId, userId]
+  );
+
   const [depenses] = await db.query(
     `SELECT
       bc.nom,
@@ -330,6 +366,25 @@ async function buildBudgetAnalysisContext(userId, month, year) {
     }));
 
   return {
+    user: {
+      prenom: user?.prenom || "",
+      nom: user?.nom || "",
+      email: user?.email || ""
+    },
+    accounts: accounts.map((a) => ({
+      type: a.type,
+      iban: a.iban,
+      solde: Number(a.solde || 0),
+      statut: a.statut
+    })),
+    totalBalance: Number(totalBalance.toFixed(2)),
+    recentTransactions: recentTransactions.map((t) => ({
+      type: t.type,
+      montant: Number(t.montant || 0),
+      date: new Date(t.created_at).toLocaleDateString("fr-FR"),
+      source_iban: t.source_iban || null,
+      dest_iban: t.dest_iban || null
+    })),
     month,
     year,
     totalMonth: Number(totalMonth.toFixed(2)),
@@ -458,22 +513,45 @@ exports.analyzeBudget = async (req, res) => {
     let ollamaError = null;
     const aiProvider = String(process.env.AI_PROVIDER || "ollama").toLowerCase();
 
-    const topCats = context.depenses.slice(0, 5).map(d =>
-      `${d.categorie}: ${d.total_depense.toFixed(2)}EUR (plafond ${d.plafond.toFixed(2)}EUR)`
+    const toutesCategories = context.depenses.map(d =>
+      `${d.categorie}: ${d.total_depense.toFixed(2)}EUR${d.plafond > 0 ? ` (plafond ${d.plafond.toFixed(2)}EUR)` : ""}`
     ).join(", ");
     const depassStr = context.depassements.map(d =>
       `${d.categorie} +${d.excedent.toFixed(2)}EUR`
     ).join(", ") || "aucun";
     const prevTotaux = context.monthlyTotals.map(m => `${m.mois}/${m.annee}:${m.total.toFixed(2)}`).join(", ") || "pas d historique";
+    const comptesStr = context.accounts.map(a =>
+      `${a.type} (${a.iban}) solde:${a.solde.toFixed(2)}EUR statut:${a.statut}`
+    ).join(" | ") || "aucun compte";
+    const abonnementsStr = context.recurrents.length > 0
+      ? context.recurrents.map(r => `${r.categorie}: ${r.montant.toFixed(2)}EUR/mois`).join(", ")
+      : "aucun abonnement recurrent";
+    const transactionsStr = context.recentTransactions.slice(0, 30).map(t => {
+      let line = `[${t.date}] ${t.type} ${t.montant.toFixed(2)}EUR`;
+      if (t.source_iban) line += ` de:${t.source_iban}`;
+      if (t.dest_iban) line += ` vers:${t.dest_iban}`;
+      return line;
+    }).join("\n") || "aucune transaction";
 
     const prompt = [
-      "Tu es un conseiller financier bancaire. Reponds en francais, concis, sans emojis.",
-      `Mois analyse: ${context.month}/${context.year}. Total depenses: ${context.totalMonth.toFixed(2)}EUR.`,
-      `Categories: ${topCats}.`,
-      `Depassements plafond: ${depassStr}.`,
-      `Historique 3 mois: ${prevTotaux}.`,
-      context.recurrents.length > 0 ? `Recurrents: ${context.recurrents.map(r => `${r.categorie} ${r.montant}EUR`).join(", ")}.` : "",
-      question ? `Question utilisateur: ${question}` : "",
+      "Tu es un conseiller financier personnel et bancaire. Reponds en francais, de maniere claire et personnalisee.",
+      `Client: ${context.user.prenom} ${context.user.nom}`,
+      `Solde total: ${context.totalBalance.toFixed(2)}EUR`,
+      `Comptes: ${comptesStr}`,
+      "",
+      `=== BUDGET ${context.month}/${context.year} ===`,
+      `Total depenses du mois: ${context.totalMonth.toFixed(2)}EUR`,
+      `Toutes les categories: ${toutesCategories}`,
+      `Depassements de plafond: ${depassStr}`,
+      `Historique 3 mois: ${prevTotaux}`,
+      "",
+      `=== ABONNEMENTS ET PRELEVEMENT RECURRENTS ===`,
+      abonnementsStr,
+      "",
+      `=== 30 DERNIERES TRANSACTIONS ===`,
+      transactionsStr,
+      "",
+      question ? `=== QUESTION DU CLIENT ===\n${question}` : "",
       "",
       "Genere une analyse structuree avec ces 5 sections exactes (titre puis contenu):",
       "Analyse automatique des depenses",
