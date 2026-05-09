@@ -3,1513 +3,1249 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>IRISBANK Dashboard Client</title>
+<title>IRISBANK — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#07111f;
-  --bg-soft:#0b1729;
-  --sidebar:#08111d;
-  --panel:#0f1b2d;
-  --panel-2:#13233a;
-  --panel-3:#0b1627;
-  --panel-soft:#17263d;
-  --line:rgba(255,255,255,0.08);
-  --line-strong:rgba(255,255,255,0.12);
-  --text:#eef4ff;
-  --muted:#9db0cc;
-  --primary:#4f7cff;
-  --primary-dark:#3f68e8;
-  --primary-soft:rgba(79,124,255,0.18);
-  --success:#18c37e;
-  --success-dark:#11a76b;
-  --danger:#ef5b5b;
-  --danger-dark:#d94747;
-  --warning:#f5b942;
-  --shadow:0 24px 60px rgba(0,0,0,0.32);
-  --shadow-soft:0 12px 30px rgba(0,0,0,0.18);
-  --radius:22px;
-  --radius-sm:16px;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html{
-  scroll-behavior:smooth;
-}
-
-body{
-  margin:0;
-  font-family:"Inter",sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(79,124,255,0.20), transparent 22%),
-    radial-gradient(circle at top right, rgba(24,195,126,0.10), transparent 18%),
-    linear-gradient(180deg, #07111f 0%, #0b1729 100%);
-  color:var(--text);
-}
-
-button,
-input,
-select{
-  font-family:"Inter",sans-serif;
-}
-
-.app{
-  display:flex;
-  min-height:100vh;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-  width:280px;
-  background:linear-gradient(180deg, rgba(8,17,29,0.98) 0%, rgba(6,13,24,0.98) 100%);
-  border-right:1px solid var(--line);
-  color:#fff;
-  padding:24px 18px;
-  position:fixed;
-  top:0;
-  left:0;
-  bottom:0;
-  z-index:20;
-  backdrop-filter:blur(14px);
-}
-
-.brand-block{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:28px;
-  padding:8px 6px;
-}
-
-.logo-big{
-  width:54px;
-  height:54px;
-  border-radius:18px;
-  background:linear-gradient(135deg, #4f7cff 0%, #6aa6ff 100%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 12px 30px rgba(79,124,255,0.35);
-  position:relative;
-  overflow:hidden;
-  flex-shrink:0;
-}
-
-.logo-big::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg, rgba(255,255,255,0.22), transparent 55%);
-}
-
-.logo-mark{
-  position:relative;
-  font-weight:800;
-  font-size:18px;
-  letter-spacing:0.06em;
-  color:#fff;
-}
-
-.brand-title{
-  font-size:20px;
-  font-weight:800;
-  letter-spacing:0.02em;
-}
-
-.brand-title span{
-  color:#7eb4ff;
-}
-
-.brand-sub{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:4px;
-}
-
-.sidebar-section-label{
-  color:#7f94b2;
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:0.14em;
-  margin:18px 10px 10px;
-}
-
-.menu{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.menu button{
-  border:none;
-  background:transparent;
-  color:#dbe7ff;
-  text-align:left;
-  padding:13px 14px;
-  border-radius:16px;
-  cursor:pointer;
-  font-size:14px;
-  font-weight:600;
-  transition:0.2s ease;
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.menu button:hover{
-  background:rgba(255,255,255,0.06);
-  transform:translateX(2px);
-}
-
-.menu button.active{
-  background:linear-gradient(135deg, rgba(79,124,255,0.22), rgba(79,124,255,0.08));
-  color:#fff;
-  box-shadow:inset 0 0 0 1px rgba(126,180,255,0.18);
-}
-
-.sidebar-bottom{
-  margin-top:auto;
-  padding:16px 12px;
-  border-radius:18px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
-  border:1px solid var(--line);
-}
-
-.sidebar-bottom-title{
-  font-size:14px;
-  font-weight:700;
-  margin-bottom:6px;
-}
-
-.sidebar-bottom-text{
-  font-size:13px;
-  color:var(--muted);
-  line-height:1.5;
-}
-
-/* MAIN */
-
-.main{
-  margin-left:280px;
-  width:calc(100% - 280px);
-  padding:30px;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:18px;
-  margin-bottom:26px;
-}
-
-.topbar-left h1{
-  margin:0;
-  font-size:34px;
-  line-height:1.1;
-  font-weight:800;
-  letter-spacing:-0.03em;
-}
-
-.topbar-left p{
-  margin:10px 0 0;
-  color:var(--muted);
-  font-size:15px;
-  line-height:1.6;
-  max-width:700px;
-}
-
-.topbar-right{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
-.user-pill{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:rgba(15,27,45,0.88);
-  color:#fff;
-  padding:12px 16px;
-  border-radius:999px;
-  box-shadow:var(--shadow-soft);
-  border:1px solid var(--line);
-  font-size:14px;
-  backdrop-filter:blur(12px);
-}
-
-.status-dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#22c55e;
-  box-shadow:0 0 0 6px rgba(34,197,94,0.12);
-}
-
-.btnx{
-  border:none;
-  border-radius:14px;
-  padding:11px 16px;
-  cursor:pointer;
-  font-weight:700;
-  font-size:14px;
-  transition:0.2s ease;
-}
-
-.btnx:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-}
-
-.btn-primary{
-  background:linear-gradient(135deg, var(--primary), #6aa6ff);
-  color:#fff;
-  box-shadow:0 12px 24px rgba(79,124,255,0.24);
-}
-
-.btn-primary:hover{
-  background:linear-gradient(135deg, var(--primary-dark), #5a96f8);
-  transform:translateY(-1px);
-}
-
-.btn-success{
-  background:linear-gradient(135deg, var(--success), #3cd398);
-  color:#fff;
-  box-shadow:0 12px 24px rgba(24,195,126,0.20);
-}
-
-.btn-success:hover{
-  background:linear-gradient(135deg, var(--success-dark), #24c585);
-  transform:translateY(-1px);
-}
-
-.btn-danger2{
-  background:linear-gradient(135deg, var(--danger), #ff7a7a);
-  color:#fff;
-  box-shadow:0 12px 24px rgba(239,91,91,0.20);
-}
-
-.btn-danger2:hover{
-  background:linear-gradient(135deg, var(--danger-dark), #f26868);
-  transform:translateY(-1px);
-}
-
-.btn-ghost2{
-  background:rgba(15,27,45,0.88);
-  color:#fff;
-  border:1px solid var(--line);
-  box-shadow:var(--shadow-soft);
-}
-
-.btn-ghost2:hover{
-  background:rgba(23,38,61,0.95);
-  transform:translateY(-1px);
-}
-
-/* HERO STRIP */
-
-.hero-strip{
-  display:grid;
-  grid-template-columns:1.4fr 0.8fr;
-  gap:18px;
-  margin-bottom:24px;
-}
-
-.hero-card,
-.hero-mini{
-  background:linear-gradient(180deg, rgba(15,27,45,0.96), rgba(11,22,39,0.96));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:24px;
-  overflow:hidden;
-  position:relative;
-}
-
-.hero-card::before,
-.hero-mini::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg, rgba(255,255,255,0.05), transparent 42%);
-  pointer-events:none;
-}
-
-.hero-eyebrow{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:rgba(79,124,255,0.14);
-  color:#b8d2ff;
-  border:1px solid rgba(126,180,255,0.12);
-  border-radius:999px;
-  padding:7px 12px;
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:0.04em;
-  text-transform:uppercase;
-}
-
-.hero-card h2,
-.hero-mini h2{
-  margin:16px 0 8px;
-  font-size:26px;
-  font-weight:800;
-  letter-spacing:-0.02em;
-}
-
-.hero-card p,
-.hero-mini p{
-  margin:0;
-  color:var(--muted);
-  line-height:1.6;
-  font-size:14px;
-}
-
-.hero-meta{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:18px;
-}
-
-.hero-chip{
-  background:rgba(255,255,255,0.05);
-  border:1px solid var(--line);
-  padding:10px 12px;
-  border-radius:14px;
-  color:#dbe7ff;
-  font-size:13px;
-  font-weight:600;
-}
-
-/* STATS */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:18px;
-  margin-bottom:24px;
-}
-
-.stat-card{
-  background:linear-gradient(180deg, rgba(15,27,45,0.96), rgba(11,22,39,0.96));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:22px;
-  box-shadow:var(--shadow);
-  position:relative;
-  overflow:hidden;
-}
-
-.stat-card::before{
-  content:"";
-  position:absolute;
-  inset:auto -30px -30px auto;
-  width:110px;
-  height:110px;
-  background:radial-gradient(circle, rgba(79,124,255,0.18), transparent 70%);
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:14px;
-  font-weight:600;
-}
-
-.stat-value{
-  font-size:32px;
-  font-weight:800;
-  margin-top:10px;
-  letter-spacing:-0.04em;
-}
-
-.stat-sub{
-  margin-top:12px;
-  font-size:13px;
-  color:#b6c7e3;
-}
-
-/* PANELS */
-
-.content-grid{
-  display:grid;
-  grid-template-columns:1.35fr 1fr;
-  gap:22px;
-  margin-bottom:24px;
-}
-
-.panel{
-  background:linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-
-.panel-head{
-  padding:22px 24px 8px;
-}
-
-.panel-head h2{
-  margin:0;
-  font-size:21px;
-  font-weight:800;
-  letter-spacing:-0.02em;
-}
-
-.panel-head p{
-  margin:8px 0 0;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-}
-
-.panel-body{
-  padding:18px 24px 24px;
-}
-
-.section-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid var(--line);
-  color:#dce8ff;
-  font-size:12px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:0.05em;
-  padding:7px 12px;
-  border-radius:999px;
-  margin-bottom:12px;
-}
-
-/* TABLE */
-
-.table-wrap{
-  overflow:auto;
-  border:1px solid var(--line);
-  border-radius:18px;
-  background:rgba(255,255,255,0.02);
-}
-
-.client-table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-.client-table th,
-.client-table td{
-  text-align:left;
-  padding:16px 14px;
-  border-bottom:1px solid var(--line);
-  font-size:14px;
-}
-
-.client-table td{
-  color:#ecf3ff;
-}
-
-.client-table th{
-  color:var(--muted);
-  font-weight:700;
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:0.08em;
-  background:rgba(255,255,255,0.02);
-}
-
-.client-table tbody tr{
-  cursor:pointer;
-  transition:0.16s ease;
-}
-
-.client-table tbody tr:hover{
-  background:rgba(255,255,255,0.035);
-}
-
-.client-table tbody tr:last-child td{
-  border-bottom:none;
-}
-
-.account-type-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:7px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  background:rgba(79,124,255,0.12);
-  color:#bfd6ff;
-}
-
-.status-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:7px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-}
-
-.status-pill.active{
-  background:rgba(24,195,126,0.12);
-  color:#99efca;
-}
-
-.status-pill.blocked{
-  background:rgba(239,91,91,0.12);
-  color:#ffb3b3;
-}
-
-.mono{
-  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size:12px;
-}
-
-/* FORMS */
-
-.stack{
-  display:grid;
-  gap:18px;
-}
-
-.form-grid{
-  display:grid;
-  gap:12px;
-}
-
-.field-label{
-  color:#dce8ff;
-  font-size:13px;
-  font-weight:700;
-  margin-bottom:4px;
-}
-
-.inputx,
-.selectx{
-  width:100%;
-  border:1px solid var(--line-strong);
-  background:rgba(255,255,255,0.04);
-  color:#fff;
-  border-radius:16px;
-  padding:13px 14px;
-  font-size:14px;
-  outline:none;
-  transition:0.18s ease;
-}
-
-.inputx::placeholder{
-  color:#87a0c4;
-}
-
-.inputx:focus,
-.selectx:focus{
-  border-color:rgba(126,180,255,0.38);
-  box-shadow:0 0 0 4px rgba(79,124,255,0.16);
-  background:rgba(255,255,255,0.06);
-}
-
-.selectx option{
-  background:#0f1b2d;
-  color:#fff;
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.form-note{
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.5;
-  margin-top:2px;
-}
-
-/* MESSAGES */
-
-.msg{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:14px;
-  display:none;
-  border:1px solid transparent;
-}
-
-.msg.show{
-  display:block;
-}
-
-.msg.ok{
-  background:rgba(24,195,126,0.12);
-  color:#9ff0cd;
-  border-color:rgba(24,195,126,0.18);
-}
-
-.msg.err{
-  background:rgba(239,91,91,0.12);
-  color:#ffbcbc;
-  border-color:rgba(239,91,91,0.18);
-}
-
-.msg.info{
-  background:rgba(79,124,255,0.14);
-  color:#c8dcff;
-  border-color:rgba(79,124,255,0.18);
-}
-
-/* HISTORY */
-
-.history-list{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:12px;
-}
-
-.history-item{
-  background:rgba(255,255,255,0.03);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:16px 18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-
-.history-main{
-  font-size:14px;
-  font-weight:800;
-}
-
-.history-sub{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:5px;
-  line-height:1.5;
-}
-
-.amount-badge{
-  white-space:nowrap;
-  background:rgba(79,124,255,0.13);
-  color:#cfe0ff;
-  padding:9px 12px;
-  border-radius:999px;
-  font-weight:800;
-  font-size:13px;
-}
-
-.small-muted{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-}
-
-/* IA CHAT */
-
-.ai-chat-box{
-  height:300px;
-  overflow-y:auto;
-  background:rgba(255,255,255,0.02);
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.ai-msg{
-  max-width:82%;
-  padding:13px 15px;
-  border-radius:18px;
-  line-height:1.6;
-  white-space:pre-wrap;
-  word-break:break-word;
-  font-size:14px;
-  border:1px solid transparent;
-}
-
-.ai-msg.user{
-  align-self:flex-end;
-  background:linear-gradient(135deg, var(--primary), #6aa6ff);
-  color:#fff;
-  border-bottom-right-radius:8px;
-  box-shadow:0 12px 24px rgba(79,124,255,0.20);
-}
-
-.ai-msg.assistant{
-  align-self:flex-start;
-  background:rgba(255,255,255,0.05);
-  color:#eef4ff;
-  border-color:var(--line);
-  border-bottom-left-radius:8px;
-}
-
-.ai-msg.system{
-  align-self:center;
-  background:rgba(79,124,255,0.12);
-  color:#dce7ff;
-  font-size:13px;
-  border-color:rgba(79,124,255,0.18);
-}
-
-.ai-actions{
-  display:flex;
-  gap:10px;
-  margin-top:14px;
-  flex-wrap:wrap;
-}
-
-.ai-quick{
-  border:none;
-  background:rgba(79,124,255,0.12);
-  color:#cfe0ff;
-  padding:9px 13px;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
-  transition:0.18s ease;
-}
-
-.ai-quick:hover{
-  background:rgba(79,124,255,0.22);
-  transform:translateY(-1px);
-}
-
-.ai-input-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  margin-top:14px;
-}
-
-.ai-status{
-  margin-top:10px;
-  color:var(--muted);
-  font-size:13px;
-  min-height:18px;
-}
-
-.budget-cta{
-  margin-top:24px;
-  background:linear-gradient(135deg, rgba(79,124,255,0.18), rgba(24,195,126,0.10));
-  border:1px solid rgba(126,180,255,0.22);
-  border-radius:20px;
-  padding:18px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  box-shadow:var(--shadow-soft);
-}
-
-.budget-cta h3{
-  margin:0;
-  font-size:18px;
-  font-weight:800;
-}
-
-.budget-cta p{
-  margin:6px 0 0;
-  color:#c8dcff;
-  font-size:13px;
-}
-
-.budget-cta .btnx{
-  white-space:nowrap;
-}
-
-/* SCROLLBAR */
-
-.table-wrap::-webkit-scrollbar,
-.ai-chat-box::-webkit-scrollbar{
-  height:10px;
-  width:10px;
-}
-
-.table-wrap::-webkit-scrollbar-thumb,
-.ai-chat-box::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,0.12);
-  border-radius:999px;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 1200px){
-  .hero-strip{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width: 1100px){
-  .content-grid{
-    grid-template-columns:1fr;
-  }
-
-  .stats{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width: 900px){
-  .sidebar{
-    position:static;
-    width:100%;
-    height:auto;
-    border-right:none;
-    border-bottom:1px solid var(--line);
-  }
-
-  .main{
-    margin-left:0;
-    width:100%;
-    padding:20px;
-  }
-
-  .app{
-    display:block;
-  }
-
-  .topbar{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .topbar-right{
-    width:100%;
-    justify-content:flex-start;
-  }
-}
-
-@media (max-width: 700px){
-  .main{
-    padding:16px;
-  }
-
-  .topbar-left h1{
-    font-size:28px;
-  }
-
-  .panel-head,
-  .panel-body,
-  .stat-card,
-  .hero-card,
-  .hero-mini{
-    padding-left:18px;
-    padding-right:18px;
-  }
-
-  .ai-input-row{
-    grid-template-columns:1fr;
-  }
-
-  .history-item{
-    flex-direction:column;
-    align-items:flex-start;
-  }
+:root {
+  --bg: #060d18;
+  --bg2: #0a1525;
+  --sidebar: #070e1c;
+  --panel: #0d1e33;
+  --panel2: #112240;
+  --line: rgba(100,160,255,0.1);
+  --line2: rgba(100,160,255,0.18);
+  --text: #e8f2ff;
+  --muted: #6b8aaa;
+  --muted2: #4a6a8a;
+  --blue: #3d7fff;
+  --blue-glow: rgba(61,127,255,0.25);
+  --cyan: #00d4ff;
+  --green: #00e5a0;
+  --green-glow: rgba(0,229,160,0.2);
+  --orange: #ff8c42;
+  --red: #ff4d6d;
+  --purple: #a78bfa;
+  --gold: #fbbf24;
+  --r: 20px;
+  --r-sm: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── LAYOUT ── */
+.app { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 264px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* subtle grid texture */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(61,127,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,127,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.sidebar-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 0 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* brand */
+.brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 46px; height: 46px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1a3a7a, #2d5fc4);
+  border: 1px solid rgba(61,127,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(61,127,255,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.brand-logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 60%);
+}
+.brand-logo span {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.05em;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-text { flex: 1; min-width: 0; }
+.brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.brand-name em { color: var(--cyan); font-style: normal; }
+.brand-tag {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.03em;
+}
+
+/* nav sections */
+.nav-section { padding: 0 12px; margin-bottom: 4px; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted2);
+  padding: 12px 8px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.18s ease;
+  position: relative;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(61,127,255,0.08);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(61,127,255,0.18), rgba(61,127,255,0.06));
+  color: #fff;
+  border: 1px solid rgba(61,127,255,0.2);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 60%;
+  background: var(--blue);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px var(--blue);
+}
+
+.nav-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  transition: all 0.18s;
+}
+
+.nav-item.active .nav-icon { background: rgba(61,127,255,0.2); }
+
+.nav-badge {
+  margin-left: auto;
+  background: rgba(0,229,160,0.15);
+  color: var(--green);
+  border: 1px solid rgba(0,229,160,0.25);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.nav-badge.blue {
+  background: rgba(61,127,255,0.15);
+  color: var(--cyan);
+  border-color: rgba(61,127,255,0.25);
+}
+
+.nav-badge.gold {
+  background: rgba(251,191,36,0.15);
+  color: var(--gold);
+  border-color: rgba(251,191,36,0.25);
+}
+
+/* sidebar bottom */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+}
+
+.user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: var(--text); truncate: ellipsis; white-space: nowrap; overflow: hidden; }
+.user-status { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.user-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); display: inline-block; }
+
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.logout-btn:hover { color: var(--red); }
+
+/* ── MAIN ── */
+.main {
+  margin-left: 264px;
+  width: calc(100% - 264px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* topbar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(6,13,24,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* content */
+.content {
+  padding: 28px 32px;
+  flex: 1;
+}
+
+/* ── CARDS / PANELS ── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.025), transparent 50%);
+  pointer-events: none;
+}
+
+.ph { padding: 22px 24px 16px; }
+.pb { padding: 0 24px 24px; }
+
+.ph h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.ph p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.tag-blue { background: rgba(61,127,255,0.12); color: #7eb8ff; border: 1px solid rgba(61,127,255,0.2); }
+.tag-green { background: rgba(0,229,160,0.12); color: #5effd0; border: 1px solid rgba(0,229,160,0.2); }
+.tag-gold { background: rgba(251,191,36,0.12); color: #fde68a; border: 1px solid rgba(251,191,36,0.2); }
+.tag-purple { background: rgba(167,139,250,0.12); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.2); }
+.tag-red { background: rgba(255,77,109,0.12); color: #ffa0b4; border: 1px solid rgba(255,77,109,0.2); }
+.tag-orange { background: rgba(255,140,66,0.12); color: #ffbe8f; border: 1px solid rgba(255,140,66,0.2); }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.stat:hover { border-color: var(--line2); transform: translateY(-2px); }
+
+.stat-glow {
+  position: absolute;
+  right: -20px; bottom: -20px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.stat-icon {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.stat-val { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 500; color: #fff; line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.grid-1 { margin-bottom: 24px; }
+
+.col-stack { display: flex; flex-direction: column; gap: 20px; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.01); }
+td { color: var(--text); }
+tbody tr { cursor: pointer; transition: background 0.15s; }
+tbody tr:hover { background: rgba(61,127,255,0.06); }
+tbody tr:last-child td { border-bottom: none; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+}
+.pill-blue { background: rgba(61,127,255,0.12); color: #7eb8ff; }
+.pill-green { background: rgba(0,229,160,0.12); color: #5effd0; }
+.pill-red { background: rgba(255,77,109,0.12); color: #ffa0b4; }
+.pill-gold { background: rgba(251,191,36,0.12); color: var(--gold); }
+
+.mono { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+
+/* ── FORMS ── */
+.form-grid { display: grid; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.inp, .sel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line2);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 11px 14px;
+  outline: none;
+  transition: all 0.18s;
+  width: 100%;
+}
+
+.inp::placeholder { color: var(--muted2); }
+.inp:focus, .sel:focus { border-color: rgba(61,127,255,0.5); box-shadow: 0 0 0 3px rgba(61,127,255,0.12); background: rgba(61,127,255,0.04); }
+.sel option { background: var(--panel); }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.hint { font-size: 11.5px; color: var(--muted2); line-height: 1.5; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: none; border-radius: var(--r-sm);
+  padding: 10px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-blue { background: linear-gradient(135deg, var(--blue), #5e9fff); color: #fff; box-shadow: 0 6px 20px rgba(61,127,255,0.25); }
+.btn-blue:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(61,127,255,0.35); }
+
+.btn-green { background: linear-gradient(135deg, #00b87a, var(--green)); color: #003d2a; box-shadow: 0 6px 20px rgba(0,229,160,0.2); }
+.btn-green:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,160,0.3); }
+
+.btn-red { background: linear-gradient(135deg, #d63456, var(--red)); color: #fff; box-shadow: 0 6px 20px rgba(255,77,109,0.2); }
+.btn-red:hover:not(:disabled) { transform: translateY(-1px); }
+
+.btn-ghost { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--line2); }
+.btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.09); transform: translateY(-1px); }
+
+.btn-gold { background: linear-gradient(135deg, #d97706, var(--gold)); color: #1a0d00; box-shadow: 0 6px 20px rgba(251,191,36,0.2); }
+.btn-gold:hover:not(:disabled) { transform: translateY(-1px); }
+
+/* ── ALERTS ── */
+.alert { padding: 12px 14px; border-radius: var(--r-sm); font-size: 13px; line-height: 1.5; display: none; margin-top: 14px; }
+.alert.show { display: block; }
+.alert-ok { background: rgba(0,229,160,0.1); color: #5effd0; border: 1px solid rgba(0,229,160,0.2); }
+.alert-err { background: rgba(255,77,109,0.1); color: #ffa0b4; border: 1px solid rgba(255,77,109,0.2); }
+.alert-info { background: rgba(61,127,255,0.1); color: #7eb8ff; border: 1px solid rgba(61,127,255,0.2); }
+
+/* ── HISTORY ── */
+.tx-list { display: flex; flex-direction: column; gap: 10px; }
+
+.tx-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: all 0.15s;
+}
+.tx-item:hover { background: rgba(61,127,255,0.05); border-color: rgba(61,127,255,0.15); }
+
+.tx-icon {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.tx-info { flex: 1; }
+.tx-type { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.tx-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.tx-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px; font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+/* ── AI CHAT ── */
+.chat-box {
+  height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+  margin-bottom: 14px;
+}
+
+.chat-msg {
+  max-width: 80%;
+  padding: 11px 14px;
+  border-radius: 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: msgIn 0.2s ease;
+}
+@keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+.chat-msg.user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--blue), #5e9fff);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg.bot {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.quick-chip {
+  background: rgba(61,127,255,0.1);
+  border: 1px solid rgba(61,127,255,0.2);
+  color: #7eb8ff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.quick-chip:hover { background: rgba(61,127,255,0.2); transform: translateY(-1px); }
+
+.chat-input-row { display: flex; gap: 10px; }
+.chat-status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 18px; }
+
+/* ── BUDGET BAR ── */
+.budget-item { margin-bottom: 16px; }
+.budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.budget-cat { font-size: 13px; font-weight: 600; }
+.budget-amounts { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.budget-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.budget-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+
+/* ── CTA BANNER ── */
+.cta-banner {
+  background: linear-gradient(135deg, rgba(61,127,255,0.12), rgba(0,229,160,0.06));
+  border: 1px solid rgba(61,127,255,0.2);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.cta-banner h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.cta-banner p { font-size: 13px; color: var(--muted); }
+
+/* ── SALARY CARD ── */
+.salary-preview {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px;
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.15);
+  border-radius: var(--r-sm);
+  margin-bottom: 16px;
+}
+.salary-ico { font-size: 24px; }
+.salary-label { font-size: 12px; color: var(--muted); }
+.salary-val { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; color: var(--gold); }
+
+/* ── SCROLL ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1200px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .sidebar { width: 220px; }
+  .main { margin-left: 220px; width: calc(100% - 220px); }
+  .content { padding: 20px; }
+  .topbar { padding: 0 20px; }
+}
+
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; width: 100%; }
+  .stats-row { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .topbar-title { font-size: 16px; }
 }
 </style>
 </head>
-
 <body>
 
 <div class="app">
 
+  <!-- ══ SIDEBAR ══ -->
   <aside class="sidebar">
-    <div class="brand-block">
-      <div class="logo-big">
-        <div class="logo-mark">IR</div>
-      </div>
-      <div>
-        <div class="brand-title">IRIS<span>BANK</span></div>
-        <div class="brand-sub">Client space • fintech dashboard</div>
-      </div>
-    </div>
+    <div class="sidebar-inner">
 
-    <div class="sidebar-section-label">Navigation</div>
-    <div class="menu">
-      <button class="active" type="button">🏠 Vue d’ensemble</button>
-      <button type="button" onclick="goProfile()">👤 Mon profil</button>
-      <button type="button" onclick="document.getElementById('createSection').scrollIntoView({behavior:'smooth'})">➕ Créer un compte</button>
-      <button type="button" onclick="document.getElementById('operationsSection').scrollIntoView({behavior:'smooth'})">💸 Opérations</button>
-      <button type="button" onclick="document.getElementById('transferSection').scrollIntoView({behavior:'smooth'})">🔁 Virement</button>
-      <button type="button" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">🧾 Historique</button>
-      <button type="button" onclick="document.getElementById('aiSection').scrollIntoView({behavior:'smooth'})">🤖 Assistant IA</button>
-    </div>
-
-    <div class="sidebar-bottom">
-      <div class="sidebar-bottom-title">IRISBANK Assistant</div>
-      <div class="sidebar-bottom-text">
-        Analyse tes comptes, comprends tes transactions et interagis avec l’assistant intégré depuis ton espace bancaire.
+      <div class="brand">
+        <div class="brand-logo"><span>IR</span></div>
+        <div class="brand-text">
+          <div class="brand-name">IRIS<em>BANK</em></div>
+          <div class="brand-tag">Client dashboard</div>
+        </div>
       </div>
+
+      <!-- COMPTE -->
+      <div class="nav-section">
+        <div class="nav-label">Compte</div>
+        <button class="nav-item active" onclick="scrollTo('overviewSection')">
+          <span class="nav-icon">🏠</span> Vue d'ensemble
+        </button>
+        <button class="nav-item" onclick="goProfile()">
+          <span class="nav-icon">👤</span> Mon profil
+        </button>
+        <button class="nav-item" onclick="scrollTo('createSection')">
+          <span class="nav-icon">➕</span> Créer un compte
+        </button>
+      </div>
+
+      <!-- OPÉRATIONS -->
+      <div class="nav-section">
+        <div class="nav-label">Opérations</div>
+        <button class="nav-item" onclick="scrollTo('operationsSection')">
+          <span class="nav-icon">💸</span> Dépôt & Retrait
+        </button>
+        <button class="nav-item" onclick="scrollTo('transferSection')">
+          <span class="nav-icon">🔁</span> Virement
+        </button>
+        <button class="nav-item" onclick="scrollTo('historySection')">
+          <span class="nav-icon">🧾</span> Historique
+        </button>
+      </div>
+
+      <!-- FINANCES -->
+      <div class="nav-section">
+        <div class="nav-label">Finances</div>
+        <button class="nav-item" onclick="scrollTo('salarySection')">
+          <span class="nav-icon">💼</span> Salaire
+          <span class="nav-badge gold">NEW</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='/budget'">
+          <span class="nav-icon">📊</span> Budget
+          <span class="nav-badge blue">PDF</span>
+        </button>
+        <button class="nav-item" onclick="scrollTo('aiSection')">
+          <span class="nav-icon">🤖</span> Assistant IA
+          <span class="nav-badge">IA</span>
+        </button>
+      </div>
+
+      <!-- SÉCURITÉ -->
+      <div class="nav-section">
+        <div class="nav-label">Sécurité</div>
+        <button class="nav-item" onclick="window.location.href='/reset-password'">
+          <span class="nav-icon">🔐</span> Mot de passe
+        </button>
+      </div>
+
+      <!-- footer -->
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="userInitials">?</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Chargement...</div>
+            <div class="user-status">Connecté</div>
+          </div>
+          <button class="logout-btn" id="logoutBtn" title="Déconnexion">⏻</button>
+        </div>
+      </div>
+
     </div>
   </aside>
 
-  <main class="main">
+  <!-- ══ MAIN ══ -->
+  <div class="main">
 
+    <!-- topbar -->
     <div class="topbar">
-      <div class="topbar-left">
-        <h1>Mon espace bancaire</h1>
-        <p>Consulte tes comptes, effectue tes opérations, suis ton activité et échange avec ton assistant bancaire intelligent depuis une interface moderne et unifiée.</p>
-      </div>
-
+      <div class="topbar-title" id="pageTitle">Vue d'ensemble</div>
       <div class="topbar-right">
-        <div id="who" class="user-pill">
-          <span class="status-dot"></span>
-          <span>Connecté</span>
+        <div class="topbar-pill" id="who">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--green)"></span>
+          Connecté
         </div>
-
-        <button onclick="goProfile()" class="btnx btn-ghost2" type="button">
-          👤 Profil
-        </button>
-
-        <button id="logoutBtn" class="btnx btn-ghost2" type="button">
-          Logout
-        </button>
+        <button class="btn btn-ghost" onclick="goProfile()">👤 Profil</button>
       </div>
     </div>
 
-    <section class="hero-strip">
-      <div class="hero-card">
-       
-        <h2>Gère tes finances avec une interface plus claire</h2>
-        <p>Sélectionne un compte, lance un dépôt, un retrait ou un virement, puis utilise l’assistant pour résumer tes dernières activités en quelques secondes.</p>
-        <div class="hero-meta">
-         
-          <div class="hero-chip">Historique en temps réel</div>
-          <div class="hero-chip">Assistant IA local</div>
+    <div class="content">
+
+      <!-- ── STATS ── -->
+      <div class="stats-row" id="overviewSection">
+        <div class="stat">
+          <div class="stat-glow" style="background:radial-gradient(circle,rgba(61,127,255,0.3),transparent 70%)"></div>
+          <div class="stat-icon" style="background:rgba(61,127,255,0.15)">🏦</div>
+          <div class="stat-label">Comptes ouverts</div>
+          <div class="stat-val" id="statsAccounts">—</div>
+          <div class="stat-sub">comptes bancaires actifs</div>
+        </div>
+        <div class="stat">
+          <div class="stat-glow" style="background:radial-gradient(circle,rgba(0,229,160,0.3),transparent 70%)"></div>
+          <div class="stat-icon" style="background:rgba(0,229,160,0.12)">💰</div>
+          <div class="stat-label">Solde total</div>
+          <div class="stat-val" id="statsBalance">—</div>
+          <div class="stat-sub">disponible immédiatement</div>
+        </div>
+        <div class="stat">
+          <div class="stat-glow" style="background:radial-gradient(circle,rgba(251,191,36,0.25),transparent 70%)"></div>
+          <div class="stat-icon" style="background:rgba(251,191,36,0.12)">💼</div>
+          <div class="stat-label">Prochain salaire</div>
+          <div class="stat-val" id="statsSalary">—</div>
+          <div class="stat-sub">versement mensuel</div>
+        </div>
+        <div class="stat">
+          <div class="stat-glow" style="background:radial-gradient(circle,rgba(167,139,250,0.25),transparent 70%)"></div>
+          <div class="stat-icon" style="background:rgba(167,139,250,0.12)">📌</div>
+          <div class="stat-label">Compte actif</div>
+          <div class="stat-val" style="font-size:16px;margin-top:8px" id="selectedAccountLabel">Aucun</div>
+          <div class="stat-sub">cliquer sur un compte</div>
         </div>
       </div>
 
-      <div class="hero-mini">
-        <div class="hero-eyebrow">● Statut</div>
-        <h2>Compte client actif</h2>
-        <p>Ton tableau de bord est connecté. Tu peux consulter tes comptes, faire des opérations et accéder à ton profil utilisateur.</p>
-      </div>
-    </section>
+      <!-- ── COMPTES + CRÉATION ── -->
+      <div class="grid-2">
 
-    <section class="stats">
-      <div class="stat-card">
-        <div class="stat-label">Nombre de comptes</div>
-        <div class="stat-value" id="statsAccounts">0</div>
-        <div class="stat-sub">Tous tes comptes bancaires visibles ici</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Solde total</div>
-        <div class="stat-value" id="statsBalance">0.00€</div>
-        <div class="stat-sub">Somme globale de tes soldes disponibles</div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Compte sélectionné</div>
-        <div class="stat-value" id="selectedAccountLabel">Aucun</div>
-        <div class="stat-sub">Clique sur une ligne pour lier les actions</div>
-      </div>
-    </section>
-
-    <section class="content-grid">
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="section-badge">Comptes bancaires</div>
-          <h2>Mes comptes</h2>
-          <p>Clique sur une ligne pour sélectionner un compte et afficher son historique ainsi que lier automatiquement les formulaires d’opérations.</p>
-        </div>
-
-        <div class="panel-body">
-          <div class="table-wrap">
-            <table class="client-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>IBAN</th>
-                  <th>Type</th>
-                  <th>Solde</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
-              <tbody id="accountsTbody"></tbody>
-            </table>
+        <!-- table comptes -->
+        <div class="panel">
+          <div class="ph">
+            <div class="tag tag-blue">Comptes bancaires</div>
+            <h2>Mes comptes</h2>
+            <p>Cliquez sur une ligne pour sélectionner un compte et charger son historique.</p>
           </div>
-
-          <div id="msgAccounts" class="msg"></div>
-        </div>
-      </div>
-
-      <div class="stack">
-
-        <div class="panel" id="createSection">
-          <div class="panel-head">
-            <div class="section-badge">Nouveau compte</div>
-            <h2>Créer un compte</h2>
-            <p>Ajoute rapidement un compte bancaire avec un type défini par ton système.</p>
-          </div>
-
-          <div class="panel-body">
-            <div class="form-grid">
-              <div>
-                <div class="field-label">Type de compte</div>
-                <select id="newType" class="selectx">
-                  <option value="COURANT">COURANT</option>
-                  <option value="LIVRET_A">LIVRET_A</option>
-                  <option value="PEL">PEL</option>
-                </select>
-              </div>
-
-              <button id="createBtn" class="btnx btn-success" type="button">Créer le compte</button>
-              <div class="form-note">Un IBAN fictif conforme au format du projet sera généré automatiquement.</div>
+          <div class="pb">
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>IBAN</th><th>Type</th><th>Solde</th><th>Statut</th></tr></thead>
+                <tbody id="accountsTbody"></tbody>
+              </table>
             </div>
-
-            <div id="msgCreate" class="msg"></div>
+            <div id="msgAccounts" class="alert"></div>
           </div>
         </div>
 
-        <div class="panel" id="operationsSection">
-          <div class="panel-head">
-            <div class="section-badge">Dépôt & retrait</div>
-            <h2>Opérations</h2>
-            <p>Effectue un dépôt ou un retrait sur le compte sélectionné. Le retrait est limité selon les règles métier définies.</p>
-          </div>
-
-          <div class="panel-body">
-            <div class="form-grid">
-              <div>
-                <div class="field-label">Compte à débiter</div>
-                <select class="selectx" id="opAccountId">
-                  <option value="">Choisir un compte...</option>
-                </select>
-              </div>
-
-              <div>
-                <div class="field-label">Montant</div>
-                <input class="inputx" id="opAmount" placeholder="Montant"/>
-              </div>
-
-              <div class="actions">
-                <button id="depositBtn" class="btnx btn-primary" type="button">Dépôt</button>
-                <button id="withdrawBtn" class="btnx btn-danger2" type="button">Retrait</button>
-                 <button id="deleteAccountBtn" class="btnx btn-ghost2" type="button">Supprimer le compte</button>
-              </div>
-
-              <div class="form-note">Dépôt minimum : 1€ • Retrait minimum : 1€ • Retrait maximum : 1000€</div>
+        <div class="col-stack">
+          <!-- Créer compte -->
+          <div class="panel" id="createSection">
+            <div class="ph">
+              <div class="tag tag-green">Nouveau compte</div>
+              <h2>Créer un compte</h2>
+              <p>Un IBAN fictif sera généré automatiquement.</p>
             </div>
-
-            <div id="msgOp" class="msg"></div>
-          </div>
-        </div>
-
-        <div class="panel" id="transferSection">
-          <div class="panel-head">
-            <div class="section-badge">Virement</div>
-            <h2>Virement</h2>
-            <p>Envoie de l’argent depuis un compte vers un autre IBAN. Le compte source et le compte destination doivent être valides.</p>
-          </div>
-
-          <div class="panel-body">
-            <div class="form-grid">
-              <div>
-                <div class="field-label">Compte source</div>
-                <select class="selectx" id="transferFrom">
-                  <option value="">Choisir un compte...</option>
-                </select>
+            <div class="pb">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Type de compte</label>
+                  <select id="newType" class="sel">
+                    <option value="COURANT">COURANT</option>
+                    <option value="LIVRET_A">LIVRET A</option>
+                    <option value="PEL">PEL</option>
+                  </select>
+                </div>
+                <button id="createBtn" class="btn btn-green">➕ Créer le compte</button>
               </div>
-
-              <div>
-                <div class="field-label">IBAN destination</div>
-                <input class="inputx mono" id="transferIban" placeholder="IBAN destination"/>
-              </div>
-
-              <div>
-                <div class="field-label">Montant</div>
-                <input class="inputx" id="transferAmount" placeholder="Montant"/>
-              </div>
-
-              <button id="transferBtn" class="btnx btn-success" type="button">Faire le virement</button>
-              <div class="form-note">Choisis ton compte source puis l'IBAN destination. Le virement échoue si le solde est insuffisant, si l’IBAN n’existe pas ou si l’un des comptes est bloqué.</div>
+              <div id="msgCreate" class="alert"></div>
             </div>
+          </div>
 
-            <div id="msgTransfer" class="msg"></div>
+          <!-- Opérations -->
+          <div class="panel" id="operationsSection">
+            <div class="ph">
+              <div class="tag tag-blue">Dépôt & Retrait</div>
+              <h2>Opérations</h2>
+            </div>
+            <div class="pb">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Compte</label>
+                  <select id="opAccountId" class="sel"><option value="">Choisir...</option></select>
+                </div>
+                <div class="field">
+                  <label>Montant (€)</label>
+                  <input id="opAmount" class="inp" placeholder="0.00" type="number" min="1"/>
+                </div>
+                <div class="btn-row">
+                  <button id="depositBtn" class="btn btn-blue">⬇ Dépôt</button>
+                  <button id="withdrawBtn" class="btn btn-red">⬆ Retrait</button>
+                  <button id="deleteAccountBtn" class="btn btn-ghost">🗑</button>
+                </div>
+                <div class="hint">Min 1€ • Retrait max 1 000€</div>
+              </div>
+              <div id="msgOp" class="alert"></div>
+            </div>
           </div>
         </div>
 
       </div>
-    </section>
 
-    <section class="panel" id="historySection">
-      <div class="panel-head">
-        <div class="section-badge">Suivi d’activité</div>
-        <h2>Historique des transactions</h2>
-        <p>Affichage dynamique des opérations du compte sélectionné, avec date et montant.</p>
+      <!-- ── VIREMENT ── -->
+      <div class="panel grid-1" id="transferSection">
+        <div class="ph">
+          <div class="tag tag-purple">Virement</div>
+          <h2>Effectuer un virement</h2>
+          <p>Envoyez de l'argent depuis un de vos comptes vers n'importe quel IBAN valide.</p>
+        </div>
+        <div class="pb">
+          <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr auto;align-items:end">
+            <div class="field">
+              <label>Compte source</label>
+              <select id="transferFrom" class="sel"><option value="">Choisir...</option></select>
+            </div>
+            <div class="field">
+              <label>IBAN destination</label>
+              <input id="transferIban" class="inp mono" placeholder="FR76..."/>
+            </div>
+            <div class="field">
+              <label>Montant (€)</label>
+              <input id="transferAmount" class="inp" placeholder="0.00" type="number" min="1"/>
+            </div>
+            <button id="transferBtn" class="btn btn-green" style="height:44px">🔁 Virer</button>
+          </div>
+          <div id="msgTransfer" class="alert"></div>
+        </div>
       </div>
 
-      <div class="panel-body">
-        <ul id="transactions" class="history-list">
-          <li class="small-muted">Aucun compte sélectionné.</li>
-        </ul>
-        <div id="msgHistory" class="msg"></div>
+      <!-- ── HISTORIQUE ── -->
+      <div class="panel grid-1" id="historySection">
+        <div class="ph">
+          <div class="tag tag-blue">Activité</div>
+          <h2>Historique des transactions</h2>
+          <p>Transactions du compte sélectionné, du plus récent au plus ancien.</p>
+        </div>
+        <div class="pb">
+          <div class="tx-list" id="txList">
+            <p style="color:var(--muted);font-size:13px">Sélectionnez un compte pour voir ses transactions.</p>
+          </div>
+          <div id="msgHistory" class="alert"></div>
+        </div>
       </div>
-    </section>
 
-    <section class="panel" id="aiSection" style="margin-top:24px;">
-      <div class="panel-head">
-        <div class="section-badge">Assistant intelligent</div>
-        <h2>🤖 Assistant IA</h2>
-        <p>Pose une question sur tes comptes, transactions ou opérations bancaires. L’assistant utilise tes données réelles pour répondre directement dans le tableau de bord.</p>
-      </div>
-
-      <div class="panel-body">
-        <div id="chatBox" class="ai-chat-box">
-          <div class="ai-msg assistant">Bonjour 👋 Je peux t’aider à comprendre ton solde, tes dernières transactions ou les opérations bancaires disponibles.</div>
+      <!-- ── SALAIRE ── -->
+      <div class="grid-2" id="salarySection">
+        <div class="panel">
+          <div class="ph">
+            <div class="tag tag-gold">💼 Revenus</div>
+            <h2>Contrat de travail</h2>
+            <p>Renseignez votre contrat pour un versement automatique du salaire chaque mois.</p>
+          </div>
+          <div class="pb">
+            <div class="form-grid">
+              <div class="field">
+                <label>Employeur</label>
+                <input id="contEmployeur" class="inp" placeholder="Ex: Google, Apple, Freelance..."/>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field">
+                  <label>Salaire mensuel net (€)</label>
+                  <input id="contSalaire" class="inp" type="number" placeholder="2 500"/>
+                </div>
+                <div class="field">
+                  <label>Jour de versement</label>
+                  <input id="contJour" class="inp" type="number" min="1" max="31" value="1"/>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field">
+                  <label>Type de contrat</label>
+                  <select id="contType" class="sel" onchange="document.getElementById('endDateDiv').style.display=this.value==='CDD'?'block':'none'">
+                    <option value="CDI">CDI</option>
+                    <option value="CDD">CDD</option>
+                  </select>
+                </div>
+                <div class="field" id="endDateDiv" style="display:none">
+                  <label>Date de fin</label>
+                  <input id="contDateFin" class="inp" type="date"/>
+                </div>
+              </div>
+              <div class="field">
+                <label>Compte de dépôt</label>
+                <select id="contCompteId" class="sel"></select>
+              </div>
+              <button id="saveContractBtn" class="btn btn-gold">💾 Enregistrer le contrat</button>
+            </div>
+            <div id="msgContract" class="alert"></div>
+          </div>
         </div>
 
-        <div class="ai-actions">
-          <button class="ai-quick" type="button" onclick="askQuickAI('Quel est mon solde total ?')">Solde total</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Résume mes dernières transactions')">Dernières transactions</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Comment faire un virement ?')">Faire un virement</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Pourquoi une opération peut échouer ?')">Pourquoi ça échoue ?</button>
+        <!-- salary preview + budget CTA -->
+        <div class="col-stack">
+          <div class="panel" style="flex:0">
+            <div class="ph">
+              <div class="tag tag-gold">Aperçu</div>
+              <h2>Prochain versement</h2>
+            </div>
+            <div class="pb">
+              <div class="salary-preview" id="salaryPreview" style="display:none">
+                <div class="salary-ico">💰</div>
+                <div>
+                  <div class="salary-label">Salaire mensuel</div>
+                  <div class="salary-val" id="salaryAmt">0 €</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px" id="salaryEmp"></div>
+                </div>
+              </div>
+              <p style="color:var(--muted);font-size:13px" id="noSalaryMsg">Aucun contrat enregistré.</p>
+            </div>
+          </div>
+
+          <div class="panel" style="flex:1">
+            <div class="ph">
+              <div class="tag tag-blue">Budget</div>
+              <h2>Gestion du budget</h2>
+              <p>Pilotez vos dépenses, définissez des plafonds mensuels et exportez un rapport PDF.</p>
+            </div>
+            <div class="pb">
+              <!-- mini budget bars -->
+              <div id="miniBudget">
+                <div class="budget-item">
+                  <div class="budget-header">
+                    <span class="budget-cat">🍔 Alimentation</span>
+                    <span class="budget-amounts">— / 500€</span>
+                  </div>
+                  <div class="budget-bar"><div class="budget-fill" style="width:0%;background:var(--blue)"></div></div>
+                </div>
+                <div class="budget-item">
+                  <div class="budget-header">
+                    <span class="budget-cat">🏠 Logement</span>
+                    <span class="budget-amounts">— / 1000€</span>
+                  </div>
+                  <div class="budget-bar"><div class="budget-fill" style="width:0%;background:var(--green)"></div></div>
+                </div>
+                <div class="budget-item">
+                  <div class="budget-header">
+                    <span class="budget-cat">🎮 Loisirs</span>
+                    <span class="budget-amounts">— / 200€</span>
+                  </div>
+                  <div class="budget-bar"><div class="budget-fill" style="width:0%;background:var(--purple)"></div></div>
+                </div>
+              </div>
+              <button class="btn btn-blue" style="width:100%;margin-top:16px" onclick="window.location.href='/budget'">📊 Ouvrir Budget complet →</button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="ai-input-row">
-          <input class="inputx" id="aiInput" placeholder="Ex: Quel est mon solde total ou explique mes dernières transactions"/>
-          <button id="aiSendBtn" class="btnx btn-primary" type="button">Envoyer</button>
+      <!-- ── ASSISTANT IA ── -->
+      <div class="panel grid-1" id="aiSection">
+        <div class="ph">
+          <div class="tag tag-purple">✨ Intelligence artificielle</div>
+          <h2>Assistant bancaire IA</h2>
+          <p>Posez vos questions sur vos comptes, transactions ou opérations. L'IA accède à vos données en temps réel.</p>
         </div>
+        <div class="pb">
+          <div class="chat-quick">
+            <button class="quick-chip" onclick="askAI('Quel est mon solde total ?')">💰 Solde total</button>
+            <button class="quick-chip" onclick="askAI('Résume mes dernières transactions')">🧾 Dernières transactions</button>
+            <button class="quick-chip" onclick="askAI('Comment faire un virement ?')">🔁 Faire un virement</button>
+            <button class="quick-chip" onclick="askAI('Donne-moi des conseils pour économiser')">💡 Conseils épargne</button>
+            <button class="quick-chip" onclick="askAI('Y a-t-il des transactions suspectes ?')">🚨 Transactions suspectes</button>
+          </div>
 
-        <div id="aiStatus" class="ai-status"></div>
-      </div>
-    </section>
+          <div class="chat-box" id="chatBox">
+            <div class="chat-msg bot">Bonjour 👋 Je suis votre assistant <strong>IrisBank IA</strong>. Je peux analyser vos comptes, expliquer vos transactions et répondre à toutes vos questions bancaires.</div>
+          </div>
 
-    <section class="budget-cta">
-      <div>
-        <h3>💰 Mon Budget</h3>
-        <p>Pilote tes dépenses, plafonds mensuels et exporte ton rapport PDF en un clic.</p>
-      </div>
-      <button class="btnx btn-primary" type="button" onclick="window.location.href='/budget'">Ouvrir Budget</button>
-    </section>
-
-    <section class="panel" id="contractSection" style="margin-top:24px;">
-      <div class="panel-head">
-        <div class="section-badge">Revenus Professionnels</div>
-        <h2>Contrat de Travail</h2>
-        <p>Renseigne ton contrat pour que ton salaire soit versé automatiquement sur ton compte chaque mois.</p>
-      </div>
-    
-      <div class="panel-body">
-        <div class="form-grid">
-          <div>
-            <div class="field-label">Employeur</div>
-            <input class="inputx" id="contEmployeur" placeholder="Ex: Google, Freelance..."/>
+          <div class="chat-input-row">
+            <input id="aiInput" class="inp" placeholder="Posez votre question..." style="flex:1"/>
+            <button id="aiSendBtn" class="btn btn-blue">Envoyer</button>
           </div>
-          <div>
-            <div class="field-label">Salaire Mensuel Net</div>
-            <input class="inputx" type="number" id="contSalaire" placeholder="Ex: 2500"/>
-          </div>
-          <div>
-            <div class="field-label">Type de contrat</div>
-            <select class="selectx" id="contType" onchange="document.getElementById('endDateDiv').style.display = this.value === 'CDD' ? 'block' : 'none'">
-              <option value="CDI">CDI (Indéterminé)</option>
-              <option value="CDD">CDD (Temps défini)</option>
-            </select>
-          </div>
-          <div id="endDateDiv" style="display:none">
-            <div class="field-label">Date de fin</div>
-            <input class="inputx" type="date" id="contDateFin"/>
-          </div>
-          <div>
-            <div class="field-label">Jour de versement</div>
-            <input class="inputx" type="number" id="contJour" min="1" max="31" value="1"/>
-          </div>
-          <div>
-            <div class="field-label">Compte de dépôt</div>
-            <select class="selectx" id="contCompteId">
-              <!-- Sera rempli par le JS -->
-            </select>
-          </div>
-          <button id="saveContractBtn" class="btnx btn-primary">Enregistrer le contrat</button>
+          <div id="aiStatus" class="chat-status"></div>
         </div>
-        <div id="msgContract" class="msg"></div>
       </div>
-    </section>
-  </main>
-</div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <script>
+// ── UTILS ──────────────────────────────────────────────────────────────────
+
 let selectedAccountId = null;
 let csrfToken = "";
 
-function goProfile() {
-  window.location.href = "/profile";
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
 }
 
+function goProfile() { window.location.href = "/profile"; }
+
 async function loadCsrfToken() {
-  const res = await fetch("/api/csrf-token", {
-    credentials: "include"
-  });
+  const res = await fetch("/api/csrf-token", { credentials: "include" });
   const data = await res.json();
   csrfToken = data.csrfToken;
 }
 
 async function api(url, method = "GET", body = null) {
   const headers = {};
-
   if (method !== "GET") {
     headers["Content-Type"] = "application/json";
     headers["CSRF-Token"] = csrfToken;
   }
-
   const res = await fetch(url, {
-    method,
-    headers,
-    credentials: "include",
+    method, headers, credentials: "include",
     body: body ? JSON.stringify(body) : undefined
   });
-
   const data = await res.json().catch(() => ({}));
-
   return { res, data };
 }
 
-function setMsg(el, ok, text, mode = null) {
-  el.className = "msg show " + (mode ? mode : (ok ? "ok" : "err"));
+function alert_(el, ok, text, mode = null) {
+  el.className = "alert show " + (mode ?? (ok ? "alert-ok" : "alert-err"));
   el.textContent = text;
 }
+function clearAlert(el) { el.className = "alert"; el.textContent = ""; }
 
-function clearMsg(el) {
-  el.className = "msg";
-  el.textContent = "";
-}
-
-function updateSelectedAccountLabel(value) {
-  document.getElementById("selectedAccountLabel").textContent = value ? "#" + value : "Aucun";
-}
-
-function accountTypeTemplate(type) {
-  return `<span class="account-type-pill">${type}</span>`;
-}
-
-function accountStatusTemplate(status) {
-  const upper = String(status || "").toUpperCase();
-  const blocked = upper === "BLOQUE";
-  return `<span class="status-pill ${blocked ? "blocked" : "active"}">${blocked ? "● BLOQUÉ" : "● ACTIF"}</span>`;
-}
+// ── ME ─────────────────────────────────────────────────────────────────────
 
 async function loadMe() {
-  const { res, data } = await api("/api/auth/me", "GET");
-  const who = document.getElementById("who");
-
+  const { res, data } = await api("/api/auth/me");
   if (res.ok && data.user) {
-    who.innerHTML = '<span class="status-dot"></span><span>' + data.user.prenom + ' ' + data.user.nom + '</span>';
+    const name = data.user.prenom + ' ' + data.user.nom;
+    document.getElementById("who").innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--green)"></span> ${name}`;
+    document.getElementById("userName").textContent = name;
+    document.getElementById("userInitials").textContent = (data.user.prenom[0] + data.user.nom[0]).toUpperCase();
   } else {
     window.location.href = "/login";
   }
 }
 
+// ── ACCOUNTS ───────────────────────────────────────────────────────────────
+
 async function loadAccounts() {
   const tbody = document.getElementById("accountsTbody");
+  const opSel = document.getElementById("opAccountId");
+  const trSel = document.getElementById("transferFrom");
+  const contSel = document.getElementById("contCompteId");
   const msg = document.getElementById("msgAccounts");
-  const contCompteSelect = document.getElementById("contCompteId"); // <-- AJOUT
-  const opSelect = document.getElementById("opAccountId");
-  const transferSelect = document.getElementById("transferFrom");
 
   tbody.innerHTML = "";
-  if (contCompteSelect) contCompteSelect.innerHTML = ""; // <-- AJOUT
-  if (opSelect) opSelect.innerHTML = '<option value="">Choisir un compte...</option>';
-  if (transferSelect) transferSelect.innerHTML = '<option value="">Choisir un compte...</option>';
-  clearMsg(msg);
+  opSel.innerHTML = '<option value="">Choisir...</option>';
+  trSel.innerHTML = '<option value="">Choisir...</option>';
+  if (contSel) contSel.innerHTML = "";
+  clearAlert(msg);
 
-  const { res, data } = await api("/api/accounts", "GET");
-  if (!res.ok) {
-    setMsg(msg, false, data.error || "Erreur");
-    return;
-  }
+  const { res, data } = await api("/api/accounts");
+  if (!res.ok) { alert_(msg, false, data.error || "Erreur"); return; }
 
   const comptes = data.comptes || [];
   document.getElementById("statsAccounts").textContent = comptes.length;
+  const total = comptes.reduce((s, c) => s + Number(c.solde || 0), 0);
+  document.getElementById("statsBalance").textContent = total.toFixed(2) + "€";
 
-  const totalBalance = comptes.reduce((sum, c) => sum + Number(c.solde || 0), 0);
-  document.getElementById("statsBalance").textContent = totalBalance.toFixed(2) + "€";
-
-  if (comptes.length === 0) {
-    setMsg(msg, true, "Aucun compte. Crée-en un à droite.", "info");
+  if (!comptes.length) {
+    alert_(msg, true, "Aucun compte. Créez-en un.", "alert-info");
     return;
   }
 
   comptes.forEach(c => {
-    // 1. Remplissage du tableau
+    // table row
     const tr = document.createElement("tr");
+    const upper = String(c.statut || "").toUpperCase();
+    const blocked = upper === "BLOQUE";
     tr.innerHTML = `
-      <td>#${c.id}</td>
+      <td><span style="color:var(--muted)">#</span>${c.id}</td>
       <td class="mono">${c.iban}</td>
-      <td>${accountTypeTemplate(c.type)}</td>
-      <td>${Number(c.solde).toFixed(2)}€</td>
-      <td>${accountStatusTemplate(c.statut)}</td>
+      <td><span class="pill pill-blue">${c.type}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-weight:500">${Number(c.solde).toFixed(2)}€</td>
+      <td><span class="pill ${blocked?'pill-red':'pill-green'}">${blocked?'● Bloqué':'● Actif'}</span></td>
     `;
-
     tr.addEventListener("click", () => {
       selectedAccountId = c.id;
-      document.getElementById("opAccountId").value = c.id;
-      document.getElementById("transferFrom").value = c.id;
-      updateSelectedAccountLabel(c.id);
+      opSel.value = c.id;
+      trSel.value = c.id;
+      document.getElementById("selectedAccountLabel").textContent = "#" + c.id;
       loadTransactions(c.id);
-
-      document.querySelectorAll("#accountsTbody tr").forEach(row => {
-        row.style.background = "";
-      });
-      tr.style.background = "rgba(79,124,255,0.14)";
+      tbody.querySelectorAll("tr").forEach(r => r.style.background = "");
+      tr.style.background = "rgba(61,127,255,0.1)";
     });
-
     tbody.appendChild(tr);
 
-    // 2bis. Remplissage des sélecteurs opérations/virements
-    if (opSelect) {
-      const optionOp = document.createElement("option");
-      optionOp.value = c.id;
-      optionOp.textContent = `#${c.id} • ${c.type} • ${Number(c.solde).toFixed(2)}€`;
-      opSelect.appendChild(optionOp);
-    }
-
-    if (transferSelect) {
-      const optionTr = document.createElement("option");
-      optionTr.value = c.id;
-      optionTr.textContent = `#${c.id} • ${c.type} • ${Number(c.solde).toFixed(2)}€`;
-      transferSelect.appendChild(optionTr);
-    }
-
-    // 3. Remplissage de la liste déroulante du contrat <-- AJOUT
-    if (contCompteSelect) {
-      const option = document.createElement("option");
-      option.value = c.id;
-      option.textContent = `${c.type} (#${c.id}) - ${Number(c.solde).toFixed(2)}€`;
-      contCompteSelect.appendChild(option);
-    }
+    // selects
+    const mkOpt = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t; return o; };
+    const label = `#${c.id} • ${c.type} • ${Number(c.solde).toFixed(2)}€`;
+    opSel.appendChild(mkOpt(c.id, label));
+    trSel.appendChild(mkOpt(c.id, label));
+    if (contSel) contSel.appendChild(mkOpt(c.id, `${c.type} (#${c.id}) — ${Number(c.solde).toFixed(2)}€`));
   });
 
-  // Pré-sélectionner un compte par défaut si aucun compte n'a encore été choisi
-  if (!selectedAccountId && comptes.length > 0) {
+  // auto-select first
+  if (!selectedAccountId && comptes.length) {
     selectedAccountId = comptes[0].id;
-    if (opSelect) opSelect.value = String(selectedAccountId);
-    if (transferSelect) transferSelect.value = String(selectedAccountId);
-    updateSelectedAccountLabel(selectedAccountId);
+    opSel.value = String(selectedAccountId);
+    trSel.value = String(selectedAccountId);
+    document.getElementById("selectedAccountLabel").textContent = "#" + selectedAccountId;
     loadTransactions(selectedAccountId);
   }
 }
 
-document.getElementById("opAccountId").addEventListener("change", (e) => {
-  const id = Number(e.target.value);
-  if (!id) return;
-  selectedAccountId = id;
-  document.getElementById("transferFrom").value = String(id);
-  updateSelectedAccountLabel(id);
-  loadTransactions(id);
-});
+// ── TRANSACTIONS ────────────────────────────────────────────────────────────
 
-document.getElementById("transferFrom").addEventListener("change", (e) => {
-  const id = Number(e.target.value);
-  if (!id) return;
-  selectedAccountId = id;
-  document.getElementById("opAccountId").value = String(id);
-  updateSelectedAccountLabel(id);
-  loadTransactions(id);
-});
+const TX_ICONS = {
+  DEPOT: { icon: '⬇', bg: 'rgba(0,229,160,0.12)', color: 'var(--green)' },
+  RETRAIT: { icon: '⬆', bg: 'rgba(255,77,109,0.12)', color: 'var(--red)' },
+  VIREMENT: { icon: '🔁', bg: 'rgba(61,127,255,0.12)', color: 'var(--blue)' },
+  SALAIRE: { icon: '💼', bg: 'rgba(251,191,36,0.12)', color: 'var(--gold)' },
+};
 
 async function loadTransactions(accountId) {
-  const list = document.getElementById("transactions");
+  const list = document.getElementById("txList");
   const msg = document.getElementById("msgHistory");
+  clearAlert(msg);
+  list.innerHTML = '<p style="color:var(--muted);font-size:13px">Chargement...</p>';
 
-  clearMsg(msg);
-  list.innerHTML = "<li class='small-muted'>Chargement...</li>";
-
-  const { res, data } = await api("/api/transactions/history/" + accountId, "GET");
-
-  if (!res.ok) {
-    list.innerHTML = "";
-    setMsg(msg, false, data.error || "Erreur lors du chargement de l'historique");
-    return;
-  }
+  const { res, data } = await api(`/api/transactions/history/${accountId}`);
+  if (!res.ok) { list.innerHTML = ""; alert_(msg, false, data.error || "Erreur"); return; }
 
   const txs = data.transactions || [];
-
-  if (txs.length === 0) {
-    list.innerHTML = "<li class='small-muted'>Aucune transaction pour ce compte.</li>";
-    return;
-  }
+  if (!txs.length) { list.innerHTML = '<p style="color:var(--muted);font-size:13px">Aucune transaction pour ce compte.</p>'; return; }
 
   list.innerHTML = "";
   txs.forEach(t => {
-    const li = document.createElement("li");
-    li.className = "history-item";
+    const meta = TX_ICONS[t.type?.toUpperCase()] || { icon: '📋', bg: 'rgba(255,255,255,0.06)', color: 'var(--muted)' };
+    const positive = ['DEPOT', 'SALAIRE'].includes(t.type?.toUpperCase());
+    const li = document.createElement("div");
+    li.className = "tx-item";
     li.innerHTML = `
-      <div>
-        <div class="history-main">${t.type}</div>
-        <div class="history-sub">${new Date(t.created_at).toLocaleString()}</div>
+      <div class="tx-icon" style="background:${meta.bg}">${meta.icon}</div>
+      <div class="tx-info">
+        <div class="tx-type">${t.type}</div>
+        <div class="tx-date">${new Date(t.created_at).toLocaleString('fr-FR')}</div>
       </div>
-      <div class="amount-badge">${Number(t.montant).toFixed(2)}€</div>
+      <div class="tx-amount" style="background:${meta.bg};color:${meta.color}">
+        ${positive ? '+' : '-'}${Number(t.montant).toFixed(2)}€
+      </div>
     `;
     list.appendChild(li);
   });
 }
 
-document.getElementById("createBtn").addEventListener("click", async () => {
-  const type = document.getElementById("newType").value;
-  const msg = document.getElementById("msgCreate");
+// ── SYNC selects ────────────────────────────────────────────────────────────
+document.getElementById("opAccountId").addEventListener("change", e => {
+  const id = Number(e.target.value);
+  if (!id) return;
+  selectedAccountId = id;
+  document.getElementById("transferFrom").value = String(id);
+  document.getElementById("selectedAccountLabel").textContent = "#" + id;
+  loadTransactions(id);
+});
+document.getElementById("transferFrom").addEventListener("change", e => {
+  const id = Number(e.target.value);
+  if (!id) return;
+  selectedAccountId = id;
+  document.getElementById("opAccountId").value = String(id);
+  document.getElementById("selectedAccountLabel").textContent = "#" + id;
+  loadTransactions(id);
+});
 
-  const { res, data } = await api("/api/accounts", "POST", { type });
-  if (res.ok) {
-    setMsg(msg, true, "Compte créé");
-    loadAccounts();
-  } else {
-    setMsg(msg, false, data.error || "Erreur");
-  }
+// ── ACTIONS ─────────────────────────────────────────────────────────────────
+
+document.getElementById("createBtn").addEventListener("click", async () => {
+  const { res, data } = await api("/api/accounts", "POST", { type: document.getElementById("newType").value });
+  const msg = document.getElementById("msgCreate");
+  res.ok ? (alert_(msg, true, "✅ Compte créé avec succès"), loadAccounts()) : alert_(msg, false, data.error || "Erreur");
 });
 
 document.getElementById("depositBtn").addEventListener("click", async () => {
   const accountId = Number(document.getElementById("opAccountId").value);
   const amount = Number(document.getElementById("opAmount").value);
   const msg = document.getElementById("msgOp");
-
   const { res, data } = await api("/api/transactions/deposit", "POST", { accountId, amount });
-  if (res.ok) {
-    setMsg(msg, true, "Dépôt OK");
-    loadAccounts();
-    loadTransactions(accountId);
-  } else {
-    setMsg(msg, false, data.error || "Erreur");
-  }
+  res.ok ? (alert_(msg, true, "✅ Dépôt effectué"), loadAccounts(), loadTransactions(accountId)) : alert_(msg, false, data.error || "Erreur");
 });
 
 document.getElementById("withdrawBtn").addEventListener("click", async () => {
   const accountId = Number(document.getElementById("opAccountId").value);
   const amount = Number(document.getElementById("opAmount").value);
   const msg = document.getElementById("msgOp");
-
   const { res, data } = await api("/api/transactions/withdraw", "POST", { accountId, amount });
-  if (res.ok) {
-    setMsg(msg, true, "Retrait OK");
-    loadAccounts();
-    loadTransactions(accountId);
-  } else {
-    setMsg(msg, false, data.error || "Erreur");
-  }
+  res.ok ? (alert_(msg, true, "✅ Retrait effectué"), loadAccounts(), loadTransactions(accountId)) : alert_(msg, false, data.error || "Erreur");
 });
 
 document.getElementById("transferBtn").addEventListener("click", async () => {
@@ -1517,190 +1253,116 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
   const toIban = document.getElementById("transferIban").value.trim();
   const amount = Number(document.getElementById("transferAmount").value);
   const msg = document.getElementById("msgTransfer");
-
-  if (!fromAccountId || !toIban || !amount) {
-    setMsg(msg, false, "Remplis tous les champs du virement");
-    return;
-  }
-
-  setMsg(msg, true, "Traitement...", "info");
-
-  const { res, data } = await api("/api/transactions/transfer", "POST", {
-    fromAccountId,
-    toIban,
-    amount
-  });
-
-  if (res.ok) {
-    setMsg(msg, true, "Virement effectué");
-    loadAccounts();
-    loadTransactions(fromAccountId);
-  } else {
-    setMsg(msg, false, data.error || "Erreur");
-  }
+  if (!fromAccountId || !toIban || !amount) { alert_(msg, false, "Remplis tous les champs"); return; }
+  alert_(msg, true, "Traitement en cours...", "alert-info");
+  const { res, data } = await api("/api/transactions/transfer", "POST", { fromAccountId, toIban, amount });
+  res.ok ? (alert_(msg, true, "✅ Virement effectué"), loadAccounts(), loadTransactions(fromAccountId)) : alert_(msg, false, data.error || "Erreur");
 });
-
-/* ==============================
-   IA HELPERS
-============================== */
-function addAIMessage(text, role = "assistant") {
-  const chatBox = document.getElementById("chatBox");
-  const msg = document.createElement("div");
-  msg.className = "ai-msg " + role;
-  msg.textContent = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function setAIStatus(text = "") {
-  document.getElementById("aiStatus").textContent = text;
-}
-
-async function sendAIMessage(message) {
-  const cleanMessage = String(message || "").trim();
-  if (!cleanMessage) return;
-
-  const sendBtn = document.getElementById("aiSendBtn");
-  const input = document.getElementById("aiInput");
-
-  addAIMessage(cleanMessage, "user");
-  input.value = "";
-  sendBtn.disabled = true;
-  sendBtn.textContent = "Envoi...";
-  setAIStatus("L’assistant analyse tes données...");
-
-  const { res, data } = await api("/api/ai/chat", "POST", { message: cleanMessage });
-
-  if (res.ok) {
-    addAIMessage(data.reply || "Je n’ai pas pu répondre à cette question.", "assistant");
-    setAIStatus("Réponse générée.");
-  } else {
-    addAIMessage(data.error || "Erreur IA", "assistant");
-    setAIStatus("Une erreur est survenue.");
-  }
-
-  sendBtn.disabled = false;
-  sendBtn.textContent = "Envoyer";
-}
-
-async function askQuickAI(question) {
-  await sendAIMessage(question);
-}
-
-document.getElementById("aiSendBtn").addEventListener("click", async () => {
-  const input = document.getElementById("aiInput");
-  await sendAIMessage(input.value);
-});
-
-document.getElementById("aiInput").addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    await sendAIMessage(e.target.value);
-  }
-});
-
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  try {
-    await api("/api/auth/logout", "POST", {});
-  } catch (e) {
-    console.error("Logout error:", e);
-  }
-  window.location.href = "/login";
-});
-
-(async () => {
-  await loadCsrfToken();
-  await loadMe();
-  await loadAccounts();
-  updateSelectedAccountLabel(null);
-})();
 
 document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
   const accountId = Number(document.getElementById("opAccountId").value);
   const msg = document.getElementById("msgOp");
-
-  if (!accountId) {
-    setMsg(msg, false, "Sélectionne un compte à supprimer");
-    return;
-  }
-
-  const confirmDelete = confirm(
-    "Voulez-vous vraiment supprimer ce compte ?\n\nAttention : le compte doit avoir un solde de 0 et ne pas être bloqué."
-  );
-
-  if (!confirmDelete) {
-    return;
-  }
-
+  if (!accountId) { alert_(msg, false, "Sélectionne un compte"); return; }
+  if (!confirm("Supprimer ce compte ? (solde doit être 0)")) return;
   const { res, data } = await api(`/api/accounts/${accountId}`, "DELETE");
-
   if (res.ok) {
-    setMsg(msg, true, "Compte supprimé");
-    document.getElementById("opAccountId").value = "";
-    document.getElementById("transferFrom").value = "";
-    updateSelectedAccountLabel(null);
-    document.getElementById("transactions").innerHTML =
-      "<li class='small-muted'>Aucun compte sélectionné.</li>";
+    alert_(msg, true, "✅ Compte supprimé");
+    selectedAccountId = null;
+    document.getElementById("selectedAccountLabel").textContent = "Aucun";
+    document.getElementById("txList").innerHTML = '<p style="color:var(--muted);font-size:13px">Sélectionnez un compte.</p>';
     loadAccounts();
   } else {
-    setMsg(msg, false, data.error || "Erreur lors de la suppression");
+    alert_(msg, false, data.error || "Erreur");
   }
 });
 
+// ── CONTRAT ─────────────────────────────────────────────────────────────────
 
-// 1. Envoyer le contrat au serveur
 document.getElementById("saveContractBtn").addEventListener("click", async () => {
-    const employeur = document.getElementById("contEmployeur").value;
-    const salaire_mensuel = document.getElementById("contSalaire").value;
-    const type_contrat = document.getElementById("contType").value;
-    const date_debut = new Date().toISOString().split('T')[0];
-    const date_fin = document.getElementById("contDateFin").value || null;
-    const jour_versement = document.getElementById("contJour").value;
-    const compte_destination_id = document.getElementById("contCompteId").value;
-
-    const msg = document.getElementById("msgContract");
-
-    if (!employeur || !salaire_mensuel || !compte_destination_id) {
-        setMsg(msg, false, "Veuillez remplir tous les champs obligatoires.");
-        return;
-    }
-
-    const body = {
-        employeur,
-        salaire_mensuel: parseFloat(salaire_mensuel),
-        type_contrat,
-        date_debut,
-        date_fin,
-        jour_versement: parseInt(jour_versement),
-        compte_destination_id: parseInt(compte_destination_id)
-    };
-    
-    const { res, data } = await api("/api/contracts/add", "POST", body);
-    if (res.ok) {
-        setMsg(msg, true, "✅ Contrat enregistré ! Ton salaire sera versé automatiquement.");
-    } else {
-        setMsg(msg, false, "Erreur : " + (data.error || "Inconnue"));
-    }
+  const body = {
+    employeur: document.getElementById("contEmployeur").value,
+    salaire_mensuel: parseFloat(document.getElementById("contSalaire").value),
+    type_contrat: document.getElementById("contType").value,
+    date_debut: new Date().toISOString().split('T')[0],
+    date_fin: document.getElementById("contDateFin").value || null,
+    jour_versement: parseInt(document.getElementById("contJour").value),
+    compte_destination_id: parseInt(document.getElementById("contCompteId").value),
+  };
+  const msg = document.getElementById("msgContract");
+  if (!body.employeur || !body.salaire_mensuel || !body.compte_destination_id) {
+    alert_(msg, false, "Remplis tous les champs obligatoires"); return;
+  }
+  const { res, data } = await api("/api/contracts/add", "POST", body);
+  if (res.ok) {
+    alert_(msg, true, "✅ Contrat enregistré ! Salaire versé automatiquement chaque mois.");
+    // update preview
+    document.getElementById("salaryPreview").style.display = "flex";
+    document.getElementById("noSalaryMsg").style.display = "none";
+    document.getElementById("salaryAmt").textContent = body.salaire_mensuel.toFixed(2) + " €";
+    document.getElementById("salaryEmp").textContent = body.employeur + " · " + body.type_contrat;
+    document.getElementById("statsSalary").textContent = body.salaire_mensuel.toFixed(2) + "€";
+  } else {
+    alert_(msg, false, data.error || "Erreur");
+  }
 });
 
-// 2. Vérifier si un salaire doit être versé au chargement
 async function checkSalary() {
-    const { res, data } = await api("/api/contracts/check-and-pay", "GET");
-    if(res.ok && data.paid) {
-        alert("💰 Bonne nouvelle ! Votre salaire de " + data.amount + "€ a été versé sur votre compte.");
-        loadAccounts(); // Rafraichir l'affichage du solde
-    }
+  const { res, data } = await api("/api/contracts/check-and-pay");
+  if (res.ok && data.paid) {
+    alert(`💰 Votre salaire de ${data.amount}€ a été versé !`);
+    loadAccounts();
+  }
 }
 
-// Appelle checkSalary() à l'initialisation (tout en bas de ton code)
+// ── AI CHAT ─────────────────────────────────────────────────────────────────
+
+function addMsg(text, role) {
+  const box = document.getElementById("chatBox");
+  const div = document.createElement("div");
+  div.className = "chat-msg " + role;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function askAI(msg) {
+  document.getElementById("aiInput").value = msg;
+  await sendAI();
+}
+
+async function sendAI() {
+  const input = document.getElementById("aiInput");
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = "";
+  addMsg(msg, "user");
+  const btn = document.getElementById("aiSendBtn");
+  btn.disabled = true;
+  document.getElementById("aiStatus").textContent = "L'assistant analyse vos données...";
+  const { res, data } = await api("/api/ai/chat", "POST", { message: msg });
+  addMsg(data.reply || data.error || "Erreur", "bot");
+  document.getElementById("aiStatus").textContent = "";
+  btn.disabled = false;
+}
+
+document.getElementById("aiSendBtn").addEventListener("click", sendAI);
+document.getElementById("aiInput").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendAI(); } });
+
+// ── LOGOUT ──────────────────────────────────────────────────────────────────
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await api("/api/auth/logout", "POST", {}).catch(() => {});
+  window.location.href = "/login";
+});
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+
 (async () => {
   await loadCsrfToken();
   await loadMe();
   await loadAccounts();
-  await checkSalary(); // <--- AJOUTE ÇA ICI
-  updateSelectedAccountLabel(null);
+  await checkSalary();
 })();
 </script>
-
 </body>
 </html>
