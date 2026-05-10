@@ -935,91 +935,127 @@ select{
   line-height:1.6;
 }
 
-/* IA CHAT */
+/* AI CORNER CHAT */
 
-.ai-chat-box{
-  height:300px;
-  overflow-y:auto;
-  background:rgba(255,255,255,0.02);
+.ai-fab{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:90;
+  border:none;
+  border-radius:999px;
+  padding:12px 16px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  color:#fff;
+  background:linear-gradient(135deg, var(--primary), #5d96f6);
+  box-shadow:0 16px 34px rgba(79,124,255,0.30);
+  transition:transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.ai-fab:hover{
+  transform:translateY(-2px);
+  box-shadow:0 20px 40px rgba(79,124,255,0.35);
+}
+
+.ai-fab:disabled{
+  opacity:0.75;
+  cursor:wait;
+  transform:none;
+}
+
+.ai-chat-widget{
+  position:fixed;
+  right:22px;
+  bottom:78px;
+  z-index:95;
+  width:360px;
+  max-width:calc(100vw - 32px);
   border:1px solid var(--line);
-  border-radius:20px;
-  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(13,22,38,0.96), rgba(8,14,25,0.98));
+  box-shadow:0 20px 46px rgba(0,0,0,0.45);
+  overflow:hidden;
+  display:none;
+}
+
+.ai-chat-widget.open{
+  display:block;
+}
+
+.ai-chat-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,0.02);
+}
+
+.ai-chat-title{
+  margin:0;
+  font-size:14px;
+  font-weight:800;
+}
+
+.ai-close{
+  border:none;
+  background:transparent;
+  color:#cfe0ff;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+
+.ai-chat-body{
+  max-height:300px;
+  overflow-y:auto;
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:10px;
+  padding:12px;
 }
 
-.ai-msg{
-  max-width:82%;
-  padding:13px 15px;
-  border-radius:18px;
-  line-height:1.6;
+.ai-bubble{
+  max-width:86%;
+  padding:11px 12px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.5;
   white-space:pre-wrap;
   word-break:break-word;
-  font-size:14px;
-  border:1px solid transparent;
 }
 
-.ai-msg.user{
-  align-self:flex-end;
-  background:linear-gradient(135deg, var(--primary), #6aa6ff);
-  color:#fff;
-  border-bottom-right-radius:8px;
-  box-shadow:0 12px 24px rgba(79,124,255,0.20);
-}
-
-.ai-msg.assistant{
+.ai-bubble.assistant{
   align-self:flex-start;
-  background:rgba(255,255,255,0.05);
-  color:#eef4ff;
-  border-color:var(--line);
-  border-bottom-left-radius:8px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid var(--line);
 }
 
-.ai-msg.system{
-  align-self:center;
-  background:rgba(79,124,255,0.12);
-  color:#dce7ff;
-  font-size:13px;
-  border-color:rgba(79,124,255,0.18);
+.ai-bubble.user{
+  align-self:flex-end;
+  color:#fff;
+  background:linear-gradient(135deg, var(--primary), #6aa6ff);
 }
 
-.ai-actions{
-  display:flex;
-  gap:10px;
-  margin-top:14px;
-  flex-wrap:wrap;
+.ai-chat-foot{
+  border-top:1px solid var(--line);
+  padding:10px;
 }
 
-.ai-quick{
-  border:none;
-  background:rgba(79,124,255,0.12);
-  color:#cfe0ff;
-  padding:9px 13px;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
-  transition:0.18s ease;
-}
-
-.ai-quick:hover{
-  background:rgba(79,124,255,0.22);
-  transform:translateY(-1px);
-}
-
-.ai-input-row{
+.ai-chat-row{
   display:grid;
   grid-template-columns:1fr auto;
-  gap:10px;
-  margin-top:14px;
+  gap:8px;
 }
 
-.ai-status{
-  margin-top:10px;
+.ai-chat-status{
+  margin-top:7px;
   color:var(--muted);
-  font-size:13px;
-  min-height:18px;
+  font-size:12px;
+  min-height:16px;
 }
 
 .budget-cta{
@@ -1053,14 +1089,12 @@ select{
 
 /* SCROLLBAR */
 
-.table-wrap::-webkit-scrollbar,
-.ai-chat-box::-webkit-scrollbar{
+.table-wrap::-webkit-scrollbar{
   height:10px;
   width:10px;
 }
 
-.table-wrap::-webkit-scrollbar-thumb,
-.ai-chat-box::-webkit-scrollbar-thumb{
+.table-wrap::-webkit-scrollbar-thumb{
   background:rgba(255,255,255,0.12);
   border-radius:999px;
 }
@@ -1131,13 +1165,22 @@ select{
     padding-right:18px;
   }
 
-  .ai-input-row{
-    grid-template-columns:1fr;
-  }
-
   .history-item{
     flex-direction:column;
     align-items:flex-start;
+  }
+
+  .ai-fab{
+    right:14px;
+    bottom:14px;
+    width:calc(100% - 28px);
+    text-align:center;
+  }
+
+  .ai-chat-widget{
+    right:14px;
+    bottom:66px;
+    width:calc(100% - 28px);
   }
 }
 </style>
@@ -1166,7 +1209,7 @@ select{
       <button type="button" onclick="document.getElementById('operationsSection').scrollIntoView({behavior:'smooth'})">💸 Opérations</button>
       <button type="button" onclick="document.getElementById('transferSection').scrollIntoView({behavior:'smooth'})">🔁 Virement</button>
       <button type="button" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">🧾 Historique</button>
-      <button type="button" onclick="document.getElementById('aiSection').scrollIntoView({behavior:'smooth'})">🤖 Assistant IA</button>
+      <button type="button" onclick="openAIChat()">💬 Chat IA</button>
     </div>
 
     <div class="sidebar-bottom">
@@ -1420,34 +1463,6 @@ select{
       </div>
     </section>
 
-    <section class="panel" id="aiSection" style="margin-top:24px;">
-      <div class="panel-head">
-        <div class="section-badge">Assistant intelligent</div>
-        <h2>🤖 Assistant IA</h2>
-        <p>Pose une question sur tes comptes, transactions ou opérations bancaires. L’assistant utilise tes données réelles pour répondre directement dans le tableau de bord.</p>
-      </div>
-
-      <div class="panel-body">
-        <div id="chatBox" class="ai-chat-box">
-          <div class="ai-msg assistant">Bonjour 👋 Je peux t’aider à comprendre ton solde, tes dernières transactions ou les opérations bancaires disponibles.</div>
-        </div>
-
-        <div class="ai-actions">
-          <button class="ai-quick" type="button" onclick="askQuickAI('Quel est mon solde total ?')">Solde total</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Résume mes dernières transactions')">Dernières transactions</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Comment faire un virement ?')">Faire un virement</button>
-          <button class="ai-quick" type="button" onclick="askQuickAI('Pourquoi une opération peut échouer ?')">Pourquoi ça échoue ?</button>
-        </div>
-
-        <div class="ai-input-row">
-          <input class="inputx" id="aiInput" placeholder="Ex: Quel est mon solde total ou explique mes dernières transactions"/>
-          <button id="aiSendBtn" class="btnx btn-primary" type="button">Envoyer</button>
-        </div>
-
-        <div id="aiStatus" class="ai-status"></div>
-      </div>
-    </section>
-
     <section class="budget-cta">
       <div>
         <h3>💰 Mon Budget</h3>
@@ -1500,6 +1515,25 @@ select{
       </div>
     </section>
   </main>
+</div>
+
+<button id="aiCornerBtn" class="ai-fab" type="button">💬 Chat IA</button>
+
+<div id="aiWidget" class="ai-chat-widget" aria-hidden="true">
+  <div class="ai-chat-head">
+    <h3 class="ai-chat-title">Assistant bancaire</h3>
+    <button id="aiCloseBtn" class="ai-close" type="button" aria-label="Fermer">×</button>
+  </div>
+  <div id="aiChatBody" class="ai-chat-body">
+    <div class="ai-bubble assistant">Bonjour. Pose ta question et je te reponds avec les donnees de ton compte.</div>
+  </div>
+  <div class="ai-chat-foot">
+    <div class="ai-chat-row">
+      <input class="inputx" id="aiInput" placeholder="Ex: Quel est mon solde total ?" />
+      <button id="aiSendBtn" class="btnx btn-primary" type="button">Envoyer</button>
+    </div>
+    <div id="aiStatus" class="ai-chat-status"></div>
+  </div>
 </div>
 
 <script>
@@ -1946,58 +1980,95 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
    IA HELPERS
 ============================== */
 function addAIMessage(text, role = "assistant") {
-  const chatBox = document.getElementById("chatBox");
-  const msg = document.createElement("div");
-  msg.className = "ai-msg " + role;
-  msg.textContent = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const body = document.getElementById("aiChatBody");
+  if (!body) return;
+  const bubble = document.createElement("div");
+  bubble.className = "ai-bubble " + role;
+  bubble.textContent = text;
+  body.appendChild(bubble);
+  body.scrollTop = body.scrollHeight;
 }
 
 function setAIStatus(text = "") {
-  document.getElementById("aiStatus").textContent = text;
+  const status = document.getElementById("aiStatus");
+  if (status) status.textContent = text;
+}
+
+function setAIBusy(isBusy) {
+  const cornerBtn = document.getElementById("aiCornerBtn");
+  const sendBtn = document.getElementById("aiSendBtn");
+  const input = document.getElementById("aiInput");
+
+  if (cornerBtn) {
+    cornerBtn.disabled = isBusy;
+    cornerBtn.textContent = isBusy ? "Analyse..." : "💬 Chat IA";
+  }
+
+  if (sendBtn) {
+    sendBtn.disabled = isBusy;
+    sendBtn.textContent = isBusy ? "Envoi..." : "Envoyer";
+  }
+
+  if (input) {
+    input.disabled = isBusy;
+  }
+}
+
+function openAIChat() {
+  const widget = document.getElementById("aiWidget");
+  const input = document.getElementById("aiInput");
+  if (!widget) return;
+  widget.classList.add("open");
+  widget.setAttribute("aria-hidden", "false");
+  if (input) input.focus();
+}
+
+function closeAIChat() {
+  const widget = document.getElementById("aiWidget");
+  if (!widget) return;
+  widget.classList.remove("open");
+  widget.setAttribute("aria-hidden", "true");
 }
 
 async function sendAIMessage(message) {
   const cleanMessage = String(message || "").trim();
   if (!cleanMessage) return;
 
-  const sendBtn = document.getElementById("aiSendBtn");
-  const input = document.getElementById("aiInput");
-
+  openAIChat();
   addAIMessage(cleanMessage, "user");
-  input.value = "";
-  sendBtn.disabled = true;
-  sendBtn.textContent = "Envoi...";
-  setAIStatus("L’assistant analyse tes données...");
+  setAIBusy(true);
+  setAIStatus("L assistant analyse tes donnees...");
 
   const { res, data } = await api("/api/ai/chat", "POST", { message: cleanMessage });
 
   if (res.ok) {
-    addAIMessage(data.reply || "Je n’ai pas pu répondre à cette question.", "assistant");
-    setAIStatus("Réponse générée.");
+    const reply = data.reply || "Je n’ai pas pu répondre à cette question.";
+    addAIMessage(reply, "assistant");
+    setAIStatus("Reponse generee.");
   } else {
     addAIMessage(data.error || "Erreur IA", "assistant");
     setAIStatus("Une erreur est survenue.");
   }
 
-  sendBtn.disabled = false;
-  sendBtn.textContent = "Envoyer";
+  setAIBusy(false);
 }
 
-async function askQuickAI(question) {
-  await sendAIMessage(question);
-}
+document.getElementById("aiCornerBtn").addEventListener("click", openAIChat);
+document.getElementById("aiCloseBtn").addEventListener("click", closeAIChat);
 
 document.getElementById("aiSendBtn").addEventListener("click", async () => {
   const input = document.getElementById("aiInput");
-  await sendAIMessage(input.value);
+  const value = input.value;
+  input.value = "";
+  await sendAIMessage(value);
 });
 
 document.getElementById("aiInput").addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
-    await sendAIMessage(e.target.value);
+    const value = e.target.value;
+    e.target.value = "";
+    await sendAIMessage(value);
   }
 });
 
