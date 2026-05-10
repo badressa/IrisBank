@@ -3,392 +3,541 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IRISBANK | Connexion</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<title>IRISBANK — Connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-
-:root{
---bg:#07111f;
---bg-soft:#0b1729;
---panel:#0f1b2d;
---panel-2:#13233a;
---text:#eef4ff;
---muted:#9db0cc;
---primary:#4f7cff;
---primary-dark:#3e6be8;
---success:#18c37e;
---danger:#ef5b5b;
---line:rgba(255,255,255,0.08);
---shadow:0 24px 60px rgba(0,0,0,0.25);
---radius:20px;
+:root {
+  --bg: #060d18;
+  --panel: #0d1e33;
+  --panel2: #112240;
+  --line: rgba(100,160,255,0.1);
+  --line2: rgba(100,160,255,0.18);
+  --text: #e8f2ff;
+  --muted: #6b8aaa;
+  --blue: #3d7fff;
+  --cyan: #00d4ff;
+  --green: #00e5a0;
+  --red: #ff4d6d;
 }
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:"Inter",sans-serif;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--text);
+  position: relative;
+  overflow: hidden;
 }
 
-body{
-min-height:100vh;
-background:
-radial-gradient(circle at top left, rgba(79,124,255,0.18), transparent 25%),
-linear-gradient(180deg,var(--bg),var(--bg-soft));
-display:flex;
-align-items:center;
-justify-content:center;
-padding:24px;
-color:var(--text);
+/* ── background blobs ── */
+body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,127,255,0.12), transparent 70%);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.07), transparent 70%);
+  pointer-events: none;
 }
 
-/* =========================
-   LAYOUT
-========================= */
-
-.page{
-width:100%;
-max-width:1150px;
-display:grid;
-grid-template-columns:1.1fr 0.9fr;
-background:var(--panel);
-border-radius:28px;
-overflow:hidden;
-box-shadow:var(--shadow);
-min-height:700px;
-border:1px solid var(--line);
+/* ── grid texture ── */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(61,127,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,127,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
 }
 
-/* =========================
-   LEFT PANEL
-========================= */
-
-.left{
-background:linear-gradient(160deg,#0b1524 0%, #101d31 50%, #1d3b80 100%);
-color:white;
-padding:48px;
-display:flex;
-flex-direction:column;
-justify-content:center;
+/* ── LAYOUT ── */
+.page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1040px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  min-height: 620px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line2);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(61,127,255,0.08);
 }
 
-.logo{
-font-size:20px;
-font-weight:800;
-margin-bottom:24px;
-letter-spacing:1px;
+/* ── LEFT ── */
+.left {
+  background: linear-gradient(160deg, #08132a 0%, #0d1e3a 50%, #0f2a60 100%);
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
 }
 
-.left h1{
-font-size:42px;
-margin-bottom:18px;
-line-height:1.2;
+.left::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,127,255,0.2), transparent 70%);
+  pointer-events: none;
+}
+.left::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.1), transparent 70%);
+  pointer-events: none;
 }
 
-.left p{
-color:#cfe0ff;
-font-size:15px;
-line-height:1.7;
+.left-top { position: relative; z-index: 1; }
+.left-bottom { position: relative; z-index: 1; }
+
+/* logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 48px;
 }
 
-/* =========================
-   RIGHT PANEL
-========================= */
+.logo-mark {
+  width: 48px; height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1a3a7a, #2d5fc4);
+  border: 1px solid rgba(61,127,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 24px rgba(61,127,255,0.35);
+  position: relative;
+  overflow: hidden;
+}
+.logo-mark::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 60%);
+}
+.logo-mark span {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 800;
+  color: #fff;
+  position: relative; z-index: 1;
+  letter-spacing: 0.05em;
+}
+.logo-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.logo-name em { color: var(--cyan); font-style: normal; }
 
-.right{
-padding:40px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:linear-gradient(180deg,var(--panel),var(--panel-2));
+.left h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  color: #fff;
 }
 
-.card{
-width:100%;
-max-width:420px;
+.left h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.card h2{
-font-size:30px;
-margin-bottom:10px;
-font-weight:800;
+.left p {
+  font-size: 14.5px;
+  color: #7ea8d4;
+  line-height: 1.75;
+  max-width: 360px;
+  margin-bottom: 40px;
 }
 
-.subtitle{
-color:var(--muted);
-margin-bottom:26px;
+/* feature chips */
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* =========================
-   FORM
-========================= */
-
-.form{
-display:grid;
-gap:14px;
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  color: #9bbde0;
 }
 
-.input{
-width:100%;
-border:1px solid var(--line);
-border-radius:14px;
-padding:13px;
-font-size:14px;
-background:rgba(255,255,255,0.03);
-color:white;
+.feat-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
-.input::placeholder{
-color:#8fa6cc;
+/* security badge */
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(0,229,160,0.08);
+  border: 1px solid rgba(0,229,160,0.2);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.03em;
 }
 
-.input:focus{
-outline:none;
-border-color:#4f7cff;
-box-shadow:0 0 0 4px rgba(79,124,255,0.15);
+/* ── RIGHT ── */
+.right {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+  padding: 48px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* =========================
-   BUTTON
-========================= */
+.card { width: 100%; max-width: 380px; }
 
-.btn{
-width:100%;
-border:none;
-border-radius:14px;
-padding:14px;
-font-size:15px;
-font-weight:700;
-cursor:pointer;
-background:linear-gradient(135deg,var(--primary),#6aa6ff);
-color:white;
-transition:0.2s;
+.card-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(61,127,255,0.1);
+  border: 1px solid rgba(61,127,255,0.2);
+  color: #7eb8ff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 20px;
 }
 
-.btn:hover{
-background:linear-gradient(135deg,var(--primary-dark),#5d98ff);
-transform:translateY(-1px);
+.card h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
 }
 
-/* =========================
-   LINK
-========================= */
-
-.link{
-text-align:center;
-margin-top:16px;
-font-size:14px;
-color:var(--muted);
+.card-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
 }
 
-.link a{
-color:#6aa6ff;
-text-decoration:none;
-font-weight:700;
+/* form */
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 12px; font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-/* =========================
-   MESSAGE
-========================= */
-
-.msg{
-margin-top:14px;
-padding:12px;
-border-radius:12px;
-display:none;
-font-size:14px;
+.inp {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+  padding: 13px 16px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  outline: none;
+  transition: all 0.18s;
+  width: 100%;
+}
+.inp::placeholder { color: #4a6880; }
+.inp:focus {
+  border-color: rgba(61,127,255,0.5);
+  box-shadow: 0 0 0 3px rgba(61,127,255,0.12);
+  background: rgba(61,127,255,0.04);
 }
 
-.msg.show{
-display:block;
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--blue), #5e9fff);
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: 4px;
+  box-shadow: 0 8px 24px rgba(61,127,255,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.btn-submit::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 60%);
+}
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(61,127,255,0.4); }
+.btn-submit:active { transform: translateY(0); }
+
+/* divider */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 6px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--line);
 }
 
-.msg.ok{
-background:rgba(24,195,126,0.15);
-color:#9ff0cd;
+/* links */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  margin-top: 20px;
 }
 
-.msg.err{
-background:rgba(239,91,91,0.15);
-color:#ffbcbc;
+.link-text {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.link-text a {
+  color: #5e9fff;
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.15s;
+}
+.link-text a:hover { color: var(--cyan); }
+
+.link-forgot {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+  display: inline-block;
+}
+.link-forgot:hover { color: var(--text); }
+
+/* alert */
+.alert {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: none;
+  margin-top: 14px;
+  border: 1px solid transparent;
+}
+.alert.show { display: block; }
+.alert-ok { background: rgba(0,229,160,0.1); color: #5effd0; border-color: rgba(0,229,160,0.2); }
+.alert-err { background: rgba(255,77,109,0.1); color: #ffa0b4; border-color: rgba(255,77,109,0.2); }
+.alert-info { background: rgba(61,127,255,0.1); color: #7eb8ff; border-color: rgba(61,127,255,0.2); }
+.alert a { color: inherit; font-weight: 700; }
+
+/* responsive */
+@media (max-width: 860px) {
+  .page { grid-template-columns: 1fr; max-width: 480px; }
+  .left { padding: 36px 32px; text-align: center; }
+  .left h1 { font-size: 28px; }
+  .left p { max-width: 100%; }
+  .features { align-items: flex-start; }
+  .logo { justify-content: center; }
 }
 
-.msg.info{
-background:rgba(79,124,255,0.15);
-color:#cfe0ff;
+@media (max-width: 500px) {
+  body { padding: 16px; }
+  .right { padding: 32px 24px; }
+  .left { padding: 28px 24px; }
 }
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width:900px){
-
-.page{
-grid-template-columns:1fr;
-}
-
-.left{
-padding:30px;
-text-align:center;
-}
-
-.right{
-padding:30px;
-}
-
-}
-
 </style>
 </head>
-
 <body>
+
+<div class="bg-grid"></div>
 
 <div class="page">
 
-<div class="left">
+  <!-- ── LEFT ── -->
+  <div class="left">
+    <div class="left-top">
+      <div class="logo">
+        <div class="logo-mark"><span>IR</span></div>
+        <div class="logo-name">IRIS<em>BANK</em></div>
+      </div>
 
-<div class="logo">IRISBANK</div>
+      <h1>Votre banque,<br><em>réinventée</em>.</h1>
+      <p>Gérez vos comptes, effectuez des virements et suivez vos finances en temps réel depuis un espace moderne et sécurisé.</p>
 
-<h1>Bienvenue sur votre espace bancaire</h1>
+      <div class="features">
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(61,127,255,0.15)">🏦</div>
+          Comptes courants, Livret A et PEL
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(0,229,160,0.12)">🔁</div>
+          Virements instantanés entre comptes
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(167,139,250,0.12)">🤖</div>
+          Assistant IA intégré pour vos finances
+        </div>
+        <div class="feat">
+          <div class="feat-icon" style="background:rgba(251,191,36,0.12)">📊</div>
+          Budget & rapports PDF personnalisés
+        </div>
+      </div>
+    </div>
 
-<p>
-Connectez-vous pour accéder à vos comptes, effectuer des virements et gérer vos opérations bancaires en toute sécurité.
-</p>
+    <div class="left-bottom" style="margin-top:40px">
+      <div class="security-badge">
+        🔐 Connexion chiffrée · CSRF protégé
+      </div>
+    </div>
+  </div>
 
-</div>
+  <!-- ── RIGHT ── -->
+  <div class="right">
+    <div class="card">
 
-<div class="right">
+      <div class="card-eyebrow">● Espace client</div>
+      <h2>Connexion</h2>
+      <p class="card-sub">Accédez à votre espace client ou administrateur.</p>
 
-<div class="card">
+      <form id="loginForm" class="form">
+        <div class="field">
+          <label>Adresse email</label>
+          <input class="inp" type="email" id="email" placeholder="vous@exemple.fr" required autocomplete="email"/>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input class="inp" type="password" id="password" placeholder="••••••••" required autocomplete="current-password"/>
+        </div>
 
-<h2>Connexion</h2>
-<p class="subtitle">Accédez à votre espace client ou administrateur.</p>
+        <div style="text-align:right;margin-top:-4px">
+          <a href="/reset-password" class="link-forgot">Mot de passe oublié ?</a>
+        </div>
 
-<form id="loginForm" class="form">
+        <button class="btn-submit" type="submit">Se connecter →</button>
+      </form>
 
-<input class="input" type="email" id="email" placeholder="Email" required>
-<input class="input" type="password" id="password" placeholder="Mot de passe" required>
+      <div id="message" class="alert"></div>
 
-<button class="btn" type="submit">Se connecter</button>
+      <div class="divider" style="margin-top:24px">ou</div>
 
-</form>
+      <div class="links">
+        <div class="link-text">
+          Pas encore de compte ? <a href="/register">Créer un compte</a>
+        </div>
+      </div>
 
-<div class="link">
-Pas encore de compte ?
-<a href="/register">Créer un compte</a>
-</div>
-
-<div class="link" style="margin-top:8px;">
-<a href="/reset-password">Mot de passe oublié ?</a>
-</div>
-
-<div id="message" class="msg"></div>
-
-</div>
-
-</div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-
 let csrfToken = "";
 
-async function loadCsrfToken(){
-
-const res = await fetch("/api/csrf-token", {
-credentials: "include"
-});
-const data = await res.json();
-
-csrfToken = data.csrfToken;
-
+async function loadCsrfToken() {
+  const res = await fetch("/api/csrf-token", { credentials: "include" });
+  const data = await res.json();
+  csrfToken = data.csrfToken;
 }
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const msg = document.getElementById("message");
+  const btn = e.target.querySelector("button");
 
-e.preventDefault();
+  msg.className = "alert show alert-info";
+  msg.textContent = "Connexion en cours...";
+  btn.disabled = true;
+  btn.textContent = "Connexion...";
 
-const email = document.getElementById("email").value.trim();
-const password = document.getElementById("password").value;
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "CSRF-Token": csrfToken },
+      credentials: "include",
+      body: JSON.stringify({ email, password })
+    });
 
-const msg = document.getElementById("message");
+    const data = await response.json();
 
-msg.className = "msg show info";
-msg.textContent = "Connexion...";
+    if (!response.ok) {
+      msg.className = "alert show alert-err";
+      if (data.requiresVerification) {
+        msg.innerHTML = `<strong>Email non vérifié</strong><br>Cliquez sur le lien d'activation reçu par email.<br><br><a href="/verify-email">Renvoyer l'email de confirmation →</a>`;
+      } else {
+        msg.textContent = data.error || "Identifiants incorrects";
+      }
+      btn.disabled = false;
+      btn.textContent = "Se connecter →";
+      return;
+    }
 
-try{
+    msg.className = "alert show alert-ok";
+    msg.textContent = "✅ Connexion réussie, redirection...";
 
-const response = await fetch("/api/auth/login",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"CSRF-Token":csrfToken
-},
-credentials:"include",
-body:JSON.stringify({email,password})
-});
+    const isAdmin =
+      data?.is_admin === 1 || data?.is_admin === true ||
+      data?.user?.is_admin === 1 || data?.user?.is_admin === true;
 
-const data = await response.json();
+    setTimeout(() => {
+      window.location.href = isAdmin ? "/admin" : "/dashboard";
+    }, 600);
 
-if(!response.ok){
-
-msg.className = "msg show err";
-
-// 📧 Message spécial si email non vérifié
-if(data.requiresVerification){
-msg.innerHTML = `
-  <strong>Email non vérifié</strong><br>
-  Veuillez d'abord cliquer sur le lien d'activation reçu par email.<br>
-  <br>
-  <small style="color: #ccc;">Vous n'avez pas reçu l'email?</small><br>
-   <a href="/verify-email" style="color: #fff; text-decoration: underline; font-weight: 600; cursor: pointer;">Renvoyer l'email de confirmation</a>
-`;
-} else {
-msg.textContent = data.error || "Erreur connexion";
-}
-
-return;
-
-}
-
-msg.className = "msg show ok";
-msg.textContent = "Connexion réussie";
-
-const isAdmin =
-data?.is_admin === 1 ||
-data?.is_admin === true ||
-data?.user?.is_admin === 1 ||
-data?.user?.is_admin === true;
-
-setTimeout(() => {
-
-if(isAdmin){
-
-window.location.href = "/admin";
-
-}else{
-
-window.location.href = "/dashboard";
-
-}
-
-},600);
-
-}catch(err){
-
-msg.className = "msg show err";
-msg.textContent = "Erreur serveur";
-
-}
-
+  } catch (err) {
+    msg.className = "alert show alert-err";
+    msg.textContent = "Erreur serveur, veuillez réessayer.";
+    btn.disabled = false;
+    btn.textContent = "Se connecter →";
+  }
 });
 
 loadCsrfToken();
-
 </script>
 
 </body>
