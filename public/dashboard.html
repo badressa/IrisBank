@@ -316,6 +316,168 @@ select{
   transform:translateY(-1px);
 }
 
+.notification-wrapper{
+  position:relative;
+}
+
+.notification-bell{
+  position:relative;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(15,27,45,0.88);
+  color:#e4eeff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:var(--shadow-soft);
+  transition:0.18s ease;
+}
+
+.notification-bell:hover{
+  background:rgba(23,38,61,0.95);
+  transform:translateY(-1px);
+}
+
+.notification-bell svg{
+  width:20px;
+  height:20px;
+  fill:currentColor;
+}
+
+.notification-count{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:20px;
+  height:20px;
+  border-radius:999px;
+  padding:0 6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, #ff6a6a, #ef5b5b);
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  box-shadow:0 10px 22px rgba(239,91,91,0.28);
+}
+
+.notification-panel{
+  position:absolute;
+  top:56px;
+  right:0;
+  width:360px;
+  max-height:390px;
+  overflow:auto;
+  display:none;
+  z-index:80;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(15,27,45,0.98), rgba(11,22,39,0.98));
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+
+.notification-panel.show{
+  display:block;
+}
+
+.notification-panel h3{
+  margin:0 0 10px;
+  font-size:17px;
+}
+
+.notification-item{
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.03);
+  padding:11px 12px;
+  margin-bottom:9px;
+}
+
+.notification-item:last-child{
+  margin-bottom:0;
+}
+
+.notification-item strong{
+  display:block;
+  line-height:1.45;
+  font-size:13px;
+  color:#ecf3ff;
+}
+
+.notification-item small{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.notif-empty{
+  color:var(--muted);
+  font-size:13px;
+  padding:8px 2px;
+}
+
+.alert-stack{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:200;
+  display:grid;
+  gap:10px;
+  width:min(390px, calc(100vw - 24px));
+}
+
+.alert-toast{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-items:flex-start;
+  border-radius:14px;
+  padding:12px 13px;
+  border:1px solid var(--line);
+  background:rgba(11,22,39,0.98);
+  box-shadow:var(--shadow-soft);
+  transform:translateY(-8px);
+  opacity:0;
+  transition:0.2s ease;
+}
+
+.alert-toast.show{
+  transform:translateY(0);
+  opacity:1;
+}
+
+.alert-toast .toast-icon{
+  font-size:16px;
+  line-height:1;
+}
+
+.alert-toast .toast-text{
+  font-size:13px;
+  line-height:1.45;
+  color:#e9f2ff;
+}
+
+.alert-toast.success{
+  border-color:rgba(24,195,126,0.28);
+  background:linear-gradient(135deg, rgba(24,195,126,0.20), rgba(11,22,39,0.96));
+}
+
+.alert-toast.warning{
+  border-color:rgba(245,185,66,0.30);
+  background:linear-gradient(135deg, rgba(245,185,66,0.22), rgba(11,22,39,0.96));
+}
+
+.alert-toast.info{
+  border-color:rgba(79,124,255,0.30);
+  background:linear-gradient(135deg, rgba(79,124,255,0.22), rgba(11,22,39,0.96));
+}
+
 /* HERO STRIP */
 
 .hero-strip{
@@ -676,6 +838,56 @@ select{
 
 /* HISTORY */
 
+.history-filters{
+  margin-bottom:18px;
+}
+
+.filter-row{
+  display:flex;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+.filter-group{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.filter-label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+}
+
+.inputx-sm{
+  padding:8px 12px !important;
+  font-size:13px !important;
+  border-radius:10px !important;
+  min-width:120px;
+}
+
+.btnx-sm{
+  padding:8px 16px !important;
+  font-size:13px !important;
+  border-radius:10px !important;
+  align-self:flex-end;
+}
+
+.btn-ghost{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--line-strong);
+  color:var(--muted);
+}
+
+.btn-ghost:hover{
+  background:rgba(255,255,255,0.09);
+  color:var(--text);
+}
+
 .history-list{
   list-style:none;
   margin:0;
@@ -974,6 +1186,20 @@ select{
       </div>
 
       <div class="topbar-right">
+        <div class="notification-wrapper">
+          <button class="notification-bell" type="button" onclick="toggleNotificationPanel()" aria-label="Notifications">
+            <svg viewBox="0 -960 960 960" aria-hidden="true">
+              <path d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160Zm320-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z"/>
+            </svg>
+            <span class="notification-count" id="notifCount">0</span>
+          </button>
+
+          <div class="notification-panel" id="notificationPanel">
+            <h3>Notifications</h3>
+            <div id="notificationPanelList" class="notif-empty">Aucune notification</div>
+          </div>
+        </div>
+
         <div id="who" class="user-pill">
           <span class="status-dot"></span>
           <span>Connecté</span>
@@ -1164,6 +1390,29 @@ select{
       </div>
 
       <div class="panel-body">
+        <div class="history-filters" id="historyFilters" style="display:none;">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label">Type</label>
+              <select id="filterType" class="inputx inputx-sm">
+                <option value="">Tous</option>
+                <option value="DEPOT">Dépôt</option>
+                <option value="RETRAIT">Retrait</option>
+                <option value="VIREMENT">Virement</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Du</label>
+              <input type="date" id="filterDateFrom" class="inputx inputx-sm"/>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Au</label>
+              <input type="date" id="filterDateTo" class="inputx inputx-sm"/>
+            </div>
+            <button type="button" class="btnx btn-primary btnx-sm" id="applyFiltersBtn">Filtrer</button>
+            <button type="button" class="btnx btn-ghost btnx-sm" id="resetFiltersBtn">Réinitialiser</button>
+          </div>
+        </div>
         <ul id="transactions" class="history-list">
           <li class="small-muted">Aucun compte sélectionné.</li>
         </ul>
@@ -1256,6 +1505,9 @@ select{
 <script>
 let selectedAccountId = null;
 let csrfToken = "";
+let notificationsData = [];
+
+const IMPORTANT_TRANSACTION_THRESHOLD = 1000;
 
 function goProfile() {
   window.location.href = "/profile";
@@ -1297,6 +1549,120 @@ function setMsg(el, ok, text, mode = null) {
 function clearMsg(el) {
   el.className = "msg";
   el.textContent = "";
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getAlertContainer() {
+  let container = document.getElementById("alertStack");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "alertStack";
+    container.className = "alert-stack";
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
+function pushVisualAlert(text, kind = "info", icon = "🔔") {
+  const container = getAlertContainer();
+  const toast = document.createElement("div");
+  toast.className = "alert-toast " + kind;
+  toast.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-text">${escapeHtml(text)}</div>
+  `;
+
+  container.prepend(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add("show");
+  });
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => {
+      toast.remove();
+    }, 220);
+  }, 4200);
+}
+
+function updateNotifCount() {
+  const count = notificationsData.length;
+  const badge = document.getElementById("notifCount");
+  badge.textContent = count > 99 ? "99+" : String(count);
+}
+
+function renderNotificationPanel() {
+  const list = document.getElementById("notificationPanelList");
+  const items = notificationsData.slice(0, 12);
+
+  if (!items.length) {
+    list.className = "notif-empty";
+    list.textContent = "Aucune notification";
+    return;
+  }
+
+  list.className = "";
+  list.innerHTML = items.map((n) => {
+    return `
+      <div class="notification-item">
+        <strong>${escapeHtml(n.message)}</strong>
+        <small>${new Date(n.created_at).toLocaleString()}</small>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleNotificationPanel() {
+  document.getElementById("notificationPanel").classList.toggle("show");
+}
+
+window.addEventListener("click", (e) => {
+  const panel = document.getElementById("notificationPanel");
+  const wrapper = document.querySelector(".notification-wrapper");
+
+  if (panel && wrapper && !wrapper.contains(e.target)) {
+    panel.classList.remove("show");
+  }
+});
+
+function addLocalNotification(message, type = "INFO") {
+  notificationsData.unshift({
+    message,
+    type,
+    created_at: new Date().toISOString()
+  });
+  updateNotifCount();
+  renderNotificationPanel();
+}
+
+async function loadNotifications() {
+  const { res, data } = await api("/api/notifications", "GET");
+  if (!res.ok) {
+    return;
+  }
+
+  notificationsData = Array.isArray(data.notifications) ? data.notifications : [];
+  updateNotifCount();
+  renderNotificationPanel();
+}
+
+function notifyImportantTransaction(amount, label) {
+  if (amount < IMPORTANT_TRANSACTION_THRESHOLD) {
+    return;
+  }
+
+  const text = `Transaction importante détectée: ${label} de ${amount.toFixed(2)}€`;
+  addLocalNotification(text, "IMPORTANT");
+  pushVisualAlert(text, "warning", "⚠️");
 }
 
 function updateSelectedAccountLabel(value) {
@@ -1439,7 +1805,20 @@ async function loadTransactions(accountId) {
   clearMsg(msg);
   list.innerHTML = "<li class='small-muted'>Chargement...</li>";
 
-  const { res, data } = await api("/api/transactions/history/" + accountId, "GET");
+  // Show filter bar now that an account is selected
+  document.getElementById("historyFilters").style.display = "block";
+
+  const type = document.getElementById("filterType").value;
+  const dateFrom = document.getElementById("filterDateFrom").value;
+  const dateTo = document.getElementById("filterDateTo").value;
+
+  const params = new URLSearchParams();
+  if (type) params.append("type", type);
+  if (dateFrom) params.append("dateFrom", dateFrom);
+  if (dateTo) params.append("dateTo", dateTo);
+
+  const qs = params.toString() ? "?" + params.toString() : "";
+  const { res, data } = await api("/api/transactions/history/" + accountId + qs, "GET");
 
   if (!res.ok) {
     list.innerHTML = "";
@@ -1469,6 +1848,17 @@ async function loadTransactions(accountId) {
   });
 }
 
+document.getElementById("applyFiltersBtn").addEventListener("click", () => {
+  if (selectedAccountId) loadTransactions(selectedAccountId);
+});
+
+document.getElementById("resetFiltersBtn").addEventListener("click", () => {
+  document.getElementById("filterType").value = "";
+  document.getElementById("filterDateFrom").value = "";
+  document.getElementById("filterDateTo").value = "";
+  if (selectedAccountId) loadTransactions(selectedAccountId);
+});
+
 document.getElementById("createBtn").addEventListener("click", async () => {
   const type = document.getElementById("newType").value;
   const msg = document.getElementById("msgCreate");
@@ -1490,6 +1880,10 @@ document.getElementById("depositBtn").addEventListener("click", async () => {
   const { res, data } = await api("/api/transactions/deposit", "POST", { accountId, amount });
   if (res.ok) {
     setMsg(msg, true, "Dépôt OK");
+    addLocalNotification(`Dépôt réussi de ${amount.toFixed(2)}€`, "DEPOSIT");
+    pushVisualAlert(`Dépôt réussi de ${amount.toFixed(2)}€`, "success", "✅");
+    notifyImportantTransaction(amount, "dépôt");
+    await loadNotifications();
     loadAccounts();
     loadTransactions(accountId);
   } else {
@@ -1505,6 +1899,10 @@ document.getElementById("withdrawBtn").addEventListener("click", async () => {
   const { res, data } = await api("/api/transactions/withdraw", "POST", { accountId, amount });
   if (res.ok) {
     setMsg(msg, true, "Retrait OK");
+    addLocalNotification(`Retrait réussi de ${amount.toFixed(2)}€`, "WITHDRAW");
+    pushVisualAlert(`Retrait réussi de ${amount.toFixed(2)}€`, "success", "✅");
+    notifyImportantTransaction(amount, "retrait");
+    await loadNotifications();
     loadAccounts();
     loadTransactions(accountId);
   } else {
@@ -1533,6 +1931,10 @@ document.getElementById("transferBtn").addEventListener("click", async () => {
 
   if (res.ok) {
     setMsg(msg, true, "Virement effectué");
+    addLocalNotification(`Virement réussi de ${amount.toFixed(2)}€`, "TRANSFER");
+    pushVisualAlert(`Virement réussi de ${amount.toFixed(2)}€`, "success", "✅");
+    notifyImportantTransaction(amount, "virement");
+    await loadNotifications();
     loadAccounts();
     loadTransactions(fromAccountId);
   } else {
@@ -1608,13 +2010,6 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   window.location.href = "/login";
 });
 
-(async () => {
-  await loadCsrfToken();
-  await loadMe();
-  await loadAccounts();
-  updateSelectedAccountLabel(null);
-})();
-
 document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
   const accountId = Number(document.getElementById("opAccountId").value);
   const msg = document.getElementById("msgOp");
@@ -1687,7 +2082,9 @@ document.getElementById("saveContractBtn").addEventListener("click", async () =>
 async function checkSalary() {
     const { res, data } = await api("/api/contracts/check-and-pay", "GET");
     if(res.ok && data.paid) {
-        alert("💰 Bonne nouvelle ! Votre salaire de " + data.amount + "€ a été versé sur votre compte.");
+    const salaryText = "Bonne nouvelle: votre salaire de " + data.amount + "€ a ete verse sur votre compte.";
+    addLocalNotification(salaryText, "SALARY");
+    pushVisualAlert(salaryText, "info", "💰");
         loadAccounts(); // Rafraichir l'affichage du solde
     }
 }
@@ -1696,6 +2093,7 @@ async function checkSalary() {
 (async () => {
   await loadCsrfToken();
   await loadMe();
+  await loadNotifications();
   await loadAccounts();
   await checkSalary(); // <--- AJOUTE ÇA ICI
   updateSelectedAccountLabel(null);

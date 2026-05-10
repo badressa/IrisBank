@@ -96,6 +96,11 @@ router.post(
 router.get("/me", authController.me);
 
 // ========================================
+// HISTORIQUE CONNEXIONS
+// ========================================
+router.get("/login-history", authController.loginHistory);
+
+// ========================================
 // LOGOUT
 // ========================================
 router.post("/logout", authController.logout);

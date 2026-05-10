@@ -114,6 +114,79 @@ body{
   background:var(--panel);
   border-radius:var(--radius);
   padding:22px;
+  margin-bottom:20px;
+}
+
+/* LOGIN HISTORY */
+
+.lh-list{
+  list-style:none;
+  margin:12px 0 0;
+  padding:0;
+  display:grid;
+  gap:10px;
+}
+
+.lh-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:12px 16px;
+}
+
+.lh-icon{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:rgba(79,124,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.lh-info{
+  flex:1;
+  min-width:0;
+}
+
+.lh-main{
+  font-size:13px;
+  font-weight:700;
+  color:#eef4ff;
+}
+
+.lh-sub{
+  font-size:12px;
+  color:#9db0cc;
+  margin-top:3px;
+}
+
+.lh-date{
+  font-size:12px;
+  color:#9db0cc;
+  white-space:nowrap;
+}
+
+.lh-empty{
+  font-size:13px;
+  color:#9db0cc;
+  margin-top:10px;
+}
+
+.badge-device{
+  display:inline-block;
+  font-size:11px;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(79,124,255,0.18);
+  color:#cfe0ff;
+  margin-left:6px;
 }
 
 .hd h2{
@@ -211,6 +284,19 @@ body{
         </button>
 
       </form>
+    </div>
+  </div>
+
+  <!-- LOGIN HISTORY CARD -->
+  <div class="card">
+    <div class="hd">
+      <h2>Historique des connexions</h2>
+      <div class="small">Les 50 dernières connexions à ton compte</div>
+    </div>
+    <div class="bd">
+      <ul class="lh-list" id="lhList">
+        <li class="lh-empty">Chargement...</li>
+      </ul>
     </div>
   </div>
 
@@ -322,11 +408,59 @@ async function logout(){
   window.location.href = "/login";
 }
 
+// DEVICE ICON
+function deviceIcon(type){
+  if(!type) return '💻';
+  const t = type.toLowerCase();
+  if(t === 'ios') return '📱';
+  if(t === 'android') return '📱';
+  if(t === 'mac') return '🖥️';
+  if(t === 'pc') return '💻';
+  return '🌐';
+}
+
+// LOGIN HISTORY
+async function loadLoginHistory(){
+  const list = document.getElementById("lhList");
+  const {res, data} = await api("/api/auth/login-history");
+
+  if(!res.ok){
+    list.innerHTML = '<li class="lh-empty">Impossible de charger l\'historique.</li>';
+    return;
+  }
+
+  const rows = data.history || [];
+
+  if(rows.length === 0){
+    list.innerHTML = '<li class="lh-empty">Aucune connexion enregistrée.</li>';
+    return;
+  }
+
+  list.innerHTML = "";
+  rows.forEach(r => {
+    const li = document.createElement("li");
+    li.className = "lh-item";
+    const icon = deviceIcon(r.device_type);
+    const date = new Date(r.created_at).toLocaleString('fr-FR');
+    const badge = r.device_type ? `<span class="badge-device">${r.device_type}</span>` : '';
+    li.innerHTML = `
+      <div class="lh-icon">${icon}</div>
+      <div class="lh-info">
+        <div class="lh-main">${r.os || 'OS inconnu'} — ${r.browser || 'Navigateur inconnu'}${badge}</div>
+        <div class="lh-sub">IP : ${r.ip_address || '—'}</div>
+      </div>
+      <div class="lh-date">${date}</div>
+    `;
+    list.appendChild(li);
+  });
+}
+
 // INIT
 (async()=>{
   await loadCsrf();
   await loadUser();
   await loadProfile();
+  await loadLoginHistory();
 })();
 </script>
 

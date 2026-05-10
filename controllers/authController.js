@@ -5,6 +5,36 @@ const db = require("../config/db");
 const emailService = require("../services/emailService");
 
 // ==============================
+// PARSE USER-AGENT
+// ==============================
+function parseUserAgent(ua) {
+  if (!ua) return { device_type: "Inconnu", os: "Inconnu", browser: "Inconnu" };
+
+  let device_type = "PC";
+  let os = "Inconnu";
+  let browser = "Inconnu";
+
+  // Device / OS
+  if (/iphone/i.test(ua)) { device_type = "iOS"; os = "iOS"; }
+  else if (/ipad/i.test(ua)) { device_type = "iOS"; os = "iPadOS"; }
+  else if (/android/i.test(ua) && /mobile/i.test(ua)) { device_type = "Android"; os = "Android"; }
+  else if (/android/i.test(ua)) { device_type = "Android"; os = "Android"; }
+  else if (/windows/i.test(ua)) { device_type = "PC"; os = "Windows"; }
+  else if (/macintosh|mac os x/i.test(ua)) { device_type = "Mac"; os = "macOS"; }
+  else if (/linux/i.test(ua)) { device_type = "PC"; os = "Linux"; }
+
+  // Browser
+  if (/edg\//i.test(ua)) browser = "Edge";
+  else if (/opr\//i.test(ua) || /opera/i.test(ua)) browser = "Opera";
+  else if (/chrome\//i.test(ua) && !/chromium/i.test(ua)) browser = "Chrome";
+  else if (/firefox\//i.test(ua)) browser = "Firefox";
+  else if (/safari\//i.test(ua)) browser = "Safari";
+  else if (/msie|trident/i.test(ua)) browser = "Internet Explorer";
+
+  return { device_type, os, browser };
+}
+
+// ==============================
 // REGISTER
 // ==============================
 exports.register = async (req, res) => {
@@ -155,6 +185,17 @@ exports.login = async (req, res) => {
       is_admin: user.is_admin
     };
 
+    // Enregistrer l'historique de connexion
+    const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "";
+    const ip = String(rawIp).split(",")[0].trim().slice(0, 45);
+    const ua = req.headers["user-agent"] || "";
+    const { device_type, os, browser } = parseUserAgent(ua);
+
+    db.query(
+      "INSERT INTO login_history (user_id, ip_address, user_agent, device_type, os, browser) VALUES (?, ?, ?, ?, ?, ?)",
+      [user.id, ip, ua.slice(0, 500), device_type, os, browser]
+    ).catch(err => console.error("LOGIN_HISTORY INSERT ERROR:", err));
+
     req.session.save((err) => {
       if (err) {
         console.error("SESSION SAVE ERROR:", err);
@@ -190,6 +231,31 @@ exports.me = (req, res) => {
   return res.json({
     user: req.session.user
   });
+};
+
+// ==============================
+// HISTORIQUE CONNEXIONS
+// ==============================
+exports.loginHistory = async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Non connecté" });
+  }
+
+  try {
+    const [rows] = await db.query(
+      `SELECT id, ip_address, device_type, os, browser, created_at
+       FROM login_history
+       WHERE user_id = ?
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [req.session.user.id]
+    );
+
+    return res.json({ history: rows });
+  } catch (err) {
+    console.error("LOGIN_HISTORY FETCH ERROR:", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
 };
 
 // ==============================

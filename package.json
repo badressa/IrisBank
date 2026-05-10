@@ -7,7 +7,11 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "test:email": "node test-email-config.js",
-    "ollama:info": "echo Set OLLAMA_URL and OLLAMA_MODEL then call POST /api/ai/budget-analysis"
+    "ollama:info": "echo Set OLLAMA_URL and OLLAMA_MODEL then call POST /api/ai/budget-analysis",
+    "security": "node security-dashboard.js",
+    "security:tail": "node security-dashboard.js --tail",
+    "security:critical": "node security-dashboard.js --severity=CRITICAL",
+    "security:stats": "node security-dashboard.js --stats"
   },
   "keywords": [],
   "author": "",

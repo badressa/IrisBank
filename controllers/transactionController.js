@@ -1,5 +1,7 @@
 const db = require("../config/db");
 
+const IMPORTANT_TRANSACTION_THRESHOLD = 1000;
+
 // ==============================
 // OUTILS VALIDATION
 // ==============================
@@ -74,6 +76,17 @@ exports.deposit = async (req, res) => {
         userId
       ]
     );
+
+    if (amountNumber >= IMPORTANT_TRANSACTION_THRESHOLD) {
+      await db.query(
+        "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
+        [
+          `⚠️ Transaction importante: dépôt de ${amountNumber.toFixed(2)}€`,
+          "IMPORTANT_TRANSACTION",
+          userId
+        ]
+      );
+    }
 
     return res.json({
       message: "Dépôt effectué"
@@ -155,6 +168,17 @@ exports.withdraw = async (req, res) => {
         userId
       ]
     );
+
+    if (amountNumber >= IMPORTANT_TRANSACTION_THRESHOLD) {
+      await db.query(
+        "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
+        [
+          `⚠️ Transaction importante: retrait de ${amountNumber.toFixed(2)}€`,
+          "IMPORTANT_TRANSACTION",
+          userId
+        ]
+      );
+    }
 
     return res.json({
       message: "Retrait effectué"
@@ -306,6 +330,17 @@ exports.transfer = async (req, res) => {
       );
     }
 
+    if (amountNumber >= IMPORTANT_TRANSACTION_THRESHOLD) {
+      await connection.query(
+        "INSERT INTO notifications (message, type, user_id) VALUES (?, ?, ?)",
+        [
+          `⚠️ Transaction importante: virement de ${amountNumber.toFixed(2)}€`,
+          "IMPORTANT_TRANSACTION",
+          userId
+        ]
+      );
+    }
+
     await connection.commit();
 
     return res.json({
@@ -333,6 +368,7 @@ exports.transfer = async (req, res) => {
 exports.history = async (req, res) => {
   const accountId = Number(req.params.accountId);
   const userId = req.session.user.id;
+  const { type, dateFrom, dateTo } = req.query;
 
   try {
     const [account] = await db.query(
@@ -346,11 +382,35 @@ exports.history = async (req, res) => {
       });
     }
 
+    const ALLOWED_TYPES = ["DEPOT", "RETRAIT", "VIREMENT"];
+
+    let conditions = "(compte_source_id = ? OR compte_destination_id = ?)";
+    const params = [accountId, accountId];
+
+    if (type && ALLOWED_TYPES.includes(type.toUpperCase())) {
+      conditions += " AND type = ?";
+      params.push(type.toUpperCase());
+    }
+
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      if (!isNaN(from.getTime())) {
+        conditions += " AND created_at >= ?";
+        params.push(from.toISOString().slice(0, 10) + " 00:00:00");
+      }
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo);
+      if (!isNaN(to.getTime())) {
+        conditions += " AND created_at <= ?";
+        params.push(to.toISOString().slice(0, 10) + " 23:59:59");
+      }
+    }
+
     const [rows] = await db.query(
-      `SELECT * FROM transactions
-       WHERE compte_source_id = ? OR compte_destination_id = ?
-       ORDER BY created_at DESC`,
-      [accountId, accountId]
+      `SELECT * FROM transactions WHERE ${conditions} ORDER BY created_at DESC`,
+      params
     );
 
     return res.json({
