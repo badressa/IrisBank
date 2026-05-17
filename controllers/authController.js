@@ -3,6 +3,16 @@ const { validationResult } = require("express-validator");
 const crypto = require("crypto");
 const db = require("../config/db");
 const emailService = require("../services/emailService");
+const securityLogger = require("../services/securityLogger");
+
+function sanitizeError(err) {
+  if (!err) return "unknown";
+  const code = err.code ? `code=${err.code}` : "";
+  const errno = typeof err.errno !== "undefined" ? ` errno=${err.errno}` : "";
+  const sqlState = err.sqlState ? ` sqlState=${err.sqlState}` : "";
+  const message = err.message ? ` message=${String(err.message).slice(0, 180)}` : "";
+  return `${code}${errno}${sqlState}${message}`.trim() || "unknown";
+}
 
 // ==============================
 // PARSE USER-AGENT
@@ -121,6 +131,9 @@ exports.register = async (req, res) => {
   } catch (err) {
     console.error("REGISTER ERROR :", err.message);
     console.error("Stack:", err.stack);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `register failed: ${sanitizeError(err)}`
+    });
 
     return res.status(500).json({
       error: "Erreur serveur",
@@ -152,6 +165,9 @@ exports.login = async (req, res) => {
     );
 
     if (users.length === 0) {
+      await securityLogger.log("LOGIN_FAILED", req, {
+        detail: `email not found: ${emailClean}`
+      });
       return res.status(401).json({
         error: "Utilisateur introuvable"
       });
@@ -171,6 +187,10 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password_hash);
 
     if (!match) {
+      await securityLogger.log("LOGIN_FAILED", req, {
+        userId: user.id,
+        detail: `invalid password for ${emailClean}`
+      });
       return res.status(401).json({
         error: "Mot de passe incorrect"
       });
@@ -194,7 +214,13 @@ exports.login = async (req, res) => {
     db.query(
       "INSERT INTO login_history (user_id, ip_address, user_agent, device_type, os, browser) VALUES (?, ?, ?, ?, ?, ?)",
       [user.id, ip, ua.slice(0, 500), device_type, os, browser]
-    ).catch(err => console.error("LOGIN_HISTORY INSERT ERROR:", err));
+    ).catch(err => {
+      console.error("LOGIN_HISTORY INSERT ERROR:", err);
+      securityLogger.log("DB_ERROR", req, {
+        userId: user.id,
+        detail: `login_history insert failed: ${sanitizeError(err)}`
+      });
+    });
 
     req.session.save((err) => {
       if (err) {
@@ -211,6 +237,9 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error("LOGIN ERROR :", err);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `login failed: ${sanitizeError(err)}`
+    });
 
     return res.status(500).json({
       error: "Erreur serveur"
@@ -254,6 +283,10 @@ exports.loginHistory = async (req, res) => {
     return res.json({ history: rows });
   } catch (err) {
     console.error("LOGIN_HISTORY FETCH ERROR:", err);
+    securityLogger.log("DB_ERROR", req, {
+      userId: req.session.user.id,
+      detail: `login_history fetch failed: ${sanitizeError(err)}`
+    });
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
@@ -350,6 +383,9 @@ exports.verifyEmail = async (req, res) => {
     });
   } catch (err) {
     console.error("VERIFY EMAIL ERROR:", err);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `verify_email failed: ${sanitizeError(err)}`
+    });
     return res.status(500).json({
       error: "Erreur serveur"
     });
@@ -414,6 +450,9 @@ exports.resendVerificationEmail = async (req, res) => {
     });
   } catch (err) {
     console.error("RESEND VERIFICATION ERROR:", err);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `resend_verification failed: ${sanitizeError(err)}`
+    });
     return res.status(500).json({
       error: "Erreur serveur"
     });
@@ -471,6 +510,9 @@ exports.forgotPassword = async (req, res) => {
     });
   } catch (err) {
     console.error("FORGOT PASSWORD ERROR:", err);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `forgot_password failed: ${sanitizeError(err)}`
+    });
     return res.status(500).json({
       error: "Erreur serveur"
     });
@@ -530,6 +572,9 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (err) {
     console.error("RESET PASSWORD ERROR:", err);
+    securityLogger.log("DB_ERROR", req, {
+      detail: `reset_password failed: ${sanitizeError(err)}`
+    });
     return res.status(500).json({
       error: "Erreur serveur"
     });

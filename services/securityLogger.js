@@ -38,6 +38,7 @@ const EVENTS = {
 
   // A09 – Logging & Monitoring
   SERVER_ERROR:         { severity: "MEDIUM",   label: "A09 Erreur serveur 500" },
+  DB_ERROR:             { severity: "HIGH",     label: "A09 Erreur base de données" },
 
   // Générique
   LOGIN_OK:             { severity: "LOW",      label: "Connexion réussie" },

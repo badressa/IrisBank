@@ -21,6 +21,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const contractRoutes = require('./routes/contracts');
 const pageRoutes = require('./routes/pageRoutes');
+const securityLogger = require("./services/securityLogger");
 
 const app = express();
 
@@ -113,12 +114,21 @@ app.use("/api/ai", csrfProtection, aiRoutes);
 // ===============================
 app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
+    securityLogger.log("CSRF_INVALID", req, { detail: "Token CSRF invalide ou absent" });
     return res.status(403).json({
       error: "Token CSRF invalide ou manquant"
     });
   }
 
   console.error("SERVER ERROR:", err);
+  securityLogger.log("SERVER_ERROR", req, {
+    detail: `${err?.code || "UNKNOWN"}: ${String(err?.message || "Erreur inconnue").slice(0, 180)}`
+  });
+  if (err?.code && /ECONNREFUSED|ER_|PROTOCOL_CONNECTION|ETIMEDOUT/i.test(err.code)) {
+    securityLogger.log("DB_ERROR", req, {
+      detail: `${err.code}: ${String(err?.message || "Erreur DB inconnue").slice(0, 180)}`
+    });
+  }
 
   res.status(500).json({
     error: "Erreur serveur"

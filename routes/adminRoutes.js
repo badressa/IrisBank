@@ -17,6 +17,8 @@ router.patch("/accounts/:id/block", requireAuth, requireAdmin, adminController.t
 
 // Statistiques
 router.get("/stats", requireAuth, requireAdmin, adminController.getStats);
+router.get("/security-overview", requireAuth, requireAdmin, adminController.getSecurityOverview);
+router.get("/fraud-analysis", requireAuth, requireAdmin, adminController.getFraudAnalysis);
 
 // Transactions
 router.get("/transactions", requireAuth, requireAdmin, adminController.getAllTransactions);
